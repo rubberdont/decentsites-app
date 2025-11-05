@@ -5,7 +5,7 @@ from datetime import datetime
 from modules.auth.security import get_current_user
 from modules.auth.models import UserCredentials
 from modules.profiles.repository import ProfileRepository
-from .models import AvailabilityCreate, AvailabilitySlot, DateAvailability
+from .models import AvailabilityCreate, AvailabilitySlot, DateAvailability, SlotCapacityUpdate
 from .repository import AvailabilityRepository
 
 
@@ -162,7 +162,7 @@ async def get_slots_for_date(
 @router.put("/slots/{slot_id}", response_model=AvailabilitySlot)
 async def update_slot_capacity(
     slot_id: str,
-    new_capacity: int,
+    update_data: SlotCapacityUpdate,
     current_user: UserCredentials = Depends(get_current_user),
 ):
     """
@@ -171,7 +171,7 @@ async def update_slot_capacity(
     
     Args:
         slot_id: Slot ID
-        new_capacity: New maximum capacity
+        update_data: Request body with new max_capacity
         current_user: Authenticated owner user
         
     Returns:
@@ -196,7 +196,7 @@ async def update_slot_capacity(
             detail="Only profile owner can update slots"
         )
     
-    AvailabilityRepository.update_slot_capacity(slot_id, new_capacity)
+    AvailabilityRepository.update_slot_capacity(slot_id, update_data.max_capacity)
     updated_slot = AvailabilityRepository.get_slot(slot_id)
     
     return AvailabilitySlot(**updated_slot)

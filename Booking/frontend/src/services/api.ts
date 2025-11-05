@@ -9,6 +9,18 @@ import type {
   Booking,
   BookingCreate,
   BookingRefResponse,
+  Service,
+  UserProfileUpdate,
+  ChangePasswordRequest,
+  ForgotPasswordRequest,
+  ResetPasswordRequest,
+  DashboardStats,
+  ProfileWithBookingCount,
+  ProfileAnalytics,
+  AvailabilitySlot,
+  AvailabilityCreate,
+  DateAvailability,
+  SlotCapacityUpdate,
 } from '@/types';
 
 const API_BASE = 'http://localhost:8000';
@@ -60,6 +72,18 @@ export const authAPI = {
   
   getCurrentUser: () => 
     api.get<User>('/auth/me'),
+  
+  updateProfile: (data: UserProfileUpdate) => 
+    api.put<User>('/auth/profile', data),
+  
+  changePassword: (data: ChangePasswordRequest) => 
+    api.put('/auth/password', data),
+  
+  forgotPassword: (data: ForgotPasswordRequest) => 
+    api.post('/auth/forgot-password', data),
+  
+  resetPassword: (data: ResetPasswordRequest) => 
+    api.post<TokenResponse>('/auth/reset-password', data),
 };
 
 // Profiles API
@@ -102,6 +126,38 @@ export const bookingsAPI = {
   
   cancel: (id: string) => 
     api.put<Booking>(`/bookings/${id}/cancel`),
+};
+
+// Owner API
+export const ownerAPI = {
+  getDashboard: () => 
+    api.get<DashboardStats>('/owners/dashboard'),
+  
+  getMyProfiles: (skip = 0, limit = 10) => 
+    api.get<ProfileWithBookingCount[]>(`/owners/my-profiles?skip=${skip}&limit=${limit}`),
+  
+  getProfileAnalytics: (profileId: string) => 
+    api.get<ProfileAnalytics>(`/owners/profiles/${profileId}/analytics`),
+};
+
+// Availability API
+export const availabilityAPI = {
+  createSlots: (profileId: string, data: AvailabilityCreate) => 
+    api.post<AvailabilitySlot[]>(`/availability/profiles/${profileId}/slots`, data),
+  
+  getAvailability: (profileId: string, startDate: string, endDate: string) => 
+    api.get<DateAvailability[]>(`/availability/profiles/${profileId}`, {
+      params: { start_date: startDate, end_date: endDate }
+    }),
+  
+  getSlotsForDate: (profileId: string, date: string) => 
+    api.get<DateAvailability>(`/availability/profiles/${profileId}/dates/${date}`),
+  
+  updateSlotCapacity: (slotId: string, data: SlotCapacityUpdate) => 
+    api.put<AvailabilitySlot>(`/availability/slots/${slotId}`, data),
+  
+  deleteSlot: (slotId: string) => 
+    api.delete(`/availability/slots/${slotId}`),
 };
 
 export default api;

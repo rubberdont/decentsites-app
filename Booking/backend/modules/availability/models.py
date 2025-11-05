@@ -28,6 +28,11 @@ class AvailabilityCreate(BaseModel):
     config: TimeSlotConfig
 
 
+class SlotCapacityUpdate(BaseModel):
+    """Request model for updating slot capacity."""
+    max_capacity: int = Field(..., gt=0, description="New maximum capacity")
+
+
 class DateAvailability(BaseModel):
     """Availability summary for a specific date."""
     date: datetime

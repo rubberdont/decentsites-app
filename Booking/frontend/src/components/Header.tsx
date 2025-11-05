@@ -4,7 +4,7 @@ import Link from 'next/link';
 import { useAuth } from '@/context/AuthContext';
 
 export default function Header() {
-  const { user, isAuthenticated, logout } = useAuth();
+  const { user, isAuthenticated, isOwner, logout } = useAuth();
 
   const handleLogout = () => {
     logout();
@@ -44,6 +44,14 @@ export default function Header() {
                   My Bookings
                 </Link>
               )}
+              {isAuthenticated && isOwner && (
+                <Link 
+                  href="/owner/dashboard" 
+                  className="text-gray-700 dark:text-gray-300 hover:text-blue-600 dark:hover:text-blue-400 transition-colors font-medium"
+                >
+                  Owner Dashboard
+                </Link>
+              )}
             </nav>
           </div>
 
@@ -54,6 +62,12 @@ export default function Header() {
                 <span className="text-sm text-gray-700 dark:text-gray-300">
                   Hello, {user?.name}
                 </span>
+                <Link
+                  href="/settings/profile"
+                  className="text-gray-700 dark:text-gray-300 hover:text-blue-600 dark:hover:text-blue-400 text-sm font-medium transition-colors"
+                >
+                  Settings
+                </Link>
                 <button
                   onClick={handleLogout}
                   className="bg-gray-100 dark:bg-gray-700 hover:bg-gray-200 dark:hover:bg-gray-600 text-gray-700 dark:text-gray-300 px-4 py-2 rounded-lg text-sm font-medium transition-colors"

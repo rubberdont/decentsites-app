@@ -3,12 +3,15 @@
 import React, { createContext, useContext, useEffect, useState, ReactNode } from 'react';
 import { authAPI } from '@/services/api';
 import { getToken, setToken, removeToken } from '@/utils/auth';
-import type { User, LoginRequest, RegisterRequest } from '@/types';
+import type { User, LoginRequest, RegisterRequest, UserRole } from '@/types';
 
 interface AuthContextType {
   user: User | null;
   token: string | null;
   isAuthenticated: boolean;
+  isOwner: boolean;
+  isAdmin: boolean;
+  hasRole: (role: UserRole) => boolean;
   login: (token: string) => Promise<void>;
   logout: () => void;
   register: (data: RegisterRequest) => Promise<void>;
@@ -75,10 +78,24 @@ export function AuthProvider({ children }: AuthProviderProps) {
     await login(loginResponse.data.access_token);
   };
 
+  // Role-based helper functions
+  const isOwner = user?.role === 'OWNER' || user?.role === 'ADMIN';
+  const isAdmin = user?.role === 'ADMIN';
+
+  const hasRole = (role: UserRole): boolean => {
+    if (!user) return false;
+    if (role === 'ADMIN') return user.role === 'ADMIN';
+    if (role === 'OWNER') return user.role === 'OWNER' || user.role === 'ADMIN';
+    return true; // USER role
+  };
+
   const value: AuthContextType = {
     user,
     token,
     isAuthenticated: !!token && !!user,
+    isOwner,
+    isAdmin,
+    hasRole,
     login,
     logout,
     register,
