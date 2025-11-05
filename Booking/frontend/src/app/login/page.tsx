@@ -4,7 +4,6 @@ import { useState, useEffect } from 'react';
 import { useRouter } from 'next/navigation';
 import Link from 'next/link';
 import { useAuth } from '@/context/AuthContext';
-import { authAPI } from '@/services/api';
 
 export default function LoginPage() {
   const [formData, setFormData] = useState({
@@ -39,13 +38,12 @@ export default function LoginPage() {
     setError('');
 
     try {
-      const response = await authAPI.login(formData);
-      await login(response.data.access_token);
+      await login(formData);
       router.push('/profiles');
-    } catch (error: any) {
+    } catch (error: unknown) {
       console.error('Login failed:', error);
       setError(
-        error.response?.data?.detail || 
+        (error as any).response?.data?.detail || 
         'Login failed. Please check your credentials and try again.'
       );
     } finally {

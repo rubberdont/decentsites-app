@@ -30,6 +30,7 @@ class MongoDBHelper:
         connection_string = connection_string or os.getenv("MONGODB_URI", "mongodb://localhost:27017")
         database_name = database_name or os.getenv("MONGODB_DATABASE", "booking_app")
         
+        print(f'MONGO URI: {connection_string}')
         try:
             self._client = MongoClient(connection_string, serverSelectionTimeoutMS=5000)
             self._client.admin.command("ping")

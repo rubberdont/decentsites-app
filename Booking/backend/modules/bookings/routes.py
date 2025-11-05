@@ -13,6 +13,8 @@ from .repository import BookingRepository
 from modules.auth.security import get_current_user
 from modules.auth.models import UserCredentials
 from modules.profiles.repository import ProfileRepository
+from modules.availability.repository import AvailabilityRepository
+from core.mongo_helper import mongo_db  # NEW
 
 
 router = APIRouter(prefix="/bookings", tags=["bookings"])
@@ -34,7 +36,7 @@ async def create_booking(
         BookingRefResponse with reference and ID
         
     Raises:
-        HTTPException: If profile/service not found
+        HTTPException: If profile/service not found or slot unavailable
     """
     # Verify profile exists
     profile = ProfileRepository.get_profile(booking_data.profile_id)
@@ -61,12 +63,45 @@ async def create_booking(
             detail="Booking date must be in the future"
         )
     
+    # NEW: Handle time slot if provided
+    slot_id = None
+    if booking_data.time_slot:
+        # Find the slot
+        date_normalized = booking_data.booking_date.replace(hour=0, minute=0, second=0, microsecond=0)
+        slot_doc = mongo_db.find_one(
+            "availability_slots",
+            {
+                "profile_id": booking_data.profile_id,
+                "date": date_normalized,
+                "time_slot": booking_data.time_slot
+            }
+        )
+        
+        if not slot_doc:
+            raise HTTPException(
+                status_code=status.HTTP_404_NOT_FOUND,
+                detail=f"Time slot {booking_data.time_slot} not found"
+            )
+        
+        slot_id = slot_doc["id"]
+        
+        # Check availability (capacity)
+        if slot_doc["booked_count"] >= slot_doc["max_capacity"]:
+            raise HTTPException(
+                status_code=status.HTTP_400_BAD_REQUEST,
+                detail=f"Time slot {booking_data.time_slot} is fully booked"
+            )
+        
+        # Increment booked count
+        AvailabilityRepository.increment_booked_count(slot_id)
+    
     # Create booking
     booking_doc = BookingRepository.create_booking(
         user_id=current_user.user_id,
         profile_id=booking_data.profile_id,
         booking_date=booking_data.booking_date,
         service_id=booking_data.service_id,
+        time_slot=booking_data.time_slot,  # NEW
         notes=booking_data.notes
     )
     
@@ -252,6 +287,21 @@ async def cancel_booking(
             status_code=status.HTTP_400_BAD_REQUEST,
             detail=f"Cannot cancel booking with status {booking['status']}"
         )
+    
+    # NEW: Decrement time slot booked count if there's a time slot
+    if booking.get("time_slot"):
+        date_normalized = booking["booking_date"].replace(hour=0, minute=0, second=0, microsecond=0)
+        slot_doc = mongo_db.find_one(
+            "availability_slots",
+            {
+                "profile_id": booking["profile_id"],
+                "date": date_normalized,
+                "time_slot": booking["time_slot"]
+            }
+        )
+        
+        if slot_doc:
+            AvailabilityRepository.decrement_booked_count(slot_doc["id"])
     
     BookingRepository.cancel_booking(booking_id)
     

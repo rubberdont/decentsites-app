@@ -7,6 +7,7 @@ import { useAuth } from '@/context/AuthContext';
 import ProtectedRoute from '@/components/ProtectedRoute';
 import Calendar from '@/components/Calendar';
 import BookingConfirmationModal from '@/components/BookingConfirmationModal';
+import TimeSlotPicker from '@/components/TimeSlotPicker';
 import type { BusinessProfile, Service, BookingCreate, BookingRefResponse } from '@/types';
 
 export default function ProfileDetailPage() {
@@ -21,14 +22,19 @@ export default function ProfileDetailPage() {
   const [bookingLoading, setBookingLoading] = useState(false);
   
   // Booking form state
-  const [selectedService, setSelectedService] = useState<string>('');
+  const [selectedServiceForBooking, setSelectedServiceForBooking] = useState<string>('');
   const [bookingDate, setBookingDate] = useState<Date | null>(null);
+  const [selectedTimeSlot, setSelectedTimeSlot] = useState<string | null>(null);
   const [notes, setNotes] = useState<string>('');
   
-  // Modal state
-  const [isModalOpen, setIsModalOpen] = useState(false);
-  const [bookingReference, setBookingReference] = useState<BookingRefResponse | null>(null);
-  const [confirmedBookingDate, setConfirmedBookingDate] = useState<string>('');
+   // Modal state
+   const [isModalOpen, setIsModalOpen] = useState(false);
+   const [bookingReference, setBookingReference] = useState<BookingRefResponse | null>(null);
+   const [confirmedBookingDate, setConfirmedBookingDate] = useState<string>('');
+   const [confirmedServiceName, setConfirmedServiceName] = useState<string>('');
+
+   // Booking modal state
+   const [isBookingModalOpen, setIsBookingModalOpen] = useState(false);
 
   useEffect(() => {
     const fetchProfile = async () => {
@@ -50,18 +56,24 @@ export default function ProfileDetailPage() {
     }
   }, [profileId]);
 
+  // Reset time slot when date changes
+  useEffect(() => {
+    setSelectedTimeSlot(null);
+  }, [bookingDate]);
+
   const handleBookingSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
     
-    if (!profile || !bookingDate) return;
+    if (!profile || !bookingDate || !selectedTimeSlot) return;
     
     try {
       setBookingLoading(true);
       
       const bookingData: BookingCreate = {
         profile_id: profile.id,
-        service_id: selectedService || undefined,
+        service_id: selectedServiceForBooking || undefined,
         booking_date: bookingDate.toISOString(),
+        time_slot: selectedTimeSlot,  // NEW
         notes: notes || undefined,
       };
       
@@ -70,18 +82,22 @@ export default function ProfileDetailPage() {
       // Capture booking reference from response and store the booking date
       setBookingReference(response.data);
       setConfirmedBookingDate(bookingDate.toISOString());
+      setConfirmedServiceName(selectedServiceForBooking ? profile.services?.find(s => s.id === selectedServiceForBooking)?.title || '' : '');
       
       // Reset form
-      setSelectedService('');
+      setSelectedServiceForBooking('');
       setBookingDate(null);
+      setSelectedTimeSlot(null);
       setNotes('');
       
-      // Show modal instead of success message
-      setIsModalOpen(true);
+       // Show modal instead of success message
+       setIsModalOpen(true);
+       setIsBookingModalOpen(false);
       
-    } catch (err) {
+    } catch (err: unknown) {
       console.error('Failed to create booking:', err);
-      setError('Failed to create booking. Please try again.');
+      const errorMessage = (err as { response?: { data?: { detail?: string } } })?.response?.data?.detail || 'Failed to create booking. Please try again.';
+      setError(errorMessage);
     } finally {
       setBookingLoading(false);
     }
@@ -91,6 +107,7 @@ export default function ProfileDetailPage() {
     setIsModalOpen(false);
     setBookingReference(null);
     setConfirmedBookingDate('');
+    setConfirmedServiceName('');
   };
 
   if (loading) {
@@ -106,7 +123,7 @@ export default function ProfileDetailPage() {
     );
   }
 
-  if (error) {
+  if (error && !profile) {
     return (
       <div className="min-h-screen bg-gray-50 dark:bg-gray-900 py-8">
         <div className="max-w-4xl mx-auto px-4 sm:px-6 lg:px-8">
@@ -182,9 +199,9 @@ export default function ProfileDetailPage() {
           </div>
         </div>
 
-        <div className="grid grid-cols-1 lg:grid-cols-3 gap-8">
+        <div className="space-y-8">
           {/* Services Section */}
-          <div className="lg:col-span-2">
+          <div>
             <div className="bg-white dark:bg-gray-800 rounded-lg shadow-sm p-6">
               <h2 className="text-2xl font-bold text-gray-900 dark:text-white mb-6">
                 Available Services
@@ -212,121 +229,217 @@ export default function ProfileDetailPage() {
                           </span>
                         </div>
                       </div>
-                      {service.image_url && (
-                        <div className="mt-3">
-                          <img
-                            src={service.image_url}
-                            alt={service.title}
-                            className="w-full h-32 object-cover rounded-md"
-                          />
-                        </div>
-                      )}
+                        {service.image_url && (
+                          <div className="mt-3">
+                            <img
+                              src={service.image_url}
+                              alt={service.title}
+                              className="w-full h-32 object-cover rounded-md"
+                            />
+                          </div>
+                        )}
                     </div>
                   ))}
                 </div>
-              ) : (
-                <div className="text-center py-8">
-                  <p className="text-gray-500 dark:text-gray-400">
-                    No services available at the moment.
-                  </p>
-                </div>
-              )}
-            </div>
+               ) : (
+                 <div className="text-center py-8">
+                   <p className="text-gray-500 dark:text-gray-400">
+                     No services available at the moment.
+                   </p>
+                 </div>
+               )}
+               
+               {/* Single Book Now Button */}
+               {profile.services && profile.services.length > 0 && (
+                 <div className="mt-6 flex justify-center">
+                   <button
+                     onClick={() => setIsBookingModalOpen(true)}
+                     className="bg-blue-600 text-white px-6 py-3 rounded-md hover:bg-blue-700 focus:outline-none focus:ring-2 focus:ring-blue-500 focus:ring-offset-2 transition-colors text-lg font-semibold"
+                   >
+                     Book Now
+                   </button>
+                 </div>
+               )}
+             </div>
           </div>
 
-          {/* Booking Section */}
-          <div className="lg:col-span-1">
-            <div className="bg-white dark:bg-gray-800 rounded-lg shadow-sm p-6 sticky top-8">
-              <h2 className="text-2xl font-bold text-gray-900 dark:text-white mb-6">
-                Book a Service
-              </h2>
-
-               {/* Success message removed - now handled by modal */}
-
-              {isAuthenticated ? (
-                <ProtectedRoute>
-                  <form onSubmit={handleBookingSubmit} className="space-y-4">
-                    {/* Service Selection */}
-                    <div>
-                      <label htmlFor="service" className="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-2">
-                        Select Service (Optional)
-                      </label>
-                      <select
-                        id="service"
-                        value={selectedService}
-                        onChange={(e) => setSelectedService(e.target.value)}
-                        className="w-full px-3 py-2 border border-gray-300 dark:border-gray-600 rounded-md shadow-sm focus:outline-none focus:ring-blue-500 focus:border-blue-500 dark:bg-gray-700 dark:text-white"
-                      >
-                        <option value="">No specific service</option>
-                        {profile.services?.map((service: Service) => (
-                          <option key={service.id} value={service.id}>
-                            {service.title} - ${service.price}
-                          </option>
-                        ))}
-                      </select>
-                    </div>
-
-                     {/* Date Selection */}
-                     <div>
-                       <label className="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-2">
-                         Preferred Date
-                       </label>
-                       <Calendar
-                         selectedDate={bookingDate}
-                         onDateChange={setBookingDate}
-                         minDate={new Date()}
-                       />
-                     </div>
-
-                    {/* Notes */}
-                    <div>
-                      <label htmlFor="notes" className="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-2">
-                        Additional Notes (Optional)
-                      </label>
-                      <textarea
-                        id="notes"
-                        value={notes}
-                        onChange={(e) => setNotes(e.target.value)}
-                        rows={3}
-                        className="w-full px-3 py-2 border border-gray-300 dark:border-gray-600 rounded-md shadow-sm focus:outline-none focus:ring-blue-500 focus:border-blue-500 dark:bg-gray-700 dark:text-white"
-                        placeholder="Any special requirements or questions..."
-                      />
-                    </div>
-
-                    {/* Submit Button */}
+          {/* Booking Modal */}
+          {isBookingModalOpen && (
+            <div className="fixed inset-0 bg-black bg-opacity-50 flex items-center justify-center p-4 z-50">
+              <div className="bg-white dark:bg-gray-800 rounded-lg shadow-xl max-w-2xl w-full max-h-[90vh] overflow-y-auto">
+                <div className="p-6">
+                  <div className="flex justify-between items-center mb-6">
+                    <h2 className="text-2xl font-bold text-gray-900 dark:text-white">
+                      Book a Service
+                    </h2>
                     <button
-                      type="submit"
-                      disabled={bookingLoading || !bookingDate}
-                      className="w-full bg-blue-600 text-white py-2 px-4 rounded-md hover:bg-blue-700 focus:outline-none focus:ring-2 focus:ring-blue-500 focus:ring-offset-2 disabled:opacity-50 disabled:cursor-not-allowed transition-colors"
+                      onClick={() => setIsBookingModalOpen(false)}
+                      className="text-gray-400 hover:text-gray-600 dark:hover:text-gray-300"
                     >
-                      {bookingLoading ? (
-                        <div className="flex items-center justify-center">
-                          <div className="w-4 h-4 border-2 border-white border-t-transparent rounded-full animate-spin mr-2"></div>
-                          Creating Booking...
-                        </div>
-                      ) : (
-                        'Book Now'
-                      )}
+                      <svg className="w-6 h-6" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                        <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M6 18L18 6M6 6l12 12" />
+                      </svg>
                     </button>
-                  </form>
-                </ProtectedRoute>
-              ) : (
-                <div className="text-center">
-                  <div className="bg-blue-50 dark:bg-blue-900/20 border border-blue-200 dark:border-blue-800 rounded-lg p-6">
-                    <p className="text-blue-800 dark:text-blue-200 mb-4">
-                      Please log in to book a service with {profile.name}.
-                    </p>
-                    <a
-                      href="/login"
-                      className="inline-block bg-blue-600 text-white py-2 px-6 rounded-md hover:bg-blue-700 transition-colors"
-                    >
-                      Log In
-                    </a>
                   </div>
+
+                  {/* Error message */}
+                  {error && profile && (
+                    <div className="mb-4 p-3 bg-red-50 dark:bg-red-900/20 border border-red-200 dark:border-red-800 rounded-lg">
+                      <p className="text-sm text-red-800 dark:text-red-200">{error}</p>
+                    </div>
+                  )}
+
+                  {isAuthenticated ? (
+                    <ProtectedRoute>
+                      {selectedServiceForBooking ? (
+                        // Show booking form when service is selected
+                        <>
+                          {/* Selected Service Display */}
+                          <div className="mb-6 p-4 bg-blue-50 dark:bg-blue-900/20 border border-blue-200 dark:border-blue-800 rounded-lg">
+                            <div className="flex justify-between items-center">
+                              <div>
+                                <h3 className="text-lg font-semibold text-blue-900 dark:text-blue-100">
+                                  Selected Service: {profile.services?.find(s => s.id === selectedServiceForBooking)?.title}
+                                </h3>
+                                <p className="text-blue-700 dark:text-blue-300">
+                                  ${profile.services?.find(s => s.id === selectedServiceForBooking)?.price}
+                                </p>
+                              </div>
+                              <button
+                                onClick={() => setSelectedServiceForBooking('')}
+                                className="text-blue-600 hover:text-blue-800 dark:text-blue-400 dark:hover:text-blue-300 text-sm font-medium underline"
+                              >
+                                Change Service
+                              </button>
+                            </div>
+                          </div>
+
+                          <form onSubmit={handleBookingSubmit} className="space-y-4">
+                            {/* Date Selection */}
+                            <div>
+                              <label className="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-2">
+                                Preferred Date
+                              </label>
+                              <Calendar
+                                selectedDate={bookingDate}
+                                onDateChange={setBookingDate}
+                                minDate={new Date()}
+                              />
+                            </div>
+
+                            {/* Time Slot Selection */}
+                            {bookingDate && (
+                              <div>
+                                <label className="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-2">
+                                  Select Time Slot *
+                                </label>
+                                <TimeSlotPicker
+                                  profileId={profileId}
+                                  selectedDate={bookingDate}
+                                  selectedTimeSlot={selectedTimeSlot}
+                                  onTimeSlotChange={setSelectedTimeSlot}
+                                />
+                              </div>
+                            )}
+
+                            {/* Notes */}
+                            <div>
+                              <label htmlFor="notes" className="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-2">
+                                Additional Notes (Optional)
+                              </label>
+                              <textarea
+                                id="notes"
+                                value={notes}
+                                onChange={(e) => setNotes(e.target.value)}
+                                rows={3}
+                                className="w-full px-3 py-2 border border-gray-300 dark:border-gray-600 rounded-md shadow-sm focus:outline-none focus:ring-blue-500 focus:border-blue-500 dark:bg-gray-700 dark:text-white"
+                                placeholder="Any special requirements or questions..."
+                              />
+                            </div>
+
+                            {/* Submit Button */}
+                            <button
+                              type="submit"
+                              disabled={bookingLoading || !bookingDate || !selectedTimeSlot}
+                              className="w-full bg-blue-600 text-white py-2 px-4 rounded-md hover:bg-blue-700 focus:outline-none focus:ring-2 focus:ring-blue-500 focus:ring-offset-2 disabled:opacity-50 disabled:cursor-not-allowed transition-colors"
+                            >
+                              {bookingLoading ? (
+                                <div className="flex items-center justify-center">
+                                  <div className="w-4 h-4 border-2 border-white border-t-transparent rounded-full animate-spin mr-2"></div>
+                                  Creating Booking...
+                                </div>
+                              ) : (
+                                'Book Now'
+                              )}
+                            </button>
+
+                            {!selectedTimeSlot && bookingDate && (
+                              <p className="text-xs text-gray-500 dark:text-gray-400 text-center">
+                                Please select a time slot to continue
+                              </p>
+                            )}
+                          </form>
+                        </>
+                      ) : (
+                        // Show service selection when no service is selected
+                        <div className="space-y-4">
+                          <p className="text-gray-600 dark:text-gray-400 mb-4">
+                            Select a service to book:
+                          </p>
+                          {profile.services?.map((service: Service) => (
+                            <div
+                              key={service.id}
+                              className="border border-gray-200 dark:border-gray-700 rounded-lg p-4 hover:border-blue-300 dark:hover:border-blue-600 transition-colors cursor-pointer"
+                              onClick={() => setSelectedServiceForBooking(service.id)}
+                            >
+                              <div className="flex justify-between items-start">
+                                <div>
+                                  <h3 className="text-lg font-semibold text-gray-900 dark:text-white">
+                                    {service.title}
+                                  </h3>
+                                  <p className="text-gray-600 dark:text-gray-400 mt-1">
+                                    {service.description}
+                                  </p>
+                                </div>
+                                <div className="text-right">
+                                  <span className="text-lg font-bold text-blue-600 dark:text-blue-400">
+                                    ${service.price}
+                                  </span>
+                                </div>
+                              </div>
+                              {service.image_url && (
+                                <div className="mt-3">
+                                  <img
+                                    src={service.image_url}
+                                    alt={service.title}
+                                    className="w-full h-32 object-cover rounded-md"
+                                  />
+                                </div>
+                              )}
+                            </div>
+                          ))}
+                        </div>
+                      )}
+                    </ProtectedRoute>
+                  ) : (
+                    <div className="text-center">
+                      <div className="bg-blue-50 dark:bg-blue-900/20 border border-blue-200 dark:border-blue-800 rounded-lg p-6">
+                        <p className="text-blue-800 dark:text-blue-200 mb-4">
+                          Please log in to book a service with {profile.name}.
+                        </p>
+                        <a
+                          href="/login"
+                          className="inline-block bg-blue-600 text-white py-2 px-6 rounded-md hover:bg-blue-700 transition-colors"
+                        >
+                          Log In
+                        </a>
+                      </div>
+                    </div>
+                  )}
                 </div>
-              )}
+              </div>
             </div>
-          </div>
+          )}
          </div>
        </div>
 
@@ -339,11 +452,12 @@ export default function ProfileDetailPage() {
               booking_ref: bookingReference.booking_ref,
               booking_id: bookingReference.booking_id,
               booking_date: confirmedBookingDate,
+              time_slot: selectedTimeSlot,
               profile_name: profile.name,
-              service_name: selectedService && profile.services?.find(s => s.id === selectedService)?.title
+              service_name: confirmedServiceName
             }}
           />
         )}
      </div>
    );
- }
+}

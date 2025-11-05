@@ -42,6 +42,7 @@ class BookingRepository:
         profile_id: str,
         booking_date: datetime,
         service_id: Optional[str] = None,
+        time_slot: Optional[str] = None,  # NEW
         notes: Optional[str] = None
     ) -> Dict[str, Any]:
         """
@@ -52,6 +53,7 @@ class BookingRepository:
             profile_id: Profile being booked
             booking_date: Date/time of booking
             service_id: Optional service ID
+            time_slot: Optional time slot (e.g., "09:00-10:00")
             notes: Optional booking notes
             
         Returns:
@@ -68,6 +70,7 @@ class BookingRepository:
             "profile_id": profile_id,
             "service_id": service_id,
             "booking_date": booking_date,
+            "time_slot": time_slot,  # NEW
             "status": BookingStatus.PENDING.value,
             "notes": notes,
             "created_at": now,

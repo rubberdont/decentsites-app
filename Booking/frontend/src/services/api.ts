@@ -47,10 +47,48 @@ api.interceptors.request.use(
   }
 );
 
-// Response interceptor to handle auth errors
+// Response interceptor to handle auth errors and add comprehensive error logging
 api.interceptors.response.use(
   (response) => response,
   (error) => {
+    // Extract request details
+    const method = error.config?.method?.toUpperCase() || 'UNKNOWN';
+    const url = error.config?.url || 'UNKNOWN';
+
+    // Log request details for failed requests
+    console.error(`[API Error] Request: ${method} ${url}`);
+
+    if (error.response) {
+      // HTTP error response received
+      const status = error.response.status;
+      const statusText = error.response.statusText || 'No status text';
+      const data = error.response.data;
+
+      // Structured logging based on error type
+      if (status >= 400 && status < 500) {
+        // 4xx Client errors
+        console.error(`[API Error] 4xx Client Error - Status: ${status} ${statusText}, URL: ${url}, Message: ${data?.message || data || 'No message'}`);
+      } else if (status >= 500) {
+        // 5xx Server errors
+        console.error(`[API Error] 5xx Server Error - Status: ${status} ${statusText}, URL: ${url}, Message: ${data?.message || data || 'No message'}`);
+      } else {
+        // Other HTTP errors
+        console.error(`[API Error] HTTP Error - Status: ${status} ${statusText}, URL: ${url}, Message: ${data?.message || data || 'No message'}`);
+      }
+
+      // Include response data in logs when available
+      if (data) {
+        console.error(`[API Error] Response Data:`, data);
+      }
+    } else if (error.request) {
+      // Network error (request made but no response received)
+      console.error(`[API Error] Network Error - No response received for ${method} ${url}. Possible network issue or timeout.`);
+    } else {
+      // Other error (something happened in setting up the request)
+      console.error(`[API Error] Request Setup Error - ${error.message || 'Unknown error'} for ${method} ${url}`);
+    }
+
+    // Preserve existing 401 handling
     if (error.response?.status === 401) {
       removeToken();
       // Redirect to login page if we're in browser environment

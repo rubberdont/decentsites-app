@@ -126,7 +126,7 @@ export default function ProfilePage() {
   if (loading) {
     return (
       <div className="min-h-screen flex items-center justify-center">
-        <div className="text-xl">Loading...</div>
+        <div className="text-xl dark:text-white">Loading...</div>
       </div>
     );
   }
@@ -137,7 +137,7 @@ export default function ProfilePage() {
         <div className="mb-8">
           <Link 
             href="/"
-            className="inline-flex items-center text-blue-600 hover:text-blue-800 mb-4"
+            className="inline-flex items-center text-blue-600 dark:text-blue-400 hover:text-blue-800 dark:hover:text-blue-300 mb-4"
           >
             ← Back to Home
           </Link>
@@ -148,7 +148,7 @@ export default function ProfilePage() {
 
         {/* Profile Form */}
         <div className="bg-white dark:bg-gray-800 rounded-lg shadow-md p-6 mb-8">
-          <h2 className="text-2xl font-semibold mb-6">Business Information</h2>
+          <h2 className="text-2xl font-semibold mb-6 dark:text-white">Business Information</h2>
           
           <div className="space-y-4">
             <div>
@@ -159,7 +159,7 @@ export default function ProfilePage() {
                 type="text"
                 value={profile.name}
                 onChange={(e) => setProfile(prev => ({ ...prev, name: e.target.value }))}
-                className="w-full p-3 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-transparent"
+                className="w-full p-3 border border-gray-300 dark:border-gray-600 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-transparent text-gray-900 dark:text-white"
                 placeholder="Enter your business name"
               />
             </div>
@@ -171,7 +171,7 @@ export default function ProfilePage() {
               <textarea
                 value={profile.description}
                 onChange={(e) => setProfile(prev => ({ ...prev, description: e.target.value }))}
-                className="w-full p-3 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-transparent"
+                className="w-full p-3 border border-gray-300 dark:border-gray-600 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-transparent text-gray-900 dark:text-white"
                 rows={4}
                 placeholder="Describe your business"
               />
@@ -185,7 +185,7 @@ export default function ProfilePage() {
                 type="url"
                 value={profile.image_url}
                 onChange={(e) => setProfile(prev => ({ ...prev, image_url: e.target.value }))}
-                className="w-full p-3 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-transparent"
+                className="w-full p-3 border border-gray-300 dark:border-gray-600 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-transparent text-gray-900 dark:text-white"
                 placeholder="https://example.com/image.jpg"
               />
             </div>
@@ -194,7 +194,7 @@ export default function ProfilePage() {
           <button
             onClick={saveProfile}
             disabled={saving}
-            className="mt-6 bg-blue-600 text-white px-6 py-2 rounded-lg hover:bg-blue-700 disabled:opacity-50"
+            className="mt-6 bg-blue-600 dark:bg-blue-700 text-white px-6 py-2 rounded-lg hover:bg-blue-700 dark:hover:bg-blue-800 disabled:opacity-50"
           >
             {saving ? 'Saving...' : 'Save Profile'}
           </button>
@@ -203,10 +203,10 @@ export default function ProfilePage() {
         {/* Services Section */}
         <div className="bg-white dark:bg-gray-800 rounded-lg shadow-md p-6">
           <div className="flex justify-between items-center mb-6">
-            <h2 className="text-2xl font-semibold">Services</h2>
+            <h2 className="text-2xl font-semibold dark:text-white">Services</h2>
             <button
               onClick={() => setShowServiceForm(true)}
-              className="bg-green-600 text-white px-4 py-2 rounded-lg hover:bg-green-700"
+              className="bg-green-600 dark:bg-green-700 text-white px-4 py-2 rounded-lg hover:bg-green-700 dark:hover:bg-green-800"
             >
               Add Service
             </button>
@@ -214,8 +214,8 @@ export default function ProfilePage() {
 
           {/* Service Form */}
           {(showServiceForm || editingService) && (
-            <div className="mb-6 p-4 border border-gray-200 rounded-lg bg-gray-50">
-              <h3 className="text-lg font-medium mb-4">
+            <div className="mb-6 p-4 border border-gray-200 dark:border-gray-600 rounded-lg bg-white dark:bg-gray-700">
+              <h3 className="text-lg font-medium mb-4 dark:text-white">
                 {editingService ? 'Edit Service' : 'Add New Service'}
               </h3>
               <div className="space-y-4">
@@ -230,7 +230,7 @@ export default function ProfilePage() {
                       setNewService({ ...newService, title: e.target.value });
                     }
                   }}
-                  className="w-full p-3 border border-gray-300 rounded-lg"
+                  className="w-full p-3 border border-gray-300 dark:border-gray-600 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-transparent text-gray-900 dark:text-white"
                 />
                 <textarea
                   placeholder="Service description"
@@ -242,7 +242,7 @@ export default function ProfilePage() {
                       setNewService({ ...newService, description: e.target.value });
                     }
                   }}
-                  className="w-full p-3 border border-gray-300 rounded-lg"
+                  className="w-full p-3 border border-gray-300 dark:border-gray-600 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-transparent text-gray-900 dark:text-white"
                   rows={3}
                 />
                 <input
@@ -256,7 +256,7 @@ export default function ProfilePage() {
                       setNewService({ ...newService, price: parseFloat(e.target.value) });
                     }
                   }}
-                  className="w-full p-3 border border-gray-300 rounded-lg"
+                  className="w-full p-3 border border-gray-300 dark:border-gray-600 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-transparent text-gray-900 dark:text-white"
                 />
                 <input
                   type="url"
@@ -269,12 +269,12 @@ export default function ProfilePage() {
                       setNewService({ ...newService, image_url: e.target.value });
                     }
                   }}
-                  className="w-full p-3 border border-gray-300 rounded-lg"
+                  className="w-full p-3 border border-gray-300 dark:border-gray-600 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-transparent text-gray-900 dark:text-white"
                 />
                 <div className="flex gap-2">
                   <button
                     onClick={editingService ? updateService : addService}
-                    className="bg-blue-600 text-white px-4 py-2 rounded-lg hover:bg-blue-700"
+                    className="bg-blue-600 dark:bg-blue-700 text-white px-4 py-2 rounded-lg hover:bg-blue-700 dark:hover:bg-blue-800"
                   >
                     {editingService ? 'Update' : 'Add'} Service
                   </button>
@@ -284,7 +284,7 @@ export default function ProfilePage() {
                       setEditingService(null);
                       setNewService({ title: '', description: '', price: 0, image_url: '' });
                     }}
-                    className="bg-gray-600 text-white px-4 py-2 rounded-lg hover:bg-gray-700"
+                    className="bg-gray-600 dark:bg-gray-700 text-white px-4 py-2 rounded-lg hover:bg-gray-700 dark:hover:bg-gray-800"
                   >
                     Cancel
                   </button>
@@ -296,7 +296,7 @@ export default function ProfilePage() {
           {/* Services List */}
           <div className="grid md:grid-cols-2 lg:grid-cols-3 gap-4">
             {profile.services.map((service) => (
-              <div key={service.id} className="border border-gray-200 rounded-lg p-4">
+              <div key={service.id} className="border border-gray-200 dark:border-gray-600 rounded-lg p-4 bg-white dark:bg-gray-700">
                 {service.image_url && (
                   <img
                     src={service.image_url}
@@ -304,19 +304,19 @@ export default function ProfilePage() {
                     className="w-full h-32 object-cover rounded-lg mb-3"
                   />
                 )}
-                <h3 className="font-semibold text-lg mb-2">{service.title}</h3>
-                <p className="text-gray-600 text-sm mb-3">{service.description}</p>
-                <p className="text-xl font-bold text-green-600 mb-3">${service.price}</p>
+                <h3 className="font-semibold text-lg mb-2 dark:text-white">{service.title}</h3>
+                <p className="text-gray-600 dark:text-gray-400 text-sm mb-3">{service.description}</p>
+                <p className="text-xl font-bold text-green-600 dark:text-green-400 mb-3">${service.price}</p>
                 <div className="flex gap-2">
                   <button
                     onClick={() => setEditingService(service)}
-                    className="bg-blue-600 text-white px-3 py-1 rounded text-sm hover:bg-blue-700"
+                    className="bg-blue-600 dark:bg-blue-700 text-white px-3 py-1 rounded text-sm hover:bg-blue-700 dark:hover:bg-blue-800"
                   >
                     Edit
                   </button>
                   <button
                     onClick={() => deleteService(service.id)}
-                    className="bg-red-600 text-white px-3 py-1 rounded text-sm hover:bg-red-700"
+                    className="bg-red-600 dark:bg-red-700 text-white px-3 py-1 rounded text-sm hover:bg-red-700 dark:hover:bg-red-800"
                   >
                     Delete
                   </button>
@@ -326,7 +326,7 @@ export default function ProfilePage() {
           </div>
 
           {profile.services.length === 0 && (
-            <p className="text-gray-500 text-center py-8">
+            <p className="text-gray-500 dark:text-gray-400 text-center py-8">
               No services added yet. Click "Add Service" to get started.
             </p>
           )}

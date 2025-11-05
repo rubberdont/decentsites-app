@@ -9,6 +9,7 @@ interface BookingConfirmationModalProps {
     booking_ref: string;
     booking_id: string;
     booking_date: string;
+    time_slot?: string | null;  // NEW
     profile_name: string;
     service_name?: string;
   };
@@ -56,8 +57,6 @@ export default function BookingConfirmationModal({
       year: 'numeric',
       month: 'long',
       day: 'numeric',
-      hour: '2-digit',
-      minute: '2-digit',
     });
   };
 
@@ -131,11 +130,20 @@ export default function BookingConfirmationModal({
             </h3>
             <div className="space-y-3">
               <div className="flex justify-between">
-                <span className="text-gray-600 dark:text-gray-400">Date & Time:</span>
+                <span className="text-gray-600 dark:text-gray-400">Date:</span>
                 <span className="text-gray-900 dark:text-white font-medium">
                   {formatBookingDate(bookingData.booking_date)}
                 </span>
               </div>
+              {/* NEW: Show time slot if available */}
+              {bookingData.time_slot && (
+                <div className="flex justify-between">
+                  <span className="text-gray-600 dark:text-gray-400">Time:</span>
+                  <span className="text-gray-900 dark:text-white font-medium">
+                    {bookingData.time_slot}
+                  </span>
+                </div>
+              )}
               <div className="flex justify-between">
                 <span className="text-gray-600 dark:text-gray-400">Service Provider:</span>
                 <span className="text-gray-900 dark:text-white font-medium">

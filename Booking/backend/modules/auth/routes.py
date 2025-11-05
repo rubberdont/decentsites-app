@@ -33,13 +33,6 @@ async def register(user_data: UserRegister):
             detail="Username already exists"
         )
     
-    # Check if email already exists
-    if AuthRepository.get_user_by_email(str(user_data.email)):
-        raise HTTPException(
-            status_code=status.HTTP_409_CONFLICT,
-            detail="Email already registered"
-        )
-    
     # Hash password
     password_hash = hash_password(user_data.password)
     
@@ -48,8 +41,10 @@ async def register(user_data: UserRegister):
         username=user_data.username,
         name=user_data.name,
         password_hash=password_hash,
-        email=str(user_data.email)
+        email=user_data.email
     )
+
+    print(f"USER PROC: {user_doc}")
     
     return UserResponse(
         id=user_doc["id"],

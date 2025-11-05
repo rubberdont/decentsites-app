@@ -17,6 +17,7 @@ class BookingCreate(BaseModel):
     profile_id: str
     service_id: Optional[str] = None
     booking_date: datetime
+    time_slot: Optional[str] = None  # NEW: e.g., "09:00-10:00"
     notes: Optional[str] = None
 
 
@@ -33,6 +34,7 @@ class BookingResponse(BaseModel):
     profile_id: str
     service_id: Optional[str] = None
     booking_date: datetime
+    time_slot: Optional[str] = None  # NEW
     status: BookingStatus
     notes: Optional[str] = None
     created_at: datetime
@@ -50,6 +52,7 @@ class BookingDetailResponse(BaseModel):
     service_title: Optional[str] = None
     service_price: Optional[float] = None
     booking_date: datetime
+    time_slot: Optional[str] = None  # NEW
     status: BookingStatus
     notes: Optional[str] = None
     created_at: datetime

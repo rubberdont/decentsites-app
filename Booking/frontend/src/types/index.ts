@@ -64,6 +64,7 @@ export interface Booking {
   profile_id: string;
   service_id?: string;
   booking_date: string;
+  time_slot?: string;  // NEW
   status: BookingStatus;
   notes?: string;
   created_at: string;
@@ -74,6 +75,7 @@ export interface BookingCreate {
   profile_id: string;
   service_id?: string;
   booking_date: string;
+  time_slot?: string;  // NEW
   notes?: string;
 }
 
