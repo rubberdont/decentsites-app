@@ -1,9 +1,11 @@
-from fastapi import APIRouter, HTTPException
+from fastapi import APIRouter, HTTPException, status, Depends
 from typing import List
 import uuid
 
 from .models import BusinessProfile, Service
 from .repository import ProfileRepository
+from modules.auth.security import get_current_user
+from modules.auth.models import UserCredentials
 
 router = APIRouter(prefix="/profiles", tags=["profiles"])
 
@@ -115,3 +117,109 @@ async def delete_service(profile_id: str, service_id: str):
     
     ProfileRepository.delete_service_from_profile(profile_id, service_id)
     return {"message": "Service deleted successfully"}
+
+
+@router.post("/{profile_id}/verify", response_model=BusinessProfile)
+async def verify_profile(
+    profile_id: str,
+    current_user: UserCredentials = Depends(get_current_user),
+):
+    """
+    Verify a profile (owner or admin only).
+    
+    Args:
+        profile_id: Profile ID
+        current_user: Authenticated user (owner or admin)
+        
+    Returns:
+        Updated BusinessProfile
+        
+    Raises:
+        HTTPException: If profile not found or user not authorized
+    """
+    profile = ProfileRepository.get_profile(profile_id)
+    
+    if not profile:
+        raise HTTPException(status_code=404, detail="Profile not found")
+    
+    # Only owner can verify their profile
+    if profile.get("owner_id") != current_user.user_id:
+        raise HTTPException(
+            status_code=status.HTTP_403_FORBIDDEN,
+            detail="Only profile owner can verify this profile"
+        )
+    
+    ProfileRepository.update_profile(profile_id, {"is_verified": True})
+    updated = ProfileRepository.get_profile(profile_id)
+    
+    return updated
+
+
+@router.put("/{profile_id}/deactivate", response_model=BusinessProfile)
+async def deactivate_profile(
+    profile_id: str,
+    current_user: UserCredentials = Depends(get_current_user),
+):
+    """
+    Deactivate a profile (owner only).
+    
+    Args:
+        profile_id: Profile ID
+        current_user: Authenticated owner user
+        
+    Returns:
+        Updated BusinessProfile
+        
+    Raises:
+        HTTPException: If profile not found or user not authorized
+    """
+    profile = ProfileRepository.get_profile(profile_id)
+    
+    if not profile:
+        raise HTTPException(status_code=404, detail="Profile not found")
+    
+    if profile.get("owner_id") != current_user.user_id:
+        raise HTTPException(
+            status_code=status.HTTP_403_FORBIDDEN,
+            detail="Only profile owner can deactivate this profile"
+        )
+    
+    ProfileRepository.update_profile(profile_id, {"is_active": False})
+    updated = ProfileRepository.get_profile(profile_id)
+    
+    return updated
+
+
+@router.put("/{profile_id}/activate", response_model=BusinessProfile)
+async def activate_profile(
+    profile_id: str,
+    current_user: UserCredentials = Depends(get_current_user),
+):
+    """
+    Activate a profile (owner only).
+    
+    Args:
+        profile_id: Profile ID
+        current_user: Authenticated owner user
+        
+    Returns:
+        Updated BusinessProfile
+        
+    Raises:
+        HTTPException: If profile not found or user not authorized
+    """
+    profile = ProfileRepository.get_profile(profile_id)
+    
+    if not profile:
+        raise HTTPException(status_code=404, detail="Profile not found")
+    
+    if profile.get("owner_id") != current_user.user_id:
+        raise HTTPException(
+            status_code=status.HTTP_403_FORBIDDEN,
+            detail="Only profile owner can activate this profile"
+        )
+    
+    ProfileRepository.update_profile(profile_id, {"is_active": True})
+    updated = ProfileRepository.get_profile(profile_id)
+    
+    return updated

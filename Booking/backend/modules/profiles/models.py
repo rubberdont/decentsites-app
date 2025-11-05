@@ -1,5 +1,6 @@
-from pydantic import BaseModel
+from pydantic import BaseModel, EmailStr
 from typing import List, Optional
+from datetime import datetime
 
 
 class Service(BaseModel):
@@ -18,4 +19,11 @@ class BusinessProfile(BaseModel):
     description: str
     image_url: Optional[str] = None
     owner_id: Optional[str] = None
+    email: Optional[EmailStr] = None
+    phone: Optional[str] = None
+    address: Optional[str] = None
+    is_verified: bool = False
+    is_active: bool = True
     services: List[Service] = []
+    created_at: Optional[datetime] = None
+    updated_at: Optional[datetime] = None

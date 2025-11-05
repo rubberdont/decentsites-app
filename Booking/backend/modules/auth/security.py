@@ -2,7 +2,7 @@ from fastapi import Depends, HTTPException, status
 from fastapi.security import HTTPBearer, HTTPAuthorizationCredentials
 from core.security import decode_token
 from .repository import AuthRepository
-from .models import UserCredentials
+from .models import UserCredentials, UserRole
 
 
 security = HTTPBearer()
@@ -43,5 +43,49 @@ async def get_current_user(credentials: HTTPAuthorizationCredentials = Depends(s
     return UserCredentials(
         user_id=user["id"],
         username=user["username"],
-        name=user["name"]
+        name=user["name"],
+        role=user.get("role", "USER")
     )
+
+
+async def require_owner(current_user: UserCredentials = Depends(get_current_user)) -> UserCredentials:
+    """
+    Dependency to require owner or admin role.
+    
+    Args:
+        current_user: Current authenticated user
+        
+    Returns:
+        UserCredentials if user is owner or admin
+        
+    Raises:
+        HTTPException: If user is not owner or admin
+    """
+    if current_user.role not in [UserRole.OWNER, UserRole.ADMIN]:
+        raise HTTPException(
+            status_code=status.HTTP_403_FORBIDDEN,
+            detail="Owner access required"
+        )
+    return current_user
+
+
+async def require_admin(current_user: UserCredentials = Depends(get_current_user)) -> UserCredentials:
+    """
+    Dependency to require admin role.
+    
+    Args:
+        current_user: Current authenticated user
+        
+    Returns:
+        UserCredentials if user is admin
+        
+    Raises:
+        HTTPException: If user is not admin
+    """
+    if current_user.role != UserRole.ADMIN:
+        raise HTTPException(
+            status_code=status.HTTP_403_FORBIDDEN,
+            detail="Admin access required"
+        )
+    return current_user
+

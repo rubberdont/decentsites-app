@@ -20,7 +20,8 @@ class AuthRepository:
         username: str,
         name: str,
         password_hash: str,
-        email: Optional[str] = None
+        email: Optional[str] = None,
+        role: str = "USER"
     ) -> Dict[str, Any]:
         """
         Create a new user.
@@ -30,6 +31,7 @@ class AuthRepository:
             name: User's full name
             password_hash: Hashed password
             email: Optional email address
+            role: User role (USER, OWNER, ADMIN)
             
         Returns:
             Created user document
@@ -43,6 +45,7 @@ class AuthRepository:
             "name": name,
             "email": email,
             "password_hash": password_hash,
+            "role": role,
             "created_at": now,
             "updated_at": now,
         }
@@ -59,6 +62,11 @@ class AuthRepository:
     def get_user_by_id(user_id: str) -> Optional[Dict[str, Any]]:
         """Get user by ID."""
         return mongo_db.find_one(AuthRepository.COLLECTION, {"id": user_id})
+    
+    @staticmethod
+    def get_user_by_email(email: str) -> Optional[Dict[str, Any]]:
+        """Get user by email."""
+        return mongo_db.find_one(AuthRepository.COLLECTION, {"email": email})
     
     @staticmethod
     def update_user(user_id: str, updates: Dict[str, Any]) -> int:
