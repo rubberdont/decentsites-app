@@ -3,6 +3,7 @@
 import { useState, useEffect } from 'react';
 import Link from 'next/link';
 import axios from 'axios';
+import { Button, Input, Card } from '@/components/ui';
 
 interface Service {
   id: string;
@@ -132,37 +133,32 @@ export default function ProfilePage() {
   }
 
   return (
-    <div className="min-h-screen bg-gray-50 dark:bg-gray-900">
+    <div className="min-h-screen bg-[#F5F3EF] dark:bg-gray-900">
       <div className="container mx-auto px-4 py-8">
         <div className="mb-8">
           <Link 
             href="/"
-            className="inline-flex items-center text-blue-600 dark:text-blue-400 hover:text-blue-800 dark:hover:text-blue-300 mb-4"
+            className="inline-flex items-center text-[#14B8A6] dark:text-[#14B8A6] hover:text-[#0F9488] dark:hover:text-[#0F9488] mb-4 font-semibold"
           >
             ← Back to Home
           </Link>
-          <h1 className="text-3xl font-bold text-gray-900 dark:text-white">
+          <h1 className="text-4xl font-bold text-gray-900 dark:text-white">
             Business Profile
           </h1>
         </div>
 
         {/* Profile Form */}
-        <div className="bg-white dark:bg-gray-800 rounded-lg shadow-md p-6 mb-8">
+        <Card className="p-8 mb-8">
           <h2 className="text-2xl font-semibold mb-6 dark:text-white">Business Information</h2>
           
           <div className="space-y-4">
-            <div>
-              <label className="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-2">
-                Business Name
-              </label>
-              <input
-                type="text"
-                value={profile.name}
-                onChange={(e) => setProfile(prev => ({ ...prev, name: e.target.value }))}
-                className="w-full p-3 border border-gray-300 dark:border-gray-600 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-transparent text-gray-900 dark:text-white"
-                placeholder="Enter your business name"
-              />
-            </div>
+            <Input
+              label="Business Name"
+              type="text"
+              value={profile.name}
+              onChange={(e) => setProfile(prev => ({ ...prev, name: e.target.value }))}
+              placeholder="Enter your business name"
+            />
             
             <div>
               <label className="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-2">
@@ -171,55 +167,51 @@ export default function ProfilePage() {
               <textarea
                 value={profile.description}
                 onChange={(e) => setProfile(prev => ({ ...prev, description: e.target.value }))}
-                className="w-full p-3 border border-gray-300 dark:border-gray-600 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-transparent text-gray-900 dark:text-white"
+                className="w-full px-4 py-3 border border-gray-300 dark:border-gray-600 rounded-xl focus:ring-2 focus:ring-[#14B8A6] focus:border-transparent dark:bg-gray-800 dark:text-white transition-all resize-none"
                 rows={4}
                 placeholder="Describe your business"
               />
             </div>
             
-            <div>
-              <label className="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-2">
-                Business Image URL
-              </label>
-              <input
-                type="url"
-                value={profile.image_url}
-                onChange={(e) => setProfile(prev => ({ ...prev, image_url: e.target.value }))}
-                className="w-full p-3 border border-gray-300 dark:border-gray-600 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-transparent text-gray-900 dark:text-white"
-                placeholder="https://example.com/image.jpg"
-              />
-            </div>
+            <Input
+              label="Business Image URL"
+              type="url"
+              value={profile.image_url}
+              onChange={(e) => setProfile(prev => ({ ...prev, image_url: e.target.value }))}
+              placeholder="https://example.com/image.jpg"
+            />
           </div>
           
-          <button
+          <Button
             onClick={saveProfile}
             disabled={saving}
-            className="mt-6 bg-blue-600 dark:bg-blue-700 text-white px-6 py-2 rounded-lg hover:bg-blue-700 dark:hover:bg-blue-800 disabled:opacity-50"
+            isLoading={saving}
+            className="mt-6"
           >
-            {saving ? 'Saving...' : 'Save Profile'}
-          </button>
-        </div>
+            Save Profile
+          </Button>
+        </Card>
 
         {/* Services Section */}
-        <div className="bg-white dark:bg-gray-800 rounded-lg shadow-md p-6">
+        <Card className="p-8">
           <div className="flex justify-between items-center mb-6">
             <h2 className="text-2xl font-semibold dark:text-white">Services</h2>
-            <button
+            <Button
               onClick={() => setShowServiceForm(true)}
-              className="bg-green-600 dark:bg-green-700 text-white px-4 py-2 rounded-lg hover:bg-green-700 dark:hover:bg-green-800"
+              variant="secondary"
             >
               Add Service
-            </button>
+            </Button>
           </div>
 
           {/* Service Form */}
           {(showServiceForm || editingService) && (
-            <div className="mb-6 p-4 border border-gray-200 dark:border-gray-600 rounded-lg bg-white dark:bg-gray-700">
-              <h3 className="text-lg font-medium mb-4 dark:text-white">
+            <div className="mb-6 p-6 border border-[#14B8A6]/20 rounded-2xl bg-white dark:bg-gray-800 mb-6">
+              <h3 className="text-lg font-semibold mb-4 dark:text-white">
                 {editingService ? 'Edit Service' : 'Add New Service'}
               </h3>
               <div className="space-y-4">
-                <input
+                <Input
                   type="text"
                   placeholder="Service title"
                   value={editingService ? editingService.title : newService.title}
@@ -230,22 +222,23 @@ export default function ProfilePage() {
                       setNewService({ ...newService, title: e.target.value });
                     }
                   }}
-                  className="w-full p-3 border border-gray-300 dark:border-gray-600 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-transparent text-gray-900 dark:text-white"
                 />
-                <textarea
-                  placeholder="Service description"
-                  value={editingService ? editingService.description : newService.description}
-                  onChange={(e) => {
-                    if (editingService) {
-                      setEditingService({ ...editingService, description: e.target.value });
-                    } else {
-                      setNewService({ ...newService, description: e.target.value });
-                    }
-                  }}
-                  className="w-full p-3 border border-gray-300 dark:border-gray-600 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-transparent text-gray-900 dark:text-white"
-                  rows={3}
-                />
-                <input
+                <div>
+                  <textarea
+                    placeholder="Service description"
+                    value={editingService ? editingService.description : newService.description}
+                    onChange={(e) => {
+                      if (editingService) {
+                        setEditingService({ ...editingService, description: e.target.value });
+                      } else {
+                        setNewService({ ...newService, description: e.target.value });
+                      }
+                    }}
+                    className="w-full px-4 py-3 border border-gray-300 dark:border-gray-600 rounded-xl focus:ring-2 focus:ring-[#14B8A6] focus:border-transparent dark:bg-gray-800 dark:text-white transition-all resize-none"
+                    rows={3}
+                  />
+                </div>
+                <Input
                   type="number"
                   placeholder="Price"
                   value={editingService ? editingService.price : newService.price}
@@ -256,9 +249,8 @@ export default function ProfilePage() {
                       setNewService({ ...newService, price: parseFloat(e.target.value) });
                     }
                   }}
-                  className="w-full p-3 border border-gray-300 dark:border-gray-600 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-transparent text-gray-900 dark:text-white"
                 />
-                <input
+                <Input
                   type="url"
                   placeholder="Image URL (optional)"
                   value={editingService ? editingService.image_url : newService.image_url}
@@ -269,68 +261,68 @@ export default function ProfilePage() {
                       setNewService({ ...newService, image_url: e.target.value });
                     }
                   }}
-                  className="w-full p-3 border border-gray-300 dark:border-gray-600 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-transparent text-gray-900 dark:text-white"
                 />
-                <div className="flex gap-2">
-                  <button
+                <div className="flex gap-3 pt-2">
+                  <Button
                     onClick={editingService ? updateService : addService}
-                    className="bg-blue-600 dark:bg-blue-700 text-white px-4 py-2 rounded-lg hover:bg-blue-700 dark:hover:bg-blue-800"
                   >
                     {editingService ? 'Update' : 'Add'} Service
-                  </button>
-                  <button
+                  </Button>
+                  <Button
                     onClick={() => {
                       setShowServiceForm(false);
                       setEditingService(null);
                       setNewService({ title: '', description: '', price: 0, image_url: '' });
                     }}
-                    className="bg-gray-600 dark:bg-gray-700 text-white px-4 py-2 rounded-lg hover:bg-gray-700 dark:hover:bg-gray-800"
+                    variant="ghost"
                   >
                     Cancel
-                  </button>
+                  </Button>
                 </div>
               </div>
             </div>
           )}
 
           {/* Services List */}
-          <div className="grid md:grid-cols-2 lg:grid-cols-3 gap-4">
+          <div className="grid md:grid-cols-2 lg:grid-cols-3 gap-6">
             {profile.services.map((service) => (
-              <div key={service.id} className="border border-gray-200 dark:border-gray-600 rounded-lg p-4 bg-white dark:bg-gray-700">
+              <Card key={service.id} className="p-4 bg-white dark:bg-gray-800 rounded-2xl" hoverable>
                 {service.image_url && (
                   <img
                     src={service.image_url}
                     alt={service.title}
-                    className="w-full h-32 object-cover rounded-lg mb-3"
+                    className="w-full h-40 object-cover rounded-xl mb-4"
                   />
                 )}
                 <h3 className="font-semibold text-lg mb-2 dark:text-white">{service.title}</h3>
-                <p className="text-gray-600 dark:text-gray-400 text-sm mb-3">{service.description}</p>
-                <p className="text-xl font-bold text-green-600 dark:text-green-400 mb-3">${service.price}</p>
+                <p className="text-[#78716C] dark:text-gray-400 text-sm mb-4">{service.description}</p>
+                <p className="text-xl font-bold text-[#F59E0B] mb-4">${service.price}</p>
                 <div className="flex gap-2">
-                  <button
+                  <Button
                     onClick={() => setEditingService(service)}
-                    className="bg-blue-600 dark:bg-blue-700 text-white px-3 py-1 rounded text-sm hover:bg-blue-700 dark:hover:bg-blue-800"
+                    variant="secondary"
+                    size="sm"
                   >
                     Edit
-                  </button>
-                  <button
+                  </Button>
+                  <Button
                     onClick={() => deleteService(service.id)}
-                    className="bg-red-600 dark:bg-red-700 text-white px-3 py-1 rounded text-sm hover:bg-red-700 dark:hover:bg-red-800"
+                    size="sm"
+                    className="bg-red-600 hover:bg-red-700"
                   >
                     Delete
-                  </button>
+                  </Button>
                 </div>
-              </div>
+              </Card>
             ))}
           </div>
 
           {profile.services.length === 0 && (
-            <p className="text-gray-500 dark:text-gray-400 text-center py-8">
-              No services added yet. Click "Add Service" to get started.
+            <p className="text-[#78716C] dark:text-gray-400 text-center py-12">
+              No services added yet. Click &quot;Add Service&quot; to get started.
             </p>
           )}
-        </div>
+        </Card>
       </div>
     </div>
   );

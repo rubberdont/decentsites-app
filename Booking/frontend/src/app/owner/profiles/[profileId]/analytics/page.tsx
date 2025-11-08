@@ -1,12 +1,12 @@
 'use client';
 
-import { useState, useEffect } from 'react';
+import { useState, useEffect, useCallback } from 'react';
 import { useRouter, useParams } from 'next/navigation';
 import Link from 'next/link';
 import { useAuth } from '@/context/AuthContext';
 import ProtectedRoute from '@/components/ProtectedRoute';
 import { ownerAPI } from '@/services/api';
-import type { ProfileAnalytics } from '@/types';
+import type { ProfileAnalytics, ServiceStats } from '@/types';
 import { showError } from '@/utils/toast';
 import { LineChart, Line, BarChart, Bar, PieChart, Pie, Cell, XAxis, YAxis, CartesianGrid, Tooltip, Legend, ResponsiveContainer } from 'recharts';
 
@@ -18,45 +18,45 @@ export default function ProfileAnalyticsPage() {
   const params = useParams();
   const profileId = params.profileId as string;
 
-  const [analytics, setAnalytics] = useState<ProfileAnalytics | null>(null);
-  const [loading, setLoading] = useState(true);
+   const [analytics, setAnalytics] = useState<ProfileAnalytics | null>(null);
+   const [loading, setLoading] = useState(true);
 
-  useEffect(() => {
-    if (!authLoading && !isOwner) {
-      router.push('/');
-      return;
-    }
+   const loadAnalytics = useCallback(async () => {
+     try {
+       setLoading(true);
+       const response = await ownerAPI.getProfileAnalytics(profileId);
+       setAnalytics(response.data);
+     } catch (error) {
+       console.error('Failed to load analytics:', error);
+       showError('Failed to load profile analytics');
+     } finally {
+       setLoading(false);
+     }
+   }, [profileId]);
 
-    if (isOwner && profileId) {
-      loadAnalytics();
-    }
-  }, [isOwner, authLoading, profileId, router]);
+   useEffect(() => {
+     if (!authLoading && !isOwner) {
+       router.push('/');
+       return;
+     }
 
-  const loadAnalytics = async () => {
-    try {
-      setLoading(true);
-      const response = await ownerAPI.getProfileAnalytics(profileId);
-      setAnalytics(response.data);
-    } catch (error) {
-      console.error('Failed to load analytics:', error);
-      showError('Failed to load profile analytics');
-    } finally {
-      setLoading(false);
-    }
-  };
+     if (isOwner && profileId) {
+       loadAnalytics();
+     }
+   }, [isOwner, authLoading, profileId, router, loadAnalytics]);
 
   if (authLoading || loading) {
     return (
-      <ProtectedRoute>
-        <div className="container mx-auto px-4 py-8">
-          <div className="flex items-center justify-center min-h-96">
-            <div className="text-center">
-              <div className="w-16 h-16 border-4 border-blue-600 border-t-transparent rounded-full animate-spin mx-auto mb-4"></div>
-              <p className="text-gray-600 dark:text-gray-400">Loading analytics...</p>
-            </div>
-          </div>
-        </div>
-      </ProtectedRoute>
+       <ProtectedRoute>
+         <div className="container mx-auto px-4 py-8">
+           <div className="flex items-center justify-center min-h-96">
+             <div className="text-center">
+               <div className="w-16 h-16 border-4 border-[#14B8A6] border-t-transparent rounded-full animate-spin mx-auto mb-4"></div>
+               <p className="text-gray-600 dark:text-gray-400">Loading analytics...</p>
+             </div>
+           </div>
+         </div>
+       </ProtectedRoute>
     );
   }
 
@@ -77,15 +77,15 @@ export default function ProfileAnalyticsPage() {
       <div className="container mx-auto px-4 py-8">
         {/* Header */}
         <div className="mb-8">
-          <Link
-            href="/owner/profiles"
-            className="inline-flex items-center text-blue-600 hover:text-blue-800 dark:text-blue-400 dark:hover:text-blue-300 mb-4 transition-colors"
-          >
-            <svg className="w-4 h-4 mr-2" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-              <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M15 19l-7-7 7-7" />
-            </svg>
-            Back to My Profiles
-          </Link>
+           <Link
+             href="/owner/profiles"
+             className="inline-flex items-center text-[#14B8A6] hover:text-[#0F9488] dark:text-[#14B8A6] dark:hover:text-[#0F9488] mb-4 transition-colors"
+           >
+             <svg className="w-4 h-4 mr-2" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+               <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M15 19l-7-7 7-7" />
+             </svg>
+             Back to My Profiles
+           </Link>
 
           <h1 className="text-3xl font-bold text-gray-900 dark:text-white">
             {analytics.profile_name} - Analytics
@@ -95,50 +95,50 @@ export default function ProfileAnalyticsPage() {
           </p>
         </div>
 
-        {/* Summary Stats */}
-        <div className="grid grid-cols-1 md:grid-cols-3 gap-6 mb-8">
-          <div className="bg-white dark:bg-gray-800 rounded-lg shadow-sm p-6 border border-gray-200 dark:border-gray-700">
-            <div className="flex items-center justify-between">
-              <div>
-                <p className="text-sm font-medium text-gray-600 dark:text-gray-400">Total Bookings</p>
-                <p className="text-3xl font-bold text-gray-900 dark:text-white mt-2">{analytics.total_bookings}</p>
-              </div>
-              <div className="p-3 bg-blue-100 dark:bg-blue-900 rounded-lg">
-                <svg className="w-8 h-8 text-blue-600 dark:text-blue-400" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                  <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M8 7V3m8 4V3m-9 8h10M5 21h14a2 2 0 002-2V7a2 2 0 00-2-2H5a2 2 0 00-2 2v12a2 2 0 002 2z" />
-                </svg>
-              </div>
-            </div>
-          </div>
+         {/* Summary Stats */}
+         <div className="grid grid-cols-1 md:grid-cols-3 gap-6 mb-8">
+           <div className="bg-white dark:bg-gray-800 rounded-lg shadow-sm p-6 border border-gray-200 dark:border-gray-700">
+             <div className="flex items-center justify-between">
+               <div>
+                 <p className="text-sm font-medium text-gray-600 dark:text-gray-400">Total Bookings</p>
+                 <p className="text-3xl font-bold text-gray-900 dark:text-white mt-2">{analytics.total_bookings}</p>
+               </div>
+               <div className="p-3 bg-[#14B8A6]/10 rounded-lg">
+                 <svg className="w-8 h-8 text-[#14B8A6]" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                   <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M8 7V3m8 4V3m-9 8h10M5 21h14a2 2 0 002-2V7a2 2 0 00-2-2H5a2 2 0 00-2 2v12a2 2 0 002 2z" />
+                 </svg>
+               </div>
+             </div>
+           </div>
 
-          <div className="bg-white dark:bg-gray-800 rounded-lg shadow-sm p-6 border border-gray-200 dark:border-gray-700">
-            <div className="flex items-center justify-between">
-              <div>
-                <p className="text-sm font-medium text-gray-600 dark:text-gray-400">Confirmed</p>
-                <p className="text-3xl font-bold text-green-600 dark:text-green-400 mt-2">{analytics.confirmed_bookings}</p>
-              </div>
-              <div className="p-3 bg-green-100 dark:bg-green-900 rounded-lg">
-                <svg className="w-8 h-8 text-green-600 dark:text-green-400" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                  <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M9 12l2 2 4-4m6 2a9 9 0 11-18 0 9 9 0 0118 0z" />
-                </svg>
-              </div>
-            </div>
-          </div>
+           <div className="bg-white dark:bg-gray-800 rounded-lg shadow-sm p-6 border border-gray-200 dark:border-gray-700">
+             <div className="flex items-center justify-between">
+               <div>
+                 <p className="text-sm font-medium text-gray-600 dark:text-gray-400">Confirmed</p>
+                 <p className="text-3xl font-bold text-[#10B981] dark:text-[#6EE7B7] mt-2">{analytics.confirmed_bookings}</p>
+               </div>
+               <div className="p-3 bg-[#10B981]/10 rounded-lg">
+                 <svg className="w-8 h-8 text-[#10B981]" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                   <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M9 12l2 2 4-4m6 2a9 9 0 11-18 0 9 9 0 0118 0z" />
+                 </svg>
+               </div>
+             </div>
+           </div>
 
-          <div className="bg-white dark:bg-gray-800 rounded-lg shadow-sm p-6 border border-gray-200 dark:border-gray-700">
-            <div className="flex items-center justify-between">
-              <div>
-                <p className="text-sm font-medium text-gray-600 dark:text-gray-400">Cancelled</p>
-                <p className="text-3xl font-bold text-red-600 dark:text-red-400 mt-2">{analytics.cancelled_bookings}</p>
-              </div>
-              <div className="p-3 bg-red-100 dark:bg-red-900 rounded-lg">
-                <svg className="w-8 h-8 text-red-600 dark:text-red-400" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                  <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M6 18L18 6M6 6l12 12" />
-                </svg>
-              </div>
-            </div>
-          </div>
-        </div>
+           <div className="bg-white dark:bg-gray-800 rounded-lg shadow-sm p-6 border border-gray-200 dark:border-gray-700">
+             <div className="flex items-center justify-between">
+               <div>
+                 <p className="text-sm font-medium text-gray-600 dark:text-gray-400">Cancelled</p>
+                 <p className="text-3xl font-bold text-red-600 dark:text-red-400 mt-2">{analytics.cancelled_bookings}</p>
+               </div>
+               <div className="p-3 bg-red-100 dark:bg-red-900 rounded-lg">
+                 <svg className="w-8 h-8 text-red-600 dark:text-red-400" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                   <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M6 18L18 6M6 6l12 12" />
+                 </svg>
+               </div>
+             </div>
+           </div>
+         </div>
 
         {/* Booking Trend Chart */}
         <div className="bg-white dark:bg-gray-800 rounded-lg shadow-sm p-6 border border-gray-200 dark:border-gray-700 mb-8">
@@ -157,7 +157,7 @@ export default function ProfileAnalyticsPage() {
                   }}
                 />
                 <Legend />
-                <Line type="monotone" dataKey="count" stroke="#3B82F6" strokeWidth={2} name="Bookings" />
+                 <Line type="monotone" dataKey="count" stroke="#14B8A6" strokeWidth={2} name="Bookings" />
               </LineChart>
             </ResponsiveContainer>
           ) : (
@@ -183,7 +183,7 @@ export default function ProfileAnalyticsPage() {
                     }}
                   />
                   <Legend />
-                  <Bar dataKey="total_bookings" fill="#3B82F6" name="Bookings" />
+                   <Bar dataKey="total_bookings" fill="#F59E0B" name="Bookings" />
                 </BarChart>
               </ResponsiveContainer>
             ) : (
@@ -198,11 +198,17 @@ export default function ProfileAnalyticsPage() {
               <ResponsiveContainer width="100%" height={300}>
                 <PieChart>
                   <Pie
-                     data={analytics.popular_services as any}
+                     data={analytics.popular_services.map(service => ({
+                       ...service,
+                       name: service.service_title,
+                     }))}
                     cx="50%"
                     cy="50%"
                     labelLine={false}
-                     label={(entry) => (entry.payload as ServiceStats).service_title}
+                     label={(entry: unknown) => {
+                       const data = entry as ServiceStats & { name: string };
+                       return data.name;
+                     }}
                     outerRadius={80}
                     fill="#8884d8"
                     dataKey="revenue"
@@ -240,7 +246,7 @@ export default function ProfileAnalyticsPage() {
                   </tr>
                 </thead>
                 <tbody>
-                  {analytics.popular_services.map((service, index) => (
+                  {analytics.popular_services.map((service) => (
                     <tr key={service.service_id} className="border-b border-gray-100 dark:border-gray-700 last:border-0">
                       <td className="py-3 px-4 text-gray-900 dark:text-white">{service.service_title}</td>
                       <td className="text-right py-3 px-4 text-gray-900 dark:text-white">{service.total_bookings}</td>

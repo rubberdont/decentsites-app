@@ -15,21 +15,30 @@ export enum ErrorCategory {
   GENERAL = 'general'
 }
 
+interface ApiErrorResponse {
+  response?: {
+    status?: number;
+    data?: unknown;
+  };
+  request?: unknown;
+  message?: string;
+}
+
 export interface LogEntry {
   timestamp: string;
   level: ErrorSeverity;
   category: ErrorCategory;
   message: string;
-  error?: any;
+  error?: ApiErrorResponse;
   userMessage?: string;
-  context?: any;
+  context?: unknown;
 }
 
 export interface ParsedError {
   status?: number;
   message: string;
   userMessage?: string;
-  details?: any;
+  details?: unknown;
 }
 
 /**
@@ -53,7 +62,7 @@ export function logError(entry: LogEntry): void {
 /**
  * Logs API-related errors with automatic parsing
  */
-export function logApiError(error: any, context?: any): void {
+export function logApiError(error: ApiErrorResponse, context?: unknown): void {
   const parsed = parseApiError(error);
 
   logError({
@@ -70,7 +79,7 @@ export function logApiError(error: any, context?: any): void {
 /**
  * Logs validation errors
  */
-export function logValidationError(message: string, error?: any, context?: any): void {
+export function logValidationError(message: string, error?: ApiErrorResponse, context?: unknown): void {
   logError({
     timestamp: new Date().toISOString(),
     level: ErrorSeverity.ERROR,
@@ -85,7 +94,7 @@ export function logValidationError(message: string, error?: any, context?: any):
 /**
  * Logs network-related errors
  */
-export function logNetworkError(error: any, context?: any): void {
+export function logNetworkError(error: ApiErrorResponse, context?: unknown): void {
   logError({
     timestamp: new Date().toISOString(),
     level: ErrorSeverity.ERROR,
@@ -100,7 +109,7 @@ export function logNetworkError(error: any, context?: any): void {
 /**
  * Logs authentication errors
  */
-export function logAuthError(message: string, error?: any, context?: any): void {
+export function logAuthError(message: string, error?: ApiErrorResponse, context?: unknown): void {
   logError({
     timestamp: new Date().toISOString(),
     level: ErrorSeverity.ERROR,
@@ -115,7 +124,7 @@ export function logAuthError(message: string, error?: any, context?: any): void 
 /**
  * Logs general application errors
  */
-export function logGeneralError(message: string, error?: any, userMessage?: string, context?: any): void {
+export function logGeneralError(message: string, error?: ApiErrorResponse, userMessage?: string, context?: unknown): void {
   logError({
     timestamp: new Date().toISOString(),
     level: ErrorSeverity.ERROR,
@@ -130,7 +139,7 @@ export function logGeneralError(message: string, error?: any, userMessage?: stri
 /**
  * Parses common API error responses
  */
-export function parseApiError(error: any): ParsedError {
+export function parseApiError(error: ApiErrorResponse): ParsedError {
   if (error.response) {
     const { status, data } = error.response;
 
@@ -212,7 +221,7 @@ export function parseApiError(error: any): ParsedError {
 /**
  * Logs warnings (development mode only for console, no user notification)
  */
-export function logWarning(message: string, context?: any): void {
+export function logWarning(message: string, context?: unknown): void {
   logError({
     timestamp: new Date().toISOString(),
     level: ErrorSeverity.WARN,
@@ -225,7 +234,7 @@ export function logWarning(message: string, context?: any): void {
 /**
  * Logs info messages (development mode only)
  */
-export function logInfo(message: string, context?: any): void {
+export function logInfo(message: string, context?: unknown): void {
   logError({
     timestamp: new Date().toISOString(),
     level: ErrorSeverity.INFO,

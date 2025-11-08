@@ -6,6 +6,15 @@ import { getToken, setToken, removeToken } from '@/utils/auth';
 import { showError, showSuccess } from '@/utils/toast';
 import type { User, LoginRequest, RegisterRequest, UserRole } from '@/types';
 
+interface ApiError {
+  response?: {
+    status?: number;
+    data?: {
+      detail?: string | Array<{ loc: string[]; msg: string }>;
+    };
+  };
+}
+
 interface AuthContextType {
   user: User | null;
   token: string | null;
@@ -38,17 +47,17 @@ export function AuthProvider({ children }: AuthProviderProps) {
         
         if (storedToken) {
           setTokenState(storedToken);
-          try {
-            const response = await authAPI.getCurrentUser();
-            setUser(response.data);
-          } catch (error) {
-            console.error('Error validating stored token:', error);
-            // Only clear token if it's invalid (401), not on network errors
-            if ((error as any).response?.status === 401) {
-              removeToken();
-              setTokenState(null);
-            }
-          }
+           try {
+             const response = await authAPI.getCurrentUser();
+             setUser(response.data);
+           } catch (error: unknown) {
+             console.error('Error validating stored token:', error);
+             // Only clear token if it's invalid (401), not on network errors
+             if ((error as ApiError).response?.status === 401) {
+               removeToken();
+               setTokenState(null);
+             }
+           }
         }
         
         setLoading(false);
@@ -76,22 +85,22 @@ export function AuthProvider({ children }: AuthProviderProps) {
         console.error('Failed to fetch user after login:', error);
         throw error;
       }
-    } catch (error: unknown) {
-      console.error('Login error:', error);
+     } catch (error: unknown) {
+       console.error('Login error:', error);
 
-      if ((error as any).response?.status === 401) {
-        // Unauthorized: invalid credentials
-        showError('Invalid credentials. Please check your username and password.');
-      } else if (!(error as any).response) {
-        // Network error
-        showError('Network error. Please check your connection and try again.');
-      } else {
-        // Other errors
-        showError('Login failed. Please try again.');
-      }
+       if ((error as ApiError).response?.status === 401) {
+         // Unauthorized: invalid credentials
+         showError('Invalid credentials. Please check your username and password.');
+       } else if (!(error as ApiError).response) {
+         // Network error
+         showError('Network error. Please check your connection and try again.');
+       } else {
+         // Other errors
+         showError('Login failed. Please try again.');
+       }
 
-      throw error; // Re-throw for calling components
-    }
+       throw error; // Re-throw for calling components
+     }
   };
 
   const logout = () => {
@@ -106,31 +115,31 @@ export function AuthProvider({ children }: AuthProviderProps) {
       // After successful registration, automatically login
       await login(data);
       showSuccess('Registration successful!');
-    } catch (error: unknown) {
-      console.error('Registration error:', error);
+     } catch (error: unknown) {
+       console.error('Registration error:', error);
 
-      if ((error as any).response?.status === 422) {
-        // Validation errors
-        const validationErrors = (error as any).response.data.detail;
-        if (Array.isArray(validationErrors)) {
-          const messages = validationErrors.map((err: any) => `${err.loc.join('.')}: ${err.msg}`).join('; ');
-          showError(`Validation errors: ${messages}`);
-        } else {
-          showError('Validation failed. Please check your input.');
-        }
-      } else if ((error as any).response?.status === 409) {
-        // Conflict: username/email already exists
-        showError('Username or email already exists. Please choose different credentials.');
-      } else if (!(error as any).response) {
-        // Network error
-        showError('Network error. Please check your connection and try again.');
-      } else {
-        // Other errors
-        showError('Registration failed. Please try again.');
-      }
+       if ((error as ApiError).response?.status === 422) {
+         // Validation errors
+         const validationErrors = (error as ApiError).response?.data?.detail;
+         if (Array.isArray(validationErrors)) {
+           const messages = validationErrors.map((err: { loc: string[]; msg: string }) => `${err.loc.join('.')}: ${err.msg}`).join('; ');
+           showError(`Validation errors: ${messages}`);
+         } else {
+           showError('Validation failed. Please check your input.');
+         }
+       } else if ((error as ApiError).response?.status === 409) {
+         // Conflict: username/email already exists
+         showError('Username or email already exists. Please choose different credentials.');
+       } else if (!(error as ApiError).response) {
+         // Network error
+         showError('Network error. Please check your connection and try again.');
+       } else {
+         // Other errors
+         showError('Registration failed. Please try again.');
+       }
 
-      throw error; // Re-throw for calling components
-    }
+       throw error; // Re-throw for calling components
+     }
   };
 
   // Role-based helper functions

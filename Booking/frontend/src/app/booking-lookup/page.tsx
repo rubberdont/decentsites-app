@@ -3,6 +3,7 @@
 import { useState } from 'react';
 import Link from 'next/link';
 import { bookingsAPI, profilesAPI } from '@/services/api';
+import { Button, Input, Card } from '@/components/ui';
 import type { Booking, BusinessProfile, BookingStatus } from '@/types';
 
 interface BookingWithProfile extends Booking {
@@ -112,13 +113,13 @@ export default function BookingLookupPage() {
   };
 
   return (
-    <div className="min-h-screen bg-gray-50 dark:bg-gray-900">
+    <div className="min-h-screen bg-[#F5F3EF] dark:bg-gray-900">
       <div className="container mx-auto px-4 py-8">
         {/* Header */}
         <div className="mb-8">
           <Link 
             href="/"
-            className="inline-flex items-center text-blue-600 hover:text-blue-800 dark:text-blue-400 dark:hover:text-blue-300 mb-4 transition-colors"
+            className="inline-flex items-center text-[#14B8A6] hover:text-[#0F9488] dark:text-[#14B8A6] dark:hover:text-[#0F9488] mb-4 transition-colors"
           >
             <svg className="w-4 h-4 mr-2" fill="none" stroke="currentColor" viewBox="0 0 24 24">
               <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M15 19l-7-7 7-7" />
@@ -138,35 +139,26 @@ export default function BookingLookupPage() {
         {/* Search Form */}
         <div className="max-w-md mx-auto mb-12">
           <form onSubmit={handleSearch} className="space-y-4">
-            <div>
-              <label htmlFor="bookingRef" className="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-2">
-                Booking Reference Number
-              </label>
-              <input
-                type="text"
-                id="bookingRef"
-                value={bookingRef}
-                onChange={(e) => setBookingRef(e.target.value)}
-                placeholder="Enter your booking reference (e.g., BK-123456)"
-                className="w-full px-4 py-3 border border-gray-300 dark:border-gray-600 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-blue-500 dark:bg-gray-700 dark:text-white placeholder-gray-500 dark:placeholder-gray-400 transition-colors"
-                disabled={loading}
-              />
-            </div>
-            
-            <button
-              type="submit"
+            <Input
+              type="text"
+              id="bookingRef"
+              label="Booking Reference Number"
+              value={bookingRef}
+              onChange={(e) => setBookingRef(e.target.value)}
+              placeholder="Enter your booking reference (e.g., BK-123456)"
               disabled={loading}
-              className="w-full bg-blue-600 text-white py-3 px-4 rounded-lg hover:bg-blue-700 disabled:opacity-50 disabled:cursor-not-allowed transition-colors font-medium flex items-center justify-center"
+            />
+            
+            <Button
+              type="submit"
+              variant="primary"
+              size="lg"
+              disabled={loading}
+              isLoading={loading}
+              className="w-full"
             >
-              {loading ? (
-                <>
-                  <div className="w-5 h-5 border-2 border-white border-t-transparent rounded-full animate-spin mr-2"></div>
-                  Searching...
-                </>
-              ) : (
-                'Search Booking'
-              )}
-            </button>
+              {loading ? 'Searching...' : 'Search Booking'}
+            </Button>
           </form>
 
           {/* Help Text */}
@@ -190,12 +182,13 @@ export default function BookingLookupPage() {
                 </h3>
               </div>
               <p className="text-red-700 dark:text-red-400 mb-4">{error}</p>
-              <button
+              <Button
                 onClick={resetSearch}
-                className="bg-red-600 text-white px-4 py-2 rounded-lg hover:bg-red-700 transition-colors text-sm"
+                variant="primary"
+                size="sm"
               >
                 Try Again
-              </button>
+              </Button>
             </div>
           </div>
         )}
@@ -203,15 +196,15 @@ export default function BookingLookupPage() {
         {/* Booking Details */}
         {booking && (
           <div className="max-w-2xl mx-auto">
-            <div className="bg-white dark:bg-gray-800 rounded-lg shadow-md border border-gray-200 dark:border-gray-700 overflow-hidden">
-              <div className="bg-blue-50 dark:bg-blue-900/20 px-6 py-4 border-b border-blue-100 dark:border-blue-800">
+            <Card className="bg-white dark:bg-gray-800 rounded-lg overflow-hidden">
+              <div className="bg-[#14B8A6] dark:bg-teal-900/20 px-6 py-4 border-b border-[#0F9488] dark:border-teal-800">
                 <div className="flex items-center justify-between">
-                  <h2 className="text-xl font-semibold text-blue-900 dark:text-blue-100">
+                  <h2 className="text-xl font-semibold text-white dark:text-[#14B8A6]">
                     Booking Found
                   </h2>
                   <button
                     onClick={resetSearch}
-                    className="text-blue-600 hover:text-blue-800 dark:text-blue-400 dark:hover:text-blue-300 text-sm font-medium"
+                    className="text-white dark:text-[#14B8A6] hover:text-gray-100 dark:hover:text-white text-sm font-medium transition-colors"
                   >
                     Search Another
                   </button>
@@ -297,7 +290,7 @@ export default function BookingLookupPage() {
                   {booking.profile_id && (
                     <Link
                       href={`/profiles/${booking.profile_id}`}
-                      className="bg-blue-600 text-white px-6 py-3 rounded-lg hover:bg-blue-700 transition-colors text-center font-medium"
+                      className="bg-[#F59E0B] hover:bg-[#D97706] text-white px-6 py-3 rounded-lg transition-colors text-center font-medium"
                     >
                       View Business Profile
                     </Link>
@@ -305,20 +298,20 @@ export default function BookingLookupPage() {
                   
                   <Link
                     href="/"
-                    className="bg-gray-600 text-white px-6 py-3 rounded-lg hover:bg-gray-700 transition-colors text-center font-medium"
+                    className="bg-gray-600 hover:bg-gray-700 text-white px-6 py-3 rounded-lg transition-colors text-center font-medium"
                   >
                     Browse More Services
                   </Link>
                 </div>
               </div>
-            </div>
+            </Card>
           </div>
         )}
 
         {/* Empty State (after search with no results) */}
         {searched && !booking && !error && (
           <div className="max-w-2xl mx-auto">
-            <div className="bg-white dark:bg-gray-800 rounded-lg shadow-md border border-gray-200 dark:border-gray-700 p-12 text-center">
+            <Card className="bg-white dark:bg-gray-800 rounded-lg p-12 text-center">
               <div className="max-w-md mx-auto">
                 <svg className="w-16 h-16 text-gray-400 mx-auto mb-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                   <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M9.172 16.172a4 4 0 015.656 0M9 10h.01M15 10h.01M21 12a9 9 0 11-18 0 9 9 0 0118 0z" />
@@ -329,14 +322,16 @@ export default function BookingLookupPage() {
                 <p className="text-gray-600 dark:text-gray-400 mb-6">
                   We couldn&apos;t find a booking with that reference number. Please check the number and try again.
                 </p>
-                <button
+                <Button
                   onClick={resetSearch}
-                  className="inline-flex items-center bg-blue-600 text-white px-6 py-3 rounded-lg hover:bg-blue-700 transition-colors"
+                  variant="primary"
+                  size="lg"
+                  className="inline-flex items-center"
                 >
                   Try Another Search
-                </button>
+                </Button>
               </div>
-            </div>
+            </Card>
           </div>
         )}
       </div>

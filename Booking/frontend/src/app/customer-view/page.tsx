@@ -2,6 +2,7 @@
 
 import { useState, useEffect } from 'react';
 import Link from 'next/link';
+import { Button, Card } from '@/components/ui';
 import axios from 'axios';
 
 interface Service {
@@ -44,7 +45,7 @@ export default function CustomerViewPage() {
 
   if (loading) {
     return (
-      <div className="min-h-screen flex items-center justify-center bg-gray-50">
+      <div className="min-h-screen flex items-center justify-center bg-[#F5F3EF]">
         <div className="text-xl">Loading business profile...</div>
       </div>
     );
@@ -52,15 +53,17 @@ export default function CustomerViewPage() {
 
   if (error || !profile) {
     return (
-      <div className="min-h-screen flex items-center justify-center bg-gray-50">
+      <div className="min-h-screen flex items-center justify-center bg-[#F5F3EF]">
         <div className="text-center">
           <h2 className="text-2xl font-bold text-gray-900 mb-4">Business Not Found</h2>
           <p className="text-gray-600 mb-6">{error}</p>
           <Link 
             href="/profile"
-            className="bg-blue-600 text-white px-6 py-3 rounded-lg hover:bg-blue-700"
+            className="inline-block"
           >
-            Create Business Profile
+            <Button variant="primary" size="lg">
+              Create Business Profile
+            </Button>
           </Link>
         </div>
       </div>
@@ -68,13 +71,13 @@ export default function CustomerViewPage() {
   }
 
   return (
-    <div className="min-h-screen bg-gray-50">
+    <div className="min-h-screen bg-[#F5F3EF]">
       {/* Header */}
       <div className="bg-white shadow-sm border-b">
         <div className="container mx-auto px-4 py-4">
           <Link 
             href="/"
-            className="inline-flex items-center text-blue-600 hover:text-blue-800 mb-2"
+            className="inline-flex items-center text-[#14B8A6] hover:text-[#0F9488] mb-2 transition-colors"
           >
             ← Back to Home
           </Link>
@@ -84,7 +87,7 @@ export default function CustomerViewPage() {
 
       <div className="container mx-auto px-4 py-8">
         {/* Business Header */}
-        <div className="bg-white rounded-lg shadow-md overflow-hidden mb-8">
+        <Card className="bg-white rounded-lg overflow-hidden mb-8">
           {profile.image_url && (
             <div className="h-64 md:h-80 overflow-hidden">
               <img
@@ -102,16 +105,20 @@ export default function CustomerViewPage() {
               {profile.description || 'No description available.'}
             </p>
           </div>
-        </div>
+        </Card>
 
         {/* Services Section */}
-        <div className="bg-white rounded-lg shadow-md p-6">
+        <Card className="bg-white rounded-lg p-6 mb-8">
           <h2 className="text-2xl font-bold text-gray-900 mb-6">Our Services</h2>
           
           {profile.services.length > 0 ? (
             <div className="grid md:grid-cols-2 lg:grid-cols-3 gap-6">
               {profile.services.map((service) => (
-                <div key={service.id} className="bg-white border border-gray-200 rounded-lg overflow-hidden shadow-sm hover:shadow-md transition-shadow">
+                <Card
+                  key={service.id}
+                  className="bg-white border border-gray-200 rounded-lg overflow-hidden"
+                  hoverable
+                >
                   {service.image_url && (
                     <div className="h-48 overflow-hidden">
                       <img
@@ -129,15 +136,15 @@ export default function CustomerViewPage() {
                       {service.description}
                     </p>
                     <div className="flex justify-between items-center">
-                      <span className="text-2xl font-bold text-green-600">
+                      <span className="text-2xl font-bold text-[#10B981]">
                         ${service.price}
                       </span>
-                      <button className="bg-blue-600 text-white px-4 py-2 rounded-lg hover:bg-blue-700 transition-colors">
+                      <Button variant="primary" size="sm">
                         Book Now
-                      </button>
+                      </Button>
                     </div>
                   </div>
-                </div>
+                </Card>
               ))}
             </div>
           ) : (
@@ -148,24 +155,24 @@ export default function CustomerViewPage() {
                 </svg>
               </div>
               <h3 className="text-lg font-medium text-gray-900 mb-2">No Services Available</h3>
-              <p className="text-gray-500">This business hasn't added any services yet.</p>
+              <p className="text-gray-500">This business hasn&apos;t added any services yet.</p>
             </div>
           )}
-        </div>
+        </Card>
 
         {/* Contact/Info Section */}
-        <div className="mt-8 bg-blue-50 rounded-lg p-6">
+        <div className="bg-[#F59E0B]/10 border-2 border-[#F59E0B] rounded-lg p-6">
           <h3 className="text-xl font-semibold text-gray-900 mb-4">Ready to Book?</h3>
           <p className="text-gray-600 mb-4">
             Contact {profile.name || 'us'} to schedule your appointment or learn more about our services.
           </p>
           <div className="flex flex-wrap gap-4">
-            <button className="bg-blue-600 text-white px-6 py-3 rounded-lg hover:bg-blue-700 transition-colors">
+            <Button variant="primary" size="lg">
               Contact Us
-            </button>
-            <button className="bg-white text-blue-600 border border-blue-600 px-6 py-3 rounded-lg hover:bg-blue-50 transition-colors">
+            </Button>
+            <Button variant="ghost" size="lg">
               View Location
-            </button>
+            </Button>
           </div>
         </div>
       </div>

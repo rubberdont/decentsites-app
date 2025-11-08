@@ -1,6 +1,6 @@
 'use client';
 
-import { useState, useEffect } from 'react';
+import { useState, useEffect, useCallback } from 'react';
 import { useRouter, useParams } from 'next/navigation';
 import Link from 'next/link';
 import { useAuth } from '@/context/AuthContext';
@@ -24,57 +24,52 @@ export default function AvailabilityPage() {
   const [loading, setLoading] = useState(true);
   const [showSlotModal, setShowSlotModal] = useState(false);
 
-  // Slot creation form
-  const [slotForm, setSlotForm] = useState({
-    startTime: '09:00',
-    endTime: '17:00',
-    slotDuration: 60,
-    maxCapacity: 1,
-  });
+   // Slot creation form
+   const [slotForm, setSlotForm] = useState({
+     startTime: '09:00',
+     endTime: '17:00',
+     slotDuration: 60,
+     maxCapacity: 1,
+   });
 
-  useEffect(() => {
-    if (!authLoading && !isOwner) {
-      router.push('/');
-      return;
-    }
+   const loadProfile = useCallback(async () => {
+     try {
+       const response = await profilesAPI.getById(profileId);
+       setProfile(response.data);
+     } catch (error) {
+       console.error('Failed to load profile:', error);
+       showError('Failed to load profile');
+     }
+   }, [profileId]);
 
-    if (isOwner && profileId) {
-      loadProfile();
-      loadAvailability();
-    }
-  }, [isOwner, authLoading, profileId, router, currentMonth]);
+   const loadAvailability = useCallback(async () => {
+     try {
+       setLoading(true);
+       const start = startOfMonth(currentMonth);
+       const end = endOfMonth(currentMonth);
+       const response = await availabilityAPI.getAvailability(profileId, start.toISOString(), end.toISOString());
+       setAvailability(response.data);
+     } catch (error) {
+       console.error('Failed to load availability:', error);
+       showError('Failed to load availability');
+     } finally {
+       setLoading(false);
+     }
+   }, [profileId, currentMonth]);
 
-  const loadProfile = async () => {
-    try {
-      const response = await profilesAPI.getById(profileId);
-      setProfile(response.data);
-    } catch (error) {
-      console.error('Failed to load profile:', error);
-      showError('Failed to load profile');
-    }
-  };
+   useEffect(() => {
+     if (!authLoading && !isOwner) {
+       router.push('/');
+       return;
+     }
 
-  const loadAvailability = async () => {
-    try {
-      setLoading(true);
-      const start = startOfMonth(currentMonth);
-      const end = endOfMonth(currentMonth);
-      
-      const response = await availabilityAPI.getAvailability(
-        profileId,
-        start.toISOString(),
-        end.toISOString()
-      );
-      setAvailability(response.data);
-    } catch (error) {
-      console.error('Failed to load availability:', error);
-      showError('Failed to load availability');
-    } finally {
-      setLoading(false);
-    }
-  };
+     if (isOwner && profileId) {
+       loadProfile();
+       loadAvailability();
+     }
+    }, [isOwner, authLoading, profileId, router, loadProfile, loadAvailability]);
 
-  const handleDateClick = async (date: Date) => {
+   const handleDateClick = async (date: Date) => {
     setSelectedDate(date);
     try {
       const response = await availabilityAPI.getSlotsForDate(
@@ -149,16 +144,16 @@ export default function AvailabilityPage() {
 
   if (authLoading || loading) {
     return (
-      <ProtectedRoute>
-        <div className="container mx-auto px-4 py-8">
-          <div className="flex items-center justify-center min-h-96">
-            <div className="text-center">
-              <div className="w-16 h-16 border-4 border-blue-600 border-t-transparent rounded-full animate-spin mx-auto mb-4"></div>
-              <p className="text-gray-600 dark:text-gray-400">Loading availability...</p>
-            </div>
-          </div>
-        </div>
-      </ProtectedRoute>
+       <ProtectedRoute>
+         <div className="container mx-auto px-4 py-8">
+           <div className="flex items-center justify-center min-h-96">
+             <div className="text-center">
+               <div className="w-16 h-16 border-4 border-[#14B8A6] border-t-transparent rounded-full animate-spin mx-auto mb-4"></div>
+               <p className="text-gray-600 dark:text-gray-400">Loading availability...</p>
+             </div>
+           </div>
+         </div>
+       </ProtectedRoute>
     );
   }
 
@@ -167,15 +162,15 @@ export default function AvailabilityPage() {
       <div className="container mx-auto px-4 py-8">
         {/* Header */}
         <div className="mb-8">
-          <Link
-            href="/owner/profiles"
-            className="inline-flex items-center text-blue-600 hover:text-blue-800 dark:text-blue-400 dark:hover:text-blue-300 mb-4 transition-colors"
-          >
-            <svg className="w-4 h-4 mr-2" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-              <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M15 19l-7-7 7-7" />
-            </svg>
-            Back to My Profiles
-          </Link>
+           <Link
+             href="/owner/profiles"
+             className="inline-flex items-center text-[#14B8A6] hover:text-[#0F9488] dark:text-[#14B8A6] dark:hover:text-[#0F9488] mb-4 transition-colors"
+           >
+             <svg className="w-4 h-4 mr-2" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+               <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M15 19l-7-7 7-7" />
+             </svg>
+             Back to My Profiles
+           </Link>
 
           <h1 className="text-3xl font-bold text-gray-900 dark:text-white">
             {profile?.name} - Availability Management
@@ -368,11 +363,11 @@ export default function AvailabilityPage() {
                     </div>
 
                     <button
-                      onClick={handleCreateSlots}
-                      className="w-full bg-blue-600 text-white py-3 px-4 rounded-lg hover:bg-blue-700 transition-colors font-medium"
-                    >
-                      Create Slots
-                    </button>
+                       onClick={handleCreateSlots}
+                       className="w-full bg-[#F59E0B] text-white py-3 px-4 rounded-lg hover:bg-[#D97706] transition-colors font-medium"
+                     >
+                       Create Slots
+                     </button>
                   </div>
                 </div>
               </div>

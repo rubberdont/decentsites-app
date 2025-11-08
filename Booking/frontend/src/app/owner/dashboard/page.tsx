@@ -5,6 +5,7 @@ import { useRouter } from 'next/navigation';
 import Link from 'next/link';
 import { useAuth } from '@/context/AuthContext';
 import ProtectedRoute from '@/components/ProtectedRoute';
+import { Button, Card } from '@/components/ui';
 import { ownerAPI } from '@/services/api';
 import type { DashboardStats, ProfileWithBookingCount } from '@/types';
 import { showError } from '@/utils/toast';
@@ -50,7 +51,7 @@ export default function OwnerDashboardPage() {
         <div className="container mx-auto px-4 py-8">
           <div className="flex items-center justify-center min-h-96">
             <div className="text-center">
-              <div className="w-16 h-16 border-4 border-blue-600 border-t-transparent rounded-full animate-spin mx-auto mb-4"></div>
+              <div className="w-16 h-16 border-4 border-[#14B8A6] border-t-transparent rounded-full animate-spin mx-auto mb-4"></div>
               <p className="text-gray-600 dark:text-gray-400">Loading dashboard...</p>
             </div>
           </div>
@@ -75,49 +76,49 @@ export default function OwnerDashboardPage() {
         {/* Stats Cards */}
         {stats && (
           <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6 mb-8">
-            <div className="bg-white dark:bg-gray-800 rounded-lg shadow-sm p-6 border border-gray-200 dark:border-gray-700">
+            <Card className="bg-white dark:bg-gray-800 rounded-lg p-6">
               <div className="flex items-center justify-between">
                 <div>
                   <p className="text-sm font-medium text-gray-600 dark:text-gray-400">Total Bookings</p>
                   <p className="text-3xl font-bold text-gray-900 dark:text-white mt-2">{stats.total_bookings}</p>
                 </div>
-                <div className="p-3 bg-blue-100 dark:bg-blue-900 rounded-lg">
-                  <svg className="w-8 h-8 text-blue-600 dark:text-blue-400" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                <div className="p-3 bg-[#14B8A6]/10 rounded-lg">
+                  <svg className="w-8 h-8 text-[#14B8A6]" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                     <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M8 7V3m8 4V3m-9 8h10M5 21h14a2 2 0 002-2V7a2 2 0 00-2-2H5a2 2 0 00-2 2v12a2 2 0 002 2z" />
                   </svg>
                 </div>
               </div>
-            </div>
+            </Card>
 
-            <div className="bg-white dark:bg-gray-800 rounded-lg shadow-sm p-6 border border-gray-200 dark:border-gray-700">
+            <Card className="bg-white dark:bg-gray-800 rounded-lg p-6">
               <div className="flex items-center justify-between">
                 <div>
                   <p className="text-sm font-medium text-gray-600 dark:text-gray-400">Pending</p>
-                  <p className="text-3xl font-bold text-yellow-600 dark:text-yellow-400 mt-2">{stats.pending_bookings}</p>
+                  <p className="text-3xl font-bold text-[#FBBF24] dark:text-[#FCD34D] mt-2">{stats.pending_bookings}</p>
                 </div>
-                <div className="p-3 bg-yellow-100 dark:bg-yellow-900 rounded-lg">
-                  <svg className="w-8 h-8 text-yellow-600 dark:text-yellow-400" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                <div className="p-3 bg-[#FBBF24]/10 rounded-lg">
+                  <svg className="w-8 h-8 text-[#FBBF24]" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                     <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M12 8v4l3 3m6-3a9 9 0 11-18 0 9 9 0 0118 0z" />
                   </svg>
                 </div>
               </div>
-            </div>
+            </Card>
 
-            <div className="bg-white dark:bg-gray-800 rounded-lg shadow-sm p-6 border border-gray-200 dark:border-gray-700">
+            <Card className="bg-white dark:bg-gray-800 rounded-lg p-6">
               <div className="flex items-center justify-between">
                 <div>
                   <p className="text-sm font-medium text-gray-600 dark:text-gray-400">Confirmed</p>
-                  <p className="text-3xl font-bold text-green-600 dark:text-green-400 mt-2">{stats.confirmed_bookings}</p>
+                  <p className="text-3xl font-bold text-[#10B981] dark:text-[#6EE7B7] mt-2">{stats.confirmed_bookings}</p>
                 </div>
-                <div className="p-3 bg-green-100 dark:bg-green-900 rounded-lg">
-                  <svg className="w-8 h-8 text-green-600 dark:text-green-400" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                <div className="p-3 bg-[#10B981]/10 rounded-lg">
+                  <svg className="w-8 h-8 text-[#10B981]" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                     <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M9 12l2 2 4-4m6 2a9 9 0 11-18 0 9 9 0 0118 0z" />
                   </svg>
                 </div>
               </div>
-            </div>
+            </Card>
 
-            <div className="bg-white dark:bg-gray-800 rounded-lg shadow-sm p-6 border border-gray-200 dark:border-gray-700">
+            <Card className="bg-white dark:bg-gray-800 rounded-lg p-6">
               <div className="flex items-center justify-between">
                 <div>
                   <p className="text-sm font-medium text-gray-600 dark:text-gray-400">Today</p>
@@ -129,9 +130,9 @@ export default function OwnerDashboardPage() {
                   </svg>
                 </div>
               </div>
-            </div>
+            </Card>
 
-            <div className="bg-white dark:bg-gray-800 rounded-lg shadow-sm p-6 border border-gray-200 dark:border-gray-700">
+            <Card className="bg-white dark:bg-gray-800 rounded-lg p-6">
               <div className="flex items-center justify-between">
                 <div>
                   <p className="text-sm font-medium text-gray-600 dark:text-gray-400">This Week</p>
@@ -143,21 +144,21 @@ export default function OwnerDashboardPage() {
                   </svg>
                 </div>
               </div>
-            </div>
+            </Card>
 
-            <div className="bg-white dark:bg-gray-800 rounded-lg shadow-sm p-6 border border-gray-200 dark:border-gray-700">
+            <Card className="bg-white dark:bg-gray-800 rounded-lg p-6">
               <div className="flex items-center justify-between">
                 <div>
                   <p className="text-sm font-medium text-gray-600 dark:text-gray-400">Revenue</p>
-                  <p className="text-3xl font-bold text-gray-900 dark:text-white mt-2">${stats.total_revenue.toFixed(2)}</p>
+                  <p className="text-3xl font-bold text-[#F59E0B] dark:text-[#FCD34D] mt-2">${stats.total_revenue.toFixed(2)}</p>
                 </div>
-                <div className="p-3 bg-emerald-100 dark:bg-emerald-900 rounded-lg">
-                  <svg className="w-8 h-8 text-emerald-600 dark:text-emerald-400" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                <div className="p-3 bg-[#F59E0B]/10 rounded-lg">
+                  <svg className="w-8 h-8 text-[#F59E0B]" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                     <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M12 8c-1.657 0-3 .895-3 2s1.343 2 3 2 3 .895 3 2-1.343 2-3 2m0-8c1.11 0 2.08.402 2.599 1M12 8V7m0 1v8m0 0v1m0-1c-1.11 0-2.08-.402-2.599-1M21 12a9 9 0 11-18 0 9 9 0 0118 0z" />
                   </svg>
                 </div>
               </div>
-            </div>
+            </Card>
           </div>
         )}
 
@@ -165,36 +166,42 @@ export default function OwnerDashboardPage() {
         <div className="grid grid-cols-1 md:grid-cols-3 gap-6 mb-8">
           <Link
             href="/owner/profiles"
-            className="bg-blue-600 hover:bg-blue-700 text-white rounded-lg shadow-sm p-6 transition-colors"
+            className="inline-block"
           >
-            <h3 className="text-lg font-semibold mb-2">My Profiles</h3>
-            <p className="text-blue-100">View and manage your business profiles</p>
+            <Button variant="primary" size="lg" className="w-full text-left">
+              <h3 className="text-lg font-semibold">My Profiles</h3>
+              <p className="text-white/80 text-sm mt-1">View and manage your business profiles</p>
+            </Button>
           </Link>
 
           <Link
             href="/profile"
-            className="bg-green-600 hover:bg-green-700 text-white rounded-lg shadow-sm p-6 transition-colors"
+            className="inline-block"
           >
-            <h3 className="text-lg font-semibold mb-2">Create Profile</h3>
-            <p className="text-green-100">Add a new business profile</p>
+            <Button variant="secondary" size="lg" className="w-full text-left">
+              <h3 className="text-lg font-semibold">Create Profile</h3>
+              <p className="text-white/80 text-sm mt-1">Add a new business profile</p>
+            </Button>
           </Link>
 
           <Link
             href="/my-bookings"
-            className="bg-purple-600 hover:bg-purple-700 text-white rounded-lg shadow-sm p-6 transition-colors"
+            className="inline-block"
           >
-            <h3 className="text-lg font-semibold mb-2">View Bookings</h3>
-            <p className="text-purple-100">Manage all your bookings</p>
+            <Button variant="primary" size="lg" className="w-full text-left">
+              <h3 className="text-lg font-semibold">View Bookings</h3>
+              <p className="text-white/80 text-sm mt-1">Manage all your bookings</p>
+            </Button>
           </Link>
         </div>
 
         {/* My Profiles Summary */}
-        <div className="bg-white dark:bg-gray-800 rounded-lg shadow-sm p-6 border border-gray-200 dark:border-gray-700">
+        <Card className="bg-white dark:bg-gray-800 rounded-lg p-6">
           <div className="flex items-center justify-between mb-6">
             <h2 className="text-2xl font-bold text-gray-900 dark:text-white">My Profiles</h2>
             <Link
               href="/owner/profiles"
-              className="text-blue-600 hover:text-blue-700 dark:text-blue-400 text-sm font-medium"
+              className="text-[#14B8A6] hover:text-[#0F9488] dark:text-[#14B8A6] text-sm font-medium transition-colors"
             >
               View All →
             </Link>
@@ -205,27 +212,27 @@ export default function OwnerDashboardPage() {
               {profiles.map((profile) => (
                 <div
                   key={profile.id}
-                  className="border border-gray-200 dark:border-gray-700 rounded-lg p-4 hover:border-blue-300 dark:hover:border-blue-600 transition-colors"
+                  className="border border-gray-200 dark:border-gray-700 rounded-lg p-4 hover:border-[#14B8A6] dark:hover:border-[#14B8A6] transition-colors"
                 >
                   <h3 className="text-lg font-semibold text-gray-900 dark:text-white mb-2">{profile.name}</h3>
                   <p className="text-sm text-gray-600 dark:text-gray-400 mb-4 line-clamp-2">{profile.description}</p>
                   
                   <div className="flex items-center justify-between text-sm mb-4">
                     <span className="text-gray-600 dark:text-gray-400">Total: {profile.total_bookings}</span>
-                    <span className="text-yellow-600 dark:text-yellow-400">Pending: {profile.pending_bookings}</span>
-                    <span className="text-green-600 dark:text-green-400">Confirmed: {profile.confirmed_bookings}</span>
+                    <span className="text-[#FBBF24] dark:text-[#FCD34D]">Pending: {profile.pending_bookings}</span>
+                    <span className="text-[#10B981] dark:text-[#6EE7B7]">Confirmed: {profile.confirmed_bookings}</span>
                   </div>
 
                   <div className="flex gap-2">
                     <Link
                       href={`/owner/profiles/${profile.id}/analytics`}
-                      className="flex-1 text-center bg-blue-100 dark:bg-blue-900 text-blue-700 dark:text-blue-300 py-2 px-3 rounded-md text-sm font-medium hover:bg-blue-200 dark:hover:bg-blue-800 transition-colors"
+                      className="flex-1 text-center bg-[#14B8A6]/10 text-[#14B8A6] dark:bg-[#14B8A6]/20 dark:text-[#5EEAD4] py-2 px-3 rounded-md text-sm font-medium hover:bg-[#14B8A6]/20 dark:hover:bg-[#14B8A6]/30 transition-colors"
                     >
                       Analytics
                     </Link>
                     <Link
                       href={`/owner/profiles/${profile.id}/availability`}
-                      className="flex-1 text-center bg-green-100 dark:bg-green-900 text-green-700 dark:text-green-300 py-2 px-3 rounded-md text-sm font-medium hover:bg-green-200 dark:hover:bg-green-800 transition-colors"
+                      className="flex-1 text-center bg-[#10B981]/10 text-[#10B981] dark:bg-[#10B981]/20 dark:text-[#6EE7B7] py-2 px-3 rounded-md text-sm font-medium hover:bg-[#10B981]/20 dark:hover:bg-[#10B981]/30 transition-colors"
                     >
                       Availability
                     </Link>
@@ -236,15 +243,14 @@ export default function OwnerDashboardPage() {
           ) : (
             <div className="text-center py-12">
               <p className="text-gray-500 dark:text-gray-400 mb-4">No profiles yet</p>
-              <Link
-                href="/profile"
-                className="inline-block bg-blue-600 text-white px-6 py-3 rounded-lg hover:bg-blue-700 transition-colors"
-              >
-                Create Your First Profile
+              <Link href="/profile" className="inline-block">
+                <Button variant="primary" size="lg">
+                  Create Your First Profile
+                </Button>
               </Link>
             </div>
           )}
-        </div>
+        </Card>
       </div>
     </ProtectedRoute>
   );

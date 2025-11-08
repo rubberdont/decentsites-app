@@ -3,6 +3,18 @@
 :root {
   --background: #ffffff;
   --foreground: #171717;
+  
+  /* Design System Colors */
+  --cream-bg: #F5F3EF;
+  --teal-primary: #14B8A6;
+  --teal-hover: #0F9488;
+  --gold-cta: #F59E0B;
+  --gold-hover: #D97706;
+  --navy-dark: #1E293B;
+  --warm-gray-text: #78716C;
+  --success-color: #10B981;
+  --error-color: #EF4444;
+  --warning-color: #FBBF24;
 }
 
 @theme inline {
@@ -23,4 +35,112 @@ body {
   background: var(--background);
   color: var(--foreground);
   font-family: Arial, Helvetica, sans-serif;
+  scroll-behavior: smooth;
+}
+
+/* Design System Utility Classes */
+.bg-cream {
+  background-color: var(--cream-bg);
+}
+
+.bg-teal-primary {
+  background-color: var(--teal-primary);
+}
+
+.bg-gold-cta {
+  background-color: var(--gold-cta);
+}
+
+.text-teal-primary {
+  color: var(--teal-primary);
+}
+
+.text-warm-gray {
+  color: var(--warm-gray-text);
+}
+
+.hover\:text-teal-hover:hover {
+  color: var(--teal-hover);
+}
+
+.transition-smooth {
+  transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
+}
+
+/* Additional utility classes for consistency */
+.btn-primary {
+  @apply bg-[#F59E0B] hover:bg-[#D97706] text-white px-8 py-4 rounded-full font-semibold transition-all duration-300 transform hover:scale-105 shadow-lg hover:shadow-xl;
+}
+
+.btn-secondary {
+  @apply bg-[#14B8A6] hover:bg-[#0F9488] text-white px-6 py-3 rounded-full font-medium transition-all;
+}
+
+.btn-ghost {
+  @apply bg-transparent border-2 border-[#14B8A6] text-[#14B8A6] hover:bg-[#14B8A6] hover:text-white px-6 py-3 rounded-full font-medium transition-all;
+}
+
+.form-input {
+  @apply w-full px-4 py-3 border border-gray-300 dark:border-gray-600 rounded-xl focus:ring-2 focus:ring-[#14B8A6] focus:border-transparent dark:bg-gray-800 dark:text-white transition-all;
+}
+
+.card-modern {
+  @apply bg-white dark:bg-gray-800 rounded-3xl shadow-lg hover:shadow-2xl transition-all p-6 border border-gray-100 dark:border-gray-700;
+}
+
+/* Status colors for functionality */
+.text-success {
+  color: var(--success-color);
+}
+
+.text-error {
+  color: var(--error-color);
+}
+
+.text-warning {
+  color: var(--warning-color);
+}
+
+.bg-success-light {
+  background-color: rgb(209, 250, 229);
+}
+
+.bg-error-light {
+  background-color: rgb(254, 226, 226);
+}
+
+.bg-warning-light {
+  background-color: rgb(254, 243, 199);
+}
+
+/* Smooth transitions */
+* {
+  @apply transition-colors duration-200;
+}
+
+/* Custom animations */
+@keyframes float {
+  0%, 100% {
+    transform: translateY(0px);
+  }
+  50% {
+    transform: translateY(-20px);
+  }
+}
+
+@keyframes float-delayed {
+  0%, 100% {
+    transform: translateY(0px);
+  }
+  50% {
+    transform: translateY(-15px);
+  }
+}
+
+.animate-float {
+  animation: float 3s ease-in-out infinite;
+}
+
+.animate-float-delayed {
+  animation: float-delayed 4s ease-in-out infinite;
 }

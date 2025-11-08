@@ -110,58 +110,58 @@ export default function ProfileDetailPage() {
     setConfirmedServiceName('');
   };
 
-  if (loading) {
-    return (
-      <div className="min-h-screen bg-gray-50 dark:bg-gray-900 py-8">
-        <div className="max-w-4xl mx-auto px-4 sm:px-6 lg:px-8">
-          <div className="text-center">
-            <div className="animate-spin rounded-full h-12 w-12 border-b-2 border-blue-600 mx-auto"></div>
-            <p className="mt-4 text-gray-600 dark:text-gray-400">Loading profile...</p>
-          </div>
-        </div>
-      </div>
-    );
-  }
+   if (loading) {
+     return (
+       <div className="min-h-screen bg-[#F5F3EF] dark:bg-gray-900 py-8">
+         <div className="max-w-4xl mx-auto px-4 sm:px-6 lg:px-8">
+           <div className="text-center">
+             <div className="animate-spin rounded-full h-12 w-12 border-b-2 border-[#14B8A6] mx-auto"></div>
+             <p className="mt-4 text-gray-600 dark:text-gray-400">Loading profile...</p>
+           </div>
+         </div>
+       </div>
+     );
+   }
 
-  if (error && !profile) {
-    return (
-      <div className="min-h-screen bg-gray-50 dark:bg-gray-900 py-8">
-        <div className="max-w-4xl mx-auto px-4 sm:px-6 lg:px-8">
-          <div className="text-center">
-            <div className="bg-red-50 dark:bg-red-900/20 border border-red-200 dark:border-red-800 rounded-lg p-4 max-w-md mx-auto">
-              <p className="text-red-800 dark:text-red-200">{error}</p>
-              <button
-                onClick={() => window.location.reload()}
-                className="mt-3 px-4 py-2 bg-red-600 text-white rounded-md hover:bg-red-700 transition-colors"
-              >
-                Try Again
-              </button>
-            </div>
-          </div>
-        </div>
-      </div>
-    );
-  }
+   if (error && !profile) {
+     return (
+       <div className="min-h-screen bg-[#F5F3EF] dark:bg-gray-900 py-8">
+         <div className="max-w-4xl mx-auto px-4 sm:px-6 lg:px-8">
+           <div className="text-center">
+             <div className="bg-red-50 dark:bg-red-900/20 border border-red-200 dark:border-red-800 rounded-lg p-4 max-w-md mx-auto">
+               <p className="text-red-800 dark:text-red-200">{error}</p>
+               <button
+                 onClick={() => window.location.reload()}
+                 className="mt-3 px-4 py-2 bg-[#F59E0B] text-white rounded-md hover:bg-[#D97706] transition-colors"
+               >
+                 Try Again
+               </button>
+             </div>
+           </div>
+         </div>
+       </div>
+     );
+   }
 
-  if (!profile) {
-    return (
-      <div className="min-h-screen bg-gray-50 dark:bg-gray-900 py-8">
-        <div className="max-w-4xl mx-auto px-4 sm:px-6 lg:px-8">
-          <div className="text-center">
-            <div className="bg-white dark:bg-gray-800 rounded-lg shadow-sm p-8 max-w-md mx-auto">
-              <p className="text-gray-500 dark:text-gray-400 text-lg">
-                Profile not found.
-              </p>
-            </div>
-          </div>
-        </div>
-      </div>
-    );
-  }
+   if (!profile) {
+     return (
+       <div className="min-h-screen bg-[#F5F3EF] dark:bg-gray-900 py-8">
+         <div className="max-w-4xl mx-auto px-4 sm:px-6 lg:px-8">
+           <div className="text-center">
+             <div className="bg-white dark:bg-gray-800 rounded-lg shadow-sm p-8 max-w-md mx-auto">
+               <p className="text-gray-500 dark:text-gray-400 text-lg">
+                 Profile not found.
+               </p>
+             </div>
+           </div>
+         </div>
+       </div>
+     );
+   }
 
-  return (
-    <div className="min-h-screen bg-gray-50 dark:bg-gray-900 py-8">
-      <div className="max-w-4xl mx-auto px-4 sm:px-6 lg:px-8">
+   return (
+     <div className="min-h-screen bg-[#F5F3EF] dark:bg-gray-900 py-8">
+       <div className="max-w-4xl mx-auto px-4 sm:px-6 lg:px-8">
         {/* Profile Header */}
         <div className="bg-white dark:bg-gray-800 rounded-lg shadow-sm overflow-hidden mb-8">
           <div className="md:flex">
@@ -181,7 +181,7 @@ export default function ProfileDetailPage() {
               )}
             </div>
             <div className="p-8">
-              <div className="uppercase tracking-wide text-sm text-blue-600 dark:text-blue-400 font-semibold">
+               <div className="uppercase tracking-wide text-sm text-[#14B8A6] dark:text-[#14B8A6] font-semibold">
                 Business Profile
               </div>
               <h1 className="mt-2 text-3xl font-bold text-gray-900 dark:text-white">
@@ -212,7 +212,7 @@ export default function ProfileDetailPage() {
                   {profile.services.map((service: Service) => (
                     <div
                       key={service.id}
-                      className="border border-gray-200 dark:border-gray-700 rounded-lg p-4 hover:border-blue-300 dark:hover:border-blue-600 transition-colors"
+                       className="border border-gray-200 dark:border-gray-700 rounded-lg p-4 hover:border-[#14B8A6] dark:hover:border-[#14B8A6] transition-colors"
                     >
                       <div className="flex justify-between items-start">
                         <div>
@@ -223,11 +223,11 @@ export default function ProfileDetailPage() {
                             {service.description}
                           </p>
                         </div>
-                        <div className="text-right">
-                          <span className="text-lg font-bold text-blue-600 dark:text-blue-400">
-                            ${service.price}
-                          </span>
-                        </div>
+                         <div className="text-right">
+                           <span className="text-lg font-bold text-[#F59E0B] dark:text-[#FCD34D]">
+                             ${service.price}
+                           </span>
+                         </div>
                       </div>
                         {service.image_url && (
                           <div className="mt-3">
@@ -252,10 +252,10 @@ export default function ProfileDetailPage() {
                {/* Single Book Now Button */}
                {profile.services && profile.services.length > 0 && (
                  <div className="mt-6 flex justify-center">
-                   <button
-                     onClick={() => setIsBookingModalOpen(true)}
-                     className="bg-blue-600 text-white px-6 py-3 rounded-md hover:bg-blue-700 focus:outline-none focus:ring-2 focus:ring-blue-500 focus:ring-offset-2 transition-colors text-lg font-semibold"
-                   >
+                    <button
+                      onClick={() => setIsBookingModalOpen(true)}
+                      className="bg-[#F59E0B] text-white px-6 py-3 rounded-md hover:bg-[#D97706] focus:outline-none focus:ring-2 focus:ring-[#F59E0B] focus:ring-offset-2 transition-colors text-lg font-semibold"
+                    >
                      Book Now
                    </button>
                  </div>
@@ -294,25 +294,25 @@ export default function ProfileDetailPage() {
                       {selectedServiceForBooking ? (
                         // Show booking form when service is selected
                         <>
-                          {/* Selected Service Display */}
-                          <div className="mb-6 p-4 bg-blue-50 dark:bg-blue-900/20 border border-blue-200 dark:border-blue-800 rounded-lg">
-                            <div className="flex justify-between items-center">
-                              <div>
-                                <h3 className="text-lg font-semibold text-blue-900 dark:text-blue-100">
-                                  Selected Service: {profile.services?.find(s => s.id === selectedServiceForBooking)?.title}
-                                </h3>
-                                <p className="text-blue-700 dark:text-blue-300">
-                                  ${profile.services?.find(s => s.id === selectedServiceForBooking)?.price}
-                                </p>
-                              </div>
-                              <button
-                                onClick={() => setSelectedServiceForBooking('')}
-                                className="text-blue-600 hover:text-blue-800 dark:text-blue-400 dark:hover:text-blue-300 text-sm font-medium underline"
-                              >
-                                Change Service
-                              </button>
-                            </div>
-                          </div>
+                           {/* Selected Service Display */}
+                           <div className="mb-6 p-4 bg-[#14B8A6]/10 border border-[#14B8A6] rounded-lg">
+                             <div className="flex justify-between items-center">
+                               <div>
+                                 <h3 className="text-lg font-semibold text-[#14B8A6] dark:text-[#5EEAD4]">
+                                   Selected Service: {profile.services?.find(s => s.id === selectedServiceForBooking)?.title}
+                                 </h3>
+                                 <p className="text-[#14B8A6] dark:text-[#5EEAD4]">
+                                   ${profile.services?.find(s => s.id === selectedServiceForBooking)?.price}
+                                 </p>
+                               </div>
+                               <button
+                                 onClick={() => setSelectedServiceForBooking('')}
+                                 className="text-[#14B8A6] hover:text-[#0F9488] dark:text-[#5EEAD4] dark:hover:text-[#14B8A6] text-sm font-medium underline"
+                               >
+                                 Change Service
+                               </button>
+                             </div>
+                           </div>
 
                           <form onSubmit={handleBookingSubmit} className="space-y-4">
                             {/* Date Selection */}
@@ -358,11 +358,11 @@ export default function ProfileDetailPage() {
                             </div>
 
                             {/* Submit Button */}
-                            <button
-                              type="submit"
-                              disabled={bookingLoading || !bookingDate || !selectedTimeSlot}
-                              className="w-full bg-blue-600 text-white py-2 px-4 rounded-md hover:bg-blue-700 focus:outline-none focus:ring-2 focus:ring-blue-500 focus:ring-offset-2 disabled:opacity-50 disabled:cursor-not-allowed transition-colors"
-                            >
+                             <button
+                               type="submit"
+                               disabled={bookingLoading || !bookingDate || !selectedTimeSlot}
+                               className="w-full bg-[#F59E0B] text-white py-2 px-4 rounded-md hover:bg-[#D97706] focus:outline-none focus:ring-2 focus:ring-[#F59E0B] focus:ring-offset-2 disabled:opacity-50 disabled:cursor-not-allowed transition-colors"
+                             >
                               {bookingLoading ? (
                                 <div className="flex items-center justify-center">
                                   <div className="w-4 h-4 border-2 border-white border-t-transparent rounded-full animate-spin mr-2"></div>
@@ -389,7 +389,7 @@ export default function ProfileDetailPage() {
                           {profile.services?.map((service: Service) => (
                             <div
                               key={service.id}
-                              className="border border-gray-200 dark:border-gray-700 rounded-lg p-4 hover:border-blue-300 dark:hover:border-blue-600 transition-colors cursor-pointer"
+                               className="border border-gray-200 dark:border-gray-700 rounded-lg p-4 hover:border-[#14B8A6] dark:hover:border-[#14B8A6] transition-colors cursor-pointer"
                               onClick={() => setSelectedServiceForBooking(service.id)}
                             >
                               <div className="flex justify-between items-start">

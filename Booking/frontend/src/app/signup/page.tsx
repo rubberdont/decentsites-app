@@ -4,6 +4,7 @@ import { useState, useEffect } from 'react';
 import { useRouter } from 'next/navigation';
 import Link from 'next/link';
 import { useAuth } from '@/context/AuthContext';
+import { Button, Input, Card } from '@/components/ui';
 
 export default function SignupPage() {
   const [formData, setFormData] = useState({
@@ -71,26 +72,26 @@ export default function SignupPage() {
         password: formData.password,
       });
       router.push('/profiles');
-    } catch (error: any) {
-      console.error('Registration failed:', error);
-      setError(
-        error.response?.data?.detail || 
-        'Registration failed. Please try again.'
-      );
+     } catch (error: unknown) {
+       console.error('Registration failed:', error);
+       setError(
+         (error as { response?: { data?: { detail?: string } } }).response?.data?.detail || 
+         'Registration failed. Please try again.'
+       );
     } finally {
       setIsLoading(false);
     }
   };
 
   return (
-    <div className="min-h-screen bg-gradient-to-br from-blue-50 to-indigo-100 dark:from-gray-900 dark:to-gray-800 flex items-center justify-center px-4">
+    <div className="min-h-screen bg-[#F5F3EF] dark:bg-gray-900 flex items-center justify-center px-4">
       <div className="max-w-md w-full space-y-8">
-        <div className="bg-white dark:bg-gray-800 rounded-2xl shadow-xl p-8">
+        <Card className="p-8">
           <div className="text-center">
             <h1 className="text-3xl font-bold text-gray-900 dark:text-white mb-2">
               Create Account
             </h1>
-            <p className="text-gray-600 dark:text-gray-300 mb-8">
+            <p className="text-[#78716C] dark:text-gray-400 mb-8">
               Join us to start booking services
             </p>
           </div>
@@ -102,113 +103,83 @@ export default function SignupPage() {
               </div>
             )}
 
-            <div>
-              <label htmlFor="name" className="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-2">
-                Full Name
-              </label>
-              <input
-                id="name"
-                name="name"
-                type="text"
-                required
-                value={formData.name}
-                onChange={handleChange}
-                className="w-full px-4 py-3 border border-gray-300 dark:border-gray-600 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-transparent dark:bg-gray-700 dark:text-white transition-colors"
-                placeholder="Enter your full name"
-                disabled={isLoading}
-              />
-            </div>
+            <Input
+              id="name"
+              type="text"
+              name="name"
+              label="Full Name"
+              required
+              value={formData.name}
+              onChange={handleChange}
+              placeholder="Enter your full name"
+              disabled={isLoading}
+            />
 
-            <div>
-              <label htmlFor="username" className="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-2">
-                Username
-              </label>
-              <input
-                id="username"
-                name="username"
-                type="text"
-                required
-                value={formData.username}
-                onChange={handleChange}
-                className="w-full px-4 py-3 border border-gray-300 dark:border-gray-600 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-transparent dark:bg-gray-700 dark:text-white transition-colors"
-                placeholder="Choose a username"
-                disabled={isLoading}
-              />
-              <p className="text-xs text-gray-500 dark:text-gray-400 mt-1">
-                Must be at least 3 characters
-              </p>
-            </div>
+            <Input
+              id="username"
+              type="text"
+              name="username"
+              label="Username"
+              required
+              value={formData.username}
+              onChange={handleChange}
+              placeholder="Choose a username"
+              disabled={isLoading}
+              helperText="Must be at least 3 characters"
+            />
 
-            <div>
-              <label htmlFor="password" className="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-2">
-                Password
-              </label>
-              <input
-                id="password"
-                name="password"
-                type="password"
-                required
-                value={formData.password}
-                onChange={handleChange}
-                className="w-full px-4 py-3 border border-gray-300 dark:border-gray-600 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-transparent dark:bg-gray-700 dark:text-white transition-colors"
-                placeholder="Create a password"
-                disabled={isLoading}
-              />
-              <p className="text-xs text-gray-500 dark:text-gray-400 mt-1">
-                Must be at least 6 characters
-              </p>
-            </div>
+            <Input
+              id="password"
+              type="password"
+              name="password"
+              label="Password"
+              required
+              value={formData.password}
+              onChange={handleChange}
+              placeholder="Create a password"
+              disabled={isLoading}
+              helperText="Must be at least 6 characters"
+            />
 
-            <div>
-              <label htmlFor="confirmPassword" className="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-2">
-                Confirm Password
-              </label>
-              <input
-                id="confirmPassword"
-                name="confirmPassword"
-                type="password"
-                required
-                value={formData.confirmPassword}
-                onChange={handleChange}
-                className="w-full px-4 py-3 border border-gray-300 dark:border-gray-600 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-transparent dark:bg-gray-700 dark:text-white transition-colors"
-                placeholder="Confirm your password"
-                disabled={isLoading}
-              />
-            </div>
+            <Input
+              id="confirmPassword"
+              type="password"
+              name="confirmPassword"
+              label="Confirm Password"
+              required
+              value={formData.confirmPassword}
+              onChange={handleChange}
+              placeholder="Confirm your password"
+              disabled={isLoading}
+            />
 
-            <button
+            <Button
               type="submit"
               disabled={isLoading}
-              className="w-full bg-blue-600 hover:bg-blue-700 disabled:bg-blue-400 text-white font-semibold py-3 px-4 rounded-lg transition-colors duration-200 focus:outline-none focus:ring-2 focus:ring-blue-500 focus:ring-offset-2"
+              isLoading={isLoading}
+              className="w-full"
             >
-              {isLoading ? (
-                <div className="flex items-center justify-center">
-                  <div className="w-5 h-5 border-2 border-white border-t-transparent rounded-full animate-spin mr-2"></div>
-                  Creating account...
-                </div>
-              ) : (
-                'Create Account'
-              )}
-            </button>
+              Create Account
+            </Button>
           </form>
 
           <div className="mt-6 text-center">
-            <p className="text-gray-600 dark:text-gray-400">
+            <p className="text-[#78716C] dark:text-gray-400">
               Already have an account?{' '}
               <Link 
                 href="/login" 
-                className="text-blue-600 hover:text-blue-700 dark:text-blue-400 dark:hover:text-blue-300 font-semibold transition-colors"
+                className="text-[#14B8A6] hover:text-[#0F9488] dark:text-[#14B8A6] dark:hover:text-[#0F9488] font-semibold transition-colors"
               >
                 Sign in
               </Link>
             </p>
           </div>
-        </div>
+        </Card>
 
         <div className="text-center">
           <Link 
             href="/" 
-            className="text-gray-600 hover:text-gray-800 dark:text-gray-400 dark:hover:text-gray-200 transition-colors"
+            className="text-[#78716C] hover:text-gray-900 dark:text-gray-400 dark:hover:text-gray-200 transition-colors"
           >
             ← Back to home
           </Link>

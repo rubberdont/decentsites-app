@@ -5,6 +5,7 @@ import { useRouter } from 'next/navigation';
 import Link from 'next/link';
 import { useAuth } from '@/context/AuthContext';
 import ProtectedRoute from '@/components/ProtectedRoute';
+import { Button, Card } from '@/components/ui';
 import { ownerAPI } from '@/services/api';
 import type { ProfileWithBookingCount } from '@/types';
 import { showError } from '@/utils/toast';
@@ -45,7 +46,7 @@ export default function OwnerProfilesPage() {
         <div className="container mx-auto px-4 py-8">
           <div className="flex items-center justify-center min-h-96">
             <div className="text-center">
-              <div className="w-16 h-16 border-4 border-blue-600 border-t-transparent rounded-full animate-spin mx-auto mb-4"></div>
+              <div className="w-16 h-16 border-4 border-[#14B8A6] border-t-transparent rounded-full animate-spin mx-auto mb-4"></div>
               <p className="text-gray-600 dark:text-gray-400">Loading profiles...</p>
             </div>
           </div>
@@ -61,7 +62,7 @@ export default function OwnerProfilesPage() {
         <div className="mb-8">
           <Link
             href="/owner/dashboard"
-            className="inline-flex items-center text-blue-600 hover:text-blue-800 dark:text-blue-400 dark:hover:text-blue-300 mb-4 transition-colors"
+            className="inline-flex items-center text-[#14B8A6] hover:text-[#0F9488] dark:text-[#14B8A6] dark:hover:text-[#0F9488] mb-4 transition-colors"
           >
             <svg className="w-4 h-4 mr-2" fill="none" stroke="currentColor" viewBox="0 0 24 24">
               <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M15 19l-7-7 7-7" />
@@ -79,14 +80,13 @@ export default function OwnerProfilesPage() {
               </p>
             </div>
             <div className="mt-4 sm:mt-0">
-              <Link
-                href="/profile"
-                className="inline-flex items-center bg-blue-600 text-white px-6 py-3 rounded-lg hover:bg-blue-700 transition-colors font-medium"
-              >
-                <svg className="w-5 h-5 mr-2" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                  <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M12 6v6m0 0v6m0-6h6m-6 0H6" />
-                </svg>
-                Create New Profile
+              <Link href="/profile" className="inline-block">
+                <Button variant="primary" size="lg">
+                  <svg className="w-5 h-5 mr-2" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                    <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M12 6v6m0 0v6m0-6h6m-6 0H6" />
+                  </svg>
+                  Create New Profile
+                </Button>
               </Link>
             </div>
           </div>
@@ -96,9 +96,10 @@ export default function OwnerProfilesPage() {
         {profiles.length > 0 ? (
           <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
             {profiles.map((profile) => (
-              <div
+              <Card
                 key={profile.id}
-                className="bg-white dark:bg-gray-800 rounded-lg shadow-sm border border-gray-200 dark:border-gray-700 overflow-hidden hover:shadow-md transition-shadow"
+                className="bg-white dark:bg-gray-800 rounded-lg overflow-hidden"
+                hoverable
               >
                 {/* Profile Header */}
                 <div className="p-6">
@@ -110,8 +111,8 @@ export default function OwnerProfilesPage() {
                         className="w-16 h-16 rounded-lg object-cover"
                       />
                     ) : (
-                      <div className="w-16 h-16 bg-gradient-to-br from-blue-100 to-purple-100 dark:from-blue-900 dark:to-purple-900 rounded-lg flex items-center justify-center">
-                        <span className="text-2xl text-gray-600 dark:text-gray-400">
+                      <div className="w-16 h-16 bg-gradient-to-br from-[#14B8A6] to-[#0F9488] rounded-lg flex items-center justify-center">
+                        <span className="text-2xl text-white font-bold">
                           {profile.name.charAt(0).toUpperCase()}
                         </span>
                       </div>
@@ -140,11 +141,11 @@ export default function OwnerProfilesPage() {
                       <p className="text-xs text-gray-600 dark:text-gray-400">Total</p>
                     </div>
                     <div className="text-center">
-                      <p className="text-2xl font-bold text-yellow-600 dark:text-yellow-400">{profile.pending_bookings}</p>
+                      <p className="text-2xl font-bold text-[#FBBF24] dark:text-[#FCD34D]">{profile.pending_bookings}</p>
                       <p className="text-xs text-gray-600 dark:text-gray-400">Pending</p>
                     </div>
                     <div className="text-center">
-                      <p className="text-2xl font-bold text-green-600 dark:text-green-400">{profile.confirmed_bookings}</p>
+                      <p className="text-2xl font-bold text-[#10B981] dark:text-[#6EE7B7]">{profile.confirmed_bookings}</p>
                       <p className="text-xs text-gray-600 dark:text-gray-400">Confirmed</p>
                     </div>
                   </div>
@@ -160,25 +161,25 @@ export default function OwnerProfilesPage() {
                     <div className="grid grid-cols-2 gap-2">
                       <Link
                         href={`/owner/profiles/${profile.id}/analytics`}
-                        className="text-center bg-blue-100 dark:bg-blue-900 text-blue-700 dark:text-blue-300 py-2 px-3 rounded-lg text-sm font-medium hover:bg-blue-200 dark:hover:bg-blue-800 transition-colors"
+                        className="text-center bg-[#14B8A6]/10 text-[#14B8A6] dark:bg-[#14B8A6]/20 dark:text-[#5EEAD4] py-2 px-3 rounded-lg text-sm font-medium hover:bg-[#14B8A6]/20 dark:hover:bg-[#14B8A6]/30 transition-colors"
                       >
                         Analytics
                       </Link>
                       <Link
                         href={`/owner/profiles/${profile.id}/availability`}
-                        className="text-center bg-green-100 dark:bg-green-900 text-green-700 dark:text-green-300 py-2 px-3 rounded-lg text-sm font-medium hover:bg-green-200 dark:hover:bg-green-800 transition-colors"
+                        className="text-center bg-[#10B981]/10 text-[#10B981] dark:bg-[#10B981]/20 dark:text-[#6EE7B7] py-2 px-3 rounded-lg text-sm font-medium hover:bg-[#10B981]/20 dark:hover:bg-[#10B981]/30 transition-colors"
                       >
                         Availability
                       </Link>
                     </div>
                   </div>
                 </div>
-              </div>
+              </Card>
             ))}
           </div>
         ) : (
           /* Empty State */
-          <div className="bg-white dark:bg-gray-800 rounded-lg shadow-sm border border-gray-200 dark:border-gray-700 p-12 text-center">
+          <Card className="bg-white dark:bg-gray-800 rounded-lg p-12 text-center">
             <div className="max-w-md mx-auto">
               <svg className="w-24 h-24 text-gray-400 mx-auto mb-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                 <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M19 21V5a2 2 0 00-2-2H7a2 2 0 00-2 2v16m14 0h2m-2 0h-5m-9 0H3m2 0h5M9 7h1m-1 4h1m4-4h1m-1 4h1m-5 10v-5a1 1 0 011-1h2a1 1 0 011 1v5m-4 0h4" />
@@ -187,19 +188,18 @@ export default function OwnerProfilesPage() {
                 No Business Profiles Yet
               </h3>
               <p className="text-gray-600 dark:text-gray-400 mb-6">
-                Get started by creating your first business profile. You'll be able to add services, manage bookings, and track analytics.
+                 Get started by creating your first business profile. You&apos;ll be able to add services, manage bookings, and track analytics.
               </p>
-              <Link
-                href="/profile"
-                className="inline-flex items-center bg-blue-600 text-white px-6 py-3 rounded-lg hover:bg-blue-700 transition-colors font-medium"
-              >
-                <svg className="w-5 h-5 mr-2" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                  <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M12 6v6m0 0v6m0-6h6m-6 0H6" />
-                </svg>
-                Create Your First Profile
+              <Link href="/profile" className="inline-block">
+                <Button variant="primary" size="lg">
+                  <svg className="w-5 h-5 mr-2" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                    <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M12 6v6m0 0v6m0-6h6m-6 0H6" />
+                  </svg>
+                  Create Your First Profile
+                </Button>
               </Link>
             </div>
-          </div>
+          </Card>
         )}
       </div>
     </ProtectedRoute>

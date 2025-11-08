@@ -3,6 +3,7 @@
 import { useState, useEffect } from 'react';
 import Link from 'next/link';
 import ProtectedRoute from '@/components/ProtectedRoute';
+import { Button, Card } from '@/components/ui';
 import { bookingsAPI, profilesAPI } from '@/services/api';
 import type { Booking, BusinessProfile, BookingStatus } from '@/types';
 
@@ -107,11 +108,11 @@ export default function MyBookingsPage() {
   if (loading) {
     return (
       <ProtectedRoute>
-        <div className="min-h-screen bg-gray-50 dark:bg-gray-900">
+        <div className="min-h-screen bg-[#F5F3EF] dark:bg-gray-900">
           <div className="container mx-auto px-4 py-8">
             <div className="flex items-center justify-center min-h-96">
               <div className="text-center">
-                <div className="w-16 h-16 border-4 border-blue-600 border-t-transparent rounded-full animate-spin mx-auto mb-4"></div>
+                <div className="w-16 h-16 border-4 border-[#14B8A6] border-t-transparent rounded-full animate-spin mx-auto mb-4"></div>
                 <p className="text-gray-600 dark:text-gray-400">Loading your bookings...</p>
               </div>
             </div>
@@ -123,13 +124,13 @@ export default function MyBookingsPage() {
 
   return (
     <ProtectedRoute>
-      <div className="min-h-screen bg-gray-50 dark:bg-gray-900">
+      <div className="min-h-screen bg-[#F5F3EF] dark:bg-gray-900">
         <div className="container mx-auto px-4 py-8">
           {/* Header */}
           <div className="mb-8">
             <Link 
               href="/"
-              className="inline-flex items-center text-blue-600 hover:text-blue-800 dark:text-blue-400 dark:hover:text-blue-300 mb-4 transition-colors"
+              className="inline-flex items-center text-[#14B8A6] hover:text-[#0F9488] dark:text-[#14B8A6] dark:hover:text-[#0F9488] mb-4 transition-colors"
             >
               <svg className="w-4 h-4 mr-2" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                 <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M15 19l-7-7 7-7" />
@@ -148,12 +149,14 @@ export default function MyBookingsPage() {
               <div className="mt-4 sm:mt-0">
                 <Link
                   href="/"
-                  className="inline-flex items-center bg-blue-600 text-white px-4 py-2 rounded-lg hover:bg-blue-700 transition-colors"
+                  className="inline-flex items-center"
                 >
-                  <svg className="w-4 h-4 mr-2" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                    <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M12 6v6m0 0v6m0-6h6m-6 0H6" />
-                  </svg>
-                  Book New Service
+                  <Button variant="primary" size="md">
+                    <svg className="w-4 h-4 mr-2" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                      <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M12 6v6m0 0v6m0-6h6m-6 0H6" />
+                    </svg>
+                    Book New Service
+                  </Button>
                 </Link>
               </div>
             </div>
@@ -168,12 +171,14 @@ export default function MyBookingsPage() {
                 </svg>
                 <p className="text-red-800 dark:text-red-300">{error}</p>
               </div>
-              <button
+              <Button
                 onClick={loadBookings}
-                className="mt-3 bg-red-600 text-white px-4 py-2 rounded-lg hover:bg-red-700 transition-colors text-sm"
+                variant="primary"
+                size="sm"
+                className="mt-3"
               >
                 Try Again
-              </button>
+              </Button>
             </div>
           )}
 
@@ -181,9 +186,9 @@ export default function MyBookingsPage() {
           {bookings.length > 0 ? (
             <div className="space-y-6">
               {bookings.map((booking) => (
-                <div
+                <Card
                   key={booking.id}
-                  className="bg-white dark:bg-gray-800 rounded-lg shadow-md border border-gray-200 dark:border-gray-700 overflow-hidden"
+                  className="bg-white dark:bg-gray-800 rounded-lg overflow-hidden"
                 >
                   <div className="p-6">
                     <div className="flex flex-col lg:flex-row lg:items-center lg:justify-between">
@@ -252,54 +257,46 @@ export default function MyBookingsPage() {
                       {/* Action Buttons */}
                       <div className="mt-4 lg:mt-0 lg:ml-6 flex flex-col space-y-2">
                         {booking.status === 'PENDING' && (
-                          <button
+                          <Button
                             onClick={() => handleCancelBooking(booking.id)}
                             disabled={cancellingId === booking.id}
-                            className="bg-red-600 text-white px-4 py-2 rounded-lg hover:bg-red-700 disabled:opacity-50 disabled:cursor-not-allowed transition-colors flex items-center justify-center"
+                            variant="primary"
+                            size="md"
+                            isLoading={cancellingId === booking.id}
                           >
-                            {cancellingId === booking.id ? (
-                              <>
-                                <div className="w-4 h-4 border-2 border-white border-t-transparent rounded-full animate-spin mr-2"></div>
-                                Cancelling...
-                              </>
-                            ) : (
-                              'Cancel Booking'
-                            )}
-                          </button>
+                            {cancellingId === booking.id ? 'Cancelling...' : 'Cancel Booking'}
+                          </Button>
                         )}
                         
                         {(booking.status === 'CONFIRMED' || booking.status === 'REJECTED') && (
-                          <button
+                          <Button
                             onClick={() => handleCancelBooking(booking.id)}
                             disabled={cancellingId === booking.id}
-                            className="bg-gray-600 text-white px-4 py-2 rounded-lg hover:bg-gray-700 disabled:opacity-50 disabled:cursor-not-allowed transition-colors flex items-center justify-center"
+                            variant="secondary"
+                            size="md"
+                            isLoading={cancellingId === booking.id}
                           >
-                            {cancellingId === booking.id ? (
-                              <>
-                                <div className="w-4 h-4 border-2 border-white border-t-transparent rounded-full animate-spin mr-2"></div>
-                                Cancelling...
-                              </>
-                            ) : (
-                              'Cancel Booking'
-                            )}
-                          </button>
+                            {cancellingId === booking.id ? 'Cancelling...' : 'Cancel Booking'}
+                          </Button>
                         )}
 
                         <Link
                           href={`/profiles/${booking.profile_id}`}
-                          className="bg-blue-600 text-white px-4 py-2 rounded-lg hover:bg-blue-700 transition-colors text-center"
+                          className="inline-block"
                         >
-                          View Business
+                          <Button variant="secondary" size="md" className="w-full text-center">
+                            View Business
+                          </Button>
                         </Link>
                       </div>
                     </div>
                   </div>
-                </div>
+                </Card>
               ))}
             </div>
           ) : (
             /* Empty State */
-            <div className="bg-white dark:bg-gray-800 rounded-lg shadow-md border border-gray-200 dark:border-gray-700 p-12 text-center">
+            <Card className="bg-white dark:bg-gray-800 rounded-lg p-12 text-center">
               <div className="max-w-md mx-auto">
                 <svg className="w-16 h-16 text-gray-400 mx-auto mb-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                   <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M8 7V3m8 4V3m-9 8h10M5 21h14a2 2 0 002-2V7a2 2 0 00-2-2H5a2 2 0 00-2 2v12a2 2 0 002 2z" />
@@ -310,17 +307,16 @@ export default function MyBookingsPage() {
                 <p className="text-gray-600 dark:text-gray-400 mb-6">
                   You haven&apos;t made any bookings yet. Start by exploring available services and making your first booking.
                 </p>
-                <Link
-                  href="/"
-                  className="inline-flex items-center bg-blue-600 text-white px-6 py-3 rounded-lg hover:bg-blue-700 transition-colors"
-                >
-                  <svg className="w-5 h-5 mr-2" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                    <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M12 6v6m0 0v6m0-6h6m-6 0H6" />
-                  </svg>
-                  Browse Services
+                <Link href="/" className="inline-block">
+                  <Button variant="primary" size="lg">
+                    <svg className="w-5 h-5 mr-2" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                      <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M12 6v6m0 0v6m0-6h6m-6 0H6" />
+                    </svg>
+                    Browse Services
+                  </Button>
                 </Link>
               </div>
-            </div>
+            </Card>
           )}
         </div>
       </div>

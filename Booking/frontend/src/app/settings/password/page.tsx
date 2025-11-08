@@ -5,6 +5,7 @@ import Link from 'next/link';
 import ProtectedRoute from '@/components/ProtectedRoute';
 import { authAPI } from '@/services/api';
 import { showError, showSuccess } from '@/utils/toast';
+import { Button, Input } from '@/components/ui';
 
 export default function PasswordSettingsPage() {
   const [formData, setFormData] = useState({
@@ -41,10 +42,10 @@ export default function PasswordSettingsPage() {
         newPassword: '',
         confirmPassword: '',
       });
-    } catch (error: any) {
-      console.error('Failed to change password:', error);
-      const errorMessage = error.response?.data?.detail || 'Failed to change password';
-      showError(errorMessage);
+     } catch (error: unknown) {
+       console.error('Failed to change password:', error);
+       const errorMessage = (error as { response?: { data?: { detail?: string } } }).response?.data?.detail || 'Failed to change password';
+       showError(errorMessage);
     } finally {
       setLoading(false);
     }
@@ -59,127 +60,113 @@ export default function PasswordSettingsPage() {
 
   const passwordStrength = getPasswordStrength(formData.newPassword);
 
-  return (
-    <ProtectedRoute>
-      <div className="container mx-auto px-4 py-8 max-w-2xl">
-        {/* Header */}
-        <div className="mb-8">
-          <h1 className="text-3xl font-bold text-gray-900 dark:text-white">
-            Change Password
-          </h1>
-          <p className="text-gray-600 dark:text-gray-400 mt-2">
-            Update your account password
-          </p>
-        </div>
+   return (
+     <ProtectedRoute>
+       <div className="container mx-auto px-4 py-8 max-w-2xl bg-[#F5F3EF] dark:bg-gray-900 min-h-screen rounded-lg">
+         {/* Header */}
+         <div className="mb-8">
+           <h1 className="text-3xl font-bold text-[#1E293B] dark:text-white">
+             Change Password
+           </h1>
+           <p className="text-[#78716C] dark:text-gray-400 mt-2">
+             Update your account password
+           </p>
+         </div>
 
-        {/* Settings Navigation */}
-        <div className="bg-white dark:bg-gray-800 rounded-lg shadow-sm border border-gray-200 dark:border-gray-700 mb-6">
-          <div className="flex border-b border-gray-200 dark:border-gray-700">
-            <Link
-              href="/settings/profile"
-              className="flex-1 px-6 py-4 text-center font-medium text-gray-600 dark:text-gray-400 hover:text-gray-900 dark:hover:text-white transition-colors"
-            >
-              Profile
-            </Link>
-            <Link
-              href="/settings/password"
-              className="flex-1 px-6 py-4 text-center font-medium text-blue-600 dark:text-blue-400 border-b-2 border-blue-600"
-            >
-              Password
-            </Link>
-          </div>
-        </div>
+         {/* Settings Navigation */}
+         <div className="bg-white dark:bg-gray-800 rounded-lg shadow-sm border border-gray-200 dark:border-gray-700 mb-6">
+           <div className="flex border-b border-gray-200 dark:border-gray-700">
+             <Link
+               href="/settings/profile"
+               className="flex-1 px-6 py-4 text-center font-medium text-[#78716C] dark:text-gray-400 hover:text-[#14B8A6] dark:hover:text-[#14B8A6] transition-colors"
+             >
+               Profile
+             </Link>
+             <Link
+               href="/settings/password"
+               className="flex-1 px-6 py-4 text-center font-medium text-[#14B8A6] dark:text-[#14B8A6] border-b-2 border-[#14B8A6]"
+             >
+               Password
+             </Link>
+           </div>
+         </div>
 
-        {/* Password Form */}
-        <div className="bg-white dark:bg-gray-800 rounded-lg shadow-sm border border-gray-200 dark:border-gray-700 p-6">
-          <form onSubmit={handleSubmit} className="space-y-6">
-            {/* Current Password */}
-            <div>
-              <label htmlFor="oldPassword" className="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-2">
-                Current Password
-              </label>
-              <input
-                type="password"
-                id="oldPassword"
-                value={formData.oldPassword}
-                onChange={(e) => setFormData({ ...formData, oldPassword: e.target.value })}
-                className="w-full px-3 py-2 border border-gray-300 dark:border-gray-600 rounded-lg bg-white dark:bg-gray-700 text-gray-900 dark:text-white focus:outline-none focus:ring-2 focus:ring-blue-500"
-                required
-              />
-            </div>
+         {/* Password Form */}
+         <div className="bg-white dark:bg-gray-800 rounded-lg shadow-sm border border-gray-200 dark:border-gray-700 p-6">
+           <form onSubmit={handleSubmit} className="space-y-6">
+             {/* Current Password */}
+             <div>
+               <Input
+                 type="password"
+                 id="oldPassword"
+                 label="Current Password"
+                 value={formData.oldPassword}
+                 onChange={(e) => setFormData({ ...formData, oldPassword: e.target.value })}
+                 required
+               />
+             </div>
 
-            {/* New Password */}
-            <div>
-              <label htmlFor="newPassword" className="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-2">
-                New Password
-              </label>
-              <input
-                type="password"
-                id="newPassword"
-                value={formData.newPassword}
-                onChange={(e) => setFormData({ ...formData, newPassword: e.target.value })}
-                className="w-full px-3 py-2 border border-gray-300 dark:border-gray-600 rounded-lg bg-white dark:bg-gray-700 text-gray-900 dark:text-white focus:outline-none focus:ring-2 focus:ring-blue-500"
-                required
-              />
-              {formData.newPassword && (
-                <p className={`mt-1 text-sm ${passwordStrength.color}`}>
-                  Password strength: {passwordStrength.strength}
-                </p>
-              )}
-              <p className="mt-1 text-sm text-gray-500 dark:text-gray-400">
-                Must be at least 6 characters long
-              </p>
-            </div>
+             {/* New Password */}
+             <div>
+               <Input
+                 type="password"
+                 id="newPassword"
+                 label="New Password"
+                 value={formData.newPassword}
+                 onChange={(e) => setFormData({ ...formData, newPassword: e.target.value })}
+                 helperText={formData.newPassword ? `Password strength: ${passwordStrength.strength}` : 'Must be at least 6 characters long'}
+                 required
+               />
+               {formData.newPassword && (
+                 <p className={`mt-1 text-sm ${passwordStrength.color}`}>
+                   Password strength: {passwordStrength.strength}
+                 </p>
+               )}
+             </div>
 
-            {/* Confirm New Password */}
-            <div>
-              <label htmlFor="confirmPassword" className="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-2">
-                Confirm New Password
-              </label>
-              <input
-                type="password"
-                id="confirmPassword"
-                value={formData.confirmPassword}
-                onChange={(e) => setFormData({ ...formData, confirmPassword: e.target.value })}
-                className="w-full px-3 py-2 border border-gray-300 dark:border-gray-600 rounded-lg bg-white dark:bg-gray-700 text-gray-900 dark:text-white focus:outline-none focus:ring-2 focus:ring-blue-500"
-                required
-              />
-              {formData.confirmPassword && formData.newPassword !== formData.confirmPassword && (
-                <p className="mt-1 text-sm text-red-600">
-                  Passwords do not match
-                </p>
-              )}
-            </div>
+             {/* Confirm New Password */}
+             <div>
+               <Input
+                 type="password"
+                 id="confirmPassword"
+                 label="Confirm New Password"
+                 value={formData.confirmPassword}
+                 onChange={(e) => setFormData({ ...formData, confirmPassword: e.target.value })}
+                 error={formData.confirmPassword && formData.newPassword !== formData.confirmPassword ? 'Passwords do not match' : undefined}
+                 required
+               />
+             </div>
 
-            {/* Actions */}
-            <div className="flex items-center justify-between pt-4 border-t border-gray-200 dark:border-gray-700">
-              <Link
-                href="/settings/profile"
-                className="text-gray-600 dark:text-gray-400 hover:text-gray-900 dark:hover:text-white transition-colors"
-              >
-                Cancel
-              </Link>
-              <button
-                type="submit"
-                disabled={loading}
-                className="bg-blue-600 text-white px-6 py-2 rounded-lg hover:bg-blue-700 focus:outline-none focus:ring-2 focus:ring-blue-500 disabled:opacity-50 disabled:cursor-not-allowed transition-colors font-medium"
-              >
-                {loading ? 'Changing...' : 'Change Password'}
-              </button>
-            </div>
-          </form>
+             {/* Actions */}
+             <div className="flex items-center justify-between pt-4 border-t border-gray-200 dark:border-gray-700">
+               <Link
+                 href="/settings/profile"
+                 className="text-[#14B8A6] hover:text-[#0F9488] transition-colors font-medium"
+               >
+                 Cancel
+               </Link>
+               <Button
+                 type="submit"
+                 disabled={loading}
+                 isLoading={loading}
+                 variant="primary"
+               >
+                 Change Password
+               </Button>
+             </div>
+           </form>
 
-          {/* Forgot Password Link */}
-          <div className="mt-6 pt-6 border-t border-gray-200 dark:border-gray-700">
-            <Link
-              href="/forgot-password"
-              className="text-blue-600 hover:text-blue-700 dark:text-blue-400 text-sm font-medium"
-            >
-              Forgot your password?
-            </Link>
-          </div>
-        </div>
-      </div>
-    </ProtectedRoute>
-  );
+           {/* Forgot Password Link */}
+           <div className="mt-6 pt-6 border-t border-gray-200 dark:border-gray-700">
+             <Link
+               href="/forgot-password"
+               className="text-[#14B8A6] hover:text-[#0F9488] dark:text-[#14B8A6] text-sm font-medium"
+             >
+               Forgot your password?
+             </Link>
+           </div>
+         </div>
+       </div>
+     </ProtectedRoute>
+   );
 }
