@@ -16,8 +16,8 @@ const geistMono = Geist_Mono({
 });
 
 export const metadata: Metadata = {
-  title: "Modern Booking App",
-  description: "Book services with ease",
+  title: "BarberShop - Premium Barber Services",
+  description: "Book premium barber services with expert barbers. Quality cuts, professional styling, and grooming.",
 };
 
 export default function RootLayout({
@@ -28,15 +28,13 @@ export default function RootLayout({
   return (
     <html lang="en">
       <body
-        className={`${geistSans.variable} ${geistMono.variable} antialiased`}
+        className={`${geistSans.variable} ${geistMono.variable} antialiased m-0 p-0`}
       >
         <AuthProvider>
-          <div className="min-h-screen bg-gray-50 dark:bg-gray-900">
-            <Header />
-            <main>
-              {children}
-            </main>
-          </div>
+          <Header />
+          <main className="min-h-screen m-0 p-0">
+            {children}
+          </main>
           <Toaster position="top-right" />
         </AuthProvider>
       </body>
