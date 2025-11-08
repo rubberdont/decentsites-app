@@ -38,7 +38,7 @@ export default function HeroSection() {
             </p>
             
             <Link
-              href="/customer-view"
+              href="/profile/default-profile"
               className="inline-flex items-center gap-2 bg-[#F59E0B] hover:bg-[#D97706] text-white font-semibold px-8 py-4 rounded-full transition-all duration-300 transform hover:scale-105 shadow-lg hover:shadow-xl"
             >
               Book Now

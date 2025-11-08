@@ -17,10 +17,23 @@ async def list_profiles():
     return profiles
 
 
+@router.get("/slug/{slug}", response_model=BusinessProfile)
+async def get_profile_by_slug(slug: str):
+    """Get a specific business profile by slug."""
+    profile = ProfileRepository.get_profile_by_slug(slug)
+    if not profile:
+        raise HTTPException(status_code=404, detail="Profile not found")
+    return profile
+
+
 @router.get("/{profile_id}", response_model=BusinessProfile)
 async def get_profile(profile_id: str):
-    """Get a specific business profile."""
-    profile = ProfileRepository.get_profile(profile_id)
+    """Get a specific business profile by ID or slug."""
+    # Try to get by slug first, then by ID
+    profile = ProfileRepository.get_profile_by_slug(profile_id)
+    if not profile:
+        profile = ProfileRepository.get_profile(profile_id)
+    
     if not profile:
         raise HTTPException(status_code=404, detail="Profile not found")
     return profile
@@ -32,6 +45,10 @@ async def create_profile(profile: BusinessProfile):
     if not profile.id:
         profile.id = str(uuid.uuid4())
     
+    # Validate slug uniqueness if provided
+    if profile.slug and ProfileRepository.slug_exists(profile.slug):
+        raise HTTPException(status_code=400, detail="Slug already exists")
+    
     created = ProfileRepository.create_profile(profile)
     return created
 
@@ -42,6 +59,10 @@ async def update_profile(profile_id: str, profile: BusinessProfile):
     existing = ProfileRepository.get_profile(profile_id)
     if not existing:
         raise HTTPException(status_code=404, detail="Profile not found")
+    
+    # Validate slug uniqueness if provided and changed
+    if profile.slug and profile.slug != existing.get("slug") and ProfileRepository.slug_exists(profile.slug, profile_id):
+        raise HTTPException(status_code=400, detail="Slug already exists")
     
     profile.id = profile_id
     updates = profile.model_dump()

@@ -15,6 +15,20 @@ class ProfileRepository:
         return mongo_db.find_one(ProfileRepository.COLLECTION, {"id": profile_id})
     
     @staticmethod
+    def get_profile_by_slug(slug: str) -> Optional[Dict[str, Any]]:
+        """Get a profile by slug."""
+        return mongo_db.find_one(ProfileRepository.COLLECTION, {"slug": slug})
+    
+    @staticmethod
+    def slug_exists(slug: str, exclude_profile_id: Optional[str] = None) -> bool:
+        """Check if a slug already exists (optionally excluding a specific profile)."""
+        if exclude_profile_id:
+            query = {"slug": slug, "id": {"$ne": exclude_profile_id}}
+        else:
+            query = {"slug": slug}
+        return mongo_db.count_documents(ProfileRepository.COLLECTION, query) > 0
+    
+    @staticmethod
     def get_all_profiles() -> List[Dict[str, Any]]:
         """Get all profiles."""
         return mongo_db.find_many(ProfileRepository.COLLECTION)

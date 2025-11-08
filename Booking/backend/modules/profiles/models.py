@@ -18,6 +18,7 @@ class BusinessProfile(BaseModel):
     name: str
     description: str
     image_url: Optional[str] = None
+    slug: Optional[str] = None  # Unique human-readable identifier for URLs
     owner_id: Optional[str] = None
     email: Optional[EmailStr] = None
     phone: Optional[str] = None

@@ -36,7 +36,7 @@ export default function Header() {
               href="/" 
               className="text-2xl font-bold text-gray-900 dark:text-white hover:text-[#14B8A6] transition-colors"
             >
-              ✂️ Barber<span className="text-[#14B8A6]">Shop</span>
+              Barber<span className="text-[#14B8A6]">Shop</span>
             </Link>
             
             <nav className="hidden lg:flex space-x-8">
