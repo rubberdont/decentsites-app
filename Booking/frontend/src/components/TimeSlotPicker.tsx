@@ -50,7 +50,7 @@ export default function TimeSlotPicker({
 
   if (!selectedDate) {
     return (
-      <div className="text-sm text-gray-500 dark:text-gray-400 p-4 bg-gray-50 dark:bg-gray-700 rounded-lg text-center">
+      <div className="text-sm text-gray-500 dark:text-gray-400 p-4 bg-gray-50 dark:bg-gray-700 rounded-xl text-center">
         Please select a date first to see available time slots
       </div>
     );
@@ -60,7 +60,7 @@ export default function TimeSlotPicker({
     return (
       <div className="flex items-center justify-center p-8">
         <div className="text-center">
-          <div className="w-8 h-8 border-2 border-blue-600 border-t-transparent rounded-full animate-spin mx-auto mb-2"></div>
+          <div className="w-8 h-8 border-2 border-[#14B8A6] border-t-transparent rounded-full animate-spin mx-auto mb-2"></div>
           <p className="text-sm text-gray-600 dark:text-gray-400">Loading time slots...</p>
         </div>
       </div>
@@ -69,7 +69,7 @@ export default function TimeSlotPicker({
 
   if (error) {
     return (
-      <div className="text-sm text-red-600 dark:text-red-400 p-4 bg-red-50 dark:bg-red-900/20 rounded-lg">
+      <div className="text-sm text-red-600 dark:text-red-400 p-4 bg-red-50 dark:bg-red-900/20 rounded-xl">
         {error}
       </div>
     );
@@ -77,7 +77,7 @@ export default function TimeSlotPicker({
 
   if (slots.length === 0) {
     return (
-      <div className="text-center p-6 bg-gray-50 dark:bg-gray-700 rounded-lg">
+      <div className="text-center p-6 bg-gray-50 dark:bg-gray-700 rounded-xl">
         <svg className="w-12 h-12 text-gray-400 mx-auto mb-3" fill="none" stroke="currentColor" viewBox="0 0 24 24">
           <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M12 8v4l3 3m6-3a9 9 0 11-18 0 9 9 0 0118 0z" />
         </svg>
@@ -108,27 +108,27 @@ export default function TimeSlotPicker({
             disabled={isFull}
             onClick={() => onTimeSlotChange(isSelected ? null : slot.time_slot)}
             className={`
-              w-full p-3 rounded-lg border text-left transition-all
+              w-full p-4 rounded-xl border text-left transition-all
               ${isFull 
                 ? 'border-gray-300 dark:border-gray-600 bg-gray-100 dark:bg-gray-800 cursor-not-allowed opacity-60'
                 : isSelected
-                  ? 'border-blue-500 bg-blue-50 dark:bg-blue-900/20 ring-2 ring-blue-500'
-                  : 'border-gray-300 dark:border-gray-600 hover:border-blue-400 dark:hover:border-blue-500 hover:bg-gray-50 dark:hover:bg-gray-700'
+                  ? 'border-[#14B8A6] bg-[#14B8A6]/10 ring-2 ring-[#14B8A6]'
+                  : 'border-gray-300 dark:border-gray-600 hover:border-[#14B8A6] dark:hover:border-[#14B8A6] hover:bg-[#14B8A6]/5 dark:hover:bg-[#14B8A6]/10'
               }
             `}
           >
             <div className="flex items-center justify-between">
               <div className="flex items-center gap-3">
                 {/* Checkbox indicator */}
-                <div className={`
-                  w-5 h-5 rounded border-2 flex items-center justify-center
-                  ${isFull 
-                    ? 'border-gray-400 bg-gray-200 dark:bg-gray-700'
-                    : isSelected
-                      ? 'border-blue-500 bg-blue-500'
-                      : 'border-gray-400 dark:border-gray-500'
-                  }
-                `}>
+                 <div className={`
+                   w-5 h-5 rounded border-2 flex items-center justify-center
+                   ${isFull 
+                     ? 'border-gray-400 bg-gray-200 dark:bg-gray-700'
+                     : isSelected
+                       ? 'border-[#14B8A6] bg-[#14B8A6]'
+                       : 'border-gray-400 dark:border-gray-500'
+                   }
+                 `}>
                   {isSelected && (
                     <svg className="w-3 h-3 text-white" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                       <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={3} d="M5 13l4 4L19 7" />

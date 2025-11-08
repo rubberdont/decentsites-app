@@ -198,7 +198,7 @@ const Calendar: React.FC<CalendarProps> = ({
   return (
     <div 
       ref={calendarRef}
-      className="bg-white dark:bg-gray-800 rounded-lg shadow-lg border border-gray-200 dark:border-gray-700 p-4 w-full max-w-sm"
+      className="bg-white dark:bg-gray-800 rounded-xl shadow-lg border border-gray-200 dark:border-gray-700 p-6 w-full max-w-md mx-auto"
       role="application"
       aria-label="Calendar"
     >
@@ -206,7 +206,7 @@ const Calendar: React.FC<CalendarProps> = ({
       <div className="flex items-center justify-between mb-4">
         <button
           onClick={goToPreviousMonth}
-          className="p-2 rounded-lg hover:bg-gray-100 dark:hover:bg-gray-700 transition-colors focus:outline-none focus:ring-2 focus:ring-blue-500"
+          className="p-2 rounded-lg hover:bg-gray-100 dark:hover:bg-gray-700 transition-colors focus:outline-none focus:ring-2 focus:ring-[#14B8A6] focus:ring-offset-2"
           aria-label="Previous month"
           type="button"
         >
@@ -221,7 +221,7 @@ const Calendar: React.FC<CalendarProps> = ({
           </h2>
           <button
             onClick={goToToday}
-            className="text-sm text-blue-600 dark:text-blue-400 hover:text-blue-700 dark:hover:text-blue-300 transition-colors focus:outline-none focus:ring-2 focus:ring-blue-500 rounded px-2 py-1"
+            className="text-sm text-[#14B8A6] dark:text-[#5EEAD4] hover:text-[#0F9488] dark:hover:text-[#14B8A6] transition-colors focus:outline-none focus:ring-2 focus:ring-[#14B8A6] rounded px-2 py-1"
             type="button"
           >
             Today
@@ -230,7 +230,7 @@ const Calendar: React.FC<CalendarProps> = ({
         
         <button
           onClick={goToNextMonth}
-          className="p-2 rounded-lg hover:bg-gray-100 dark:hover:bg-gray-700 transition-colors focus:outline-none focus:ring-2 focus:ring-blue-500"
+          className="p-2 rounded-lg hover:bg-gray-100 dark:hover:bg-gray-700 transition-colors focus:outline-none focus:ring-2 focus:ring-[#14B8A6] focus:ring-offset-2"
           aria-label="Next month"
           type="button"
         >
@@ -271,7 +271,7 @@ const Calendar: React.FC<CalendarProps> = ({
               onKeyDown={(e) => handleKeyDown(e, date)}
               className={`
                 relative h-10 w-10 rounded-lg text-sm font-medium transition-all duration-200
-                focus:outline-none focus:ring-2 focus:ring-blue-500 focus:z-10
+                focus:outline-none focus:ring-2 focus:ring-[#14B8A6] focus:ring-offset-2 focus:z-10
                 ${disabled 
                   ? 'text-gray-400 dark:text-gray-600 cursor-not-allowed' 
                   : isCurrentMonthDate 
@@ -279,11 +279,11 @@ const Calendar: React.FC<CalendarProps> = ({
                     : 'text-gray-400 dark:text-gray-600'
                 }
                 ${selected 
-                  ? 'bg-blue-600 text-white hover:bg-blue-700' 
+                  ? 'bg-[#14B8A6] text-white hover:bg-[#0F9488]' 
                   : ''
                 }
                 ${isFocused && !selected 
-                  ? 'ring-2 ring-blue-500 ring-inset' 
+                  ? 'ring-2 ring-[#14B8A6] ring-inset' 
                   : ''
                 }
               `}
@@ -296,7 +296,7 @@ const Calendar: React.FC<CalendarProps> = ({
             >
               {formatDay(date)}
               {isTodayDate && !selected && (
-                <div className="absolute bottom-1 left-1/2 transform -translate-x-1/2 w-1 h-1 bg-blue-600 dark:bg-blue-400 rounded-full" />
+                <div className="absolute bottom-1 left-1/2 transform -translate-x-1/2 w-1 h-1 bg-[#14B8A6] dark:bg-[#5EEAD4] rounded-full" />
               )}
             </button>
           );

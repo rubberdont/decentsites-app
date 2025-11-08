@@ -140,7 +140,9 @@ export default function ProfilePage() {
             href="/"
             className="inline-flex items-center text-[#14B8A6] dark:text-[#14B8A6] hover:text-[#0F9488] dark:hover:text-[#0F9488] mb-4 font-semibold"
           >
-            ← Back to Home
+            <svg className="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+              <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M15 19l-7-7 7-7" />
+            </svg>
           </Link>
           <h1 className="text-4xl font-bold text-gray-900 dark:text-white">
             Business Profile

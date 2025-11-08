@@ -159,9 +159,9 @@ export default function ProfileDetailPage() {
      );
    }
 
-   return (
-     <div className="min-h-screen bg-[#F5F3EF] dark:bg-gray-900 py-8">
-       <div className="max-w-4xl mx-auto px-4 sm:px-6 lg:px-8">
+    return (
+      <div className="min-h-screen bg-[#F5F3EF] dark:bg-gray-900 pt-24 pb-8">
+        <div className="max-w-4xl mx-auto px-4 sm:px-6 lg:px-8">
         {/* Profile Header */}
         <div className="bg-white dark:bg-gray-800 rounded-lg shadow-sm overflow-hidden mb-8">
           <div className="md:flex">
@@ -263,31 +263,31 @@ export default function ProfileDetailPage() {
              </div>
           </div>
 
-          {/* Booking Modal */}
-          {isBookingModalOpen && (
-            <div className="fixed inset-0 bg-black bg-opacity-50 flex items-center justify-center p-4 z-50">
-              <div className="bg-white dark:bg-gray-800 rounded-lg shadow-xl max-w-2xl w-full max-h-[90vh] overflow-y-auto">
-                <div className="p-6">
-                  <div className="flex justify-between items-center mb-6">
-                    <h2 className="text-2xl font-bold text-gray-900 dark:text-white">
-                      Book a Service
-                    </h2>
-                    <button
-                      onClick={() => setIsBookingModalOpen(false)}
-                      className="text-gray-400 hover:text-gray-600 dark:hover:text-gray-300"
-                    >
+           {/* Booking Modal */}
+           {isBookingModalOpen && (
+             <div className="fixed inset-0 bg-black bg-opacity-30 backdrop-blur-sm flex items-center justify-center p-4 z-50">
+             <div className="bg-white dark:bg-gray-800 rounded-xl shadow-xl max-w-2xl w-full max-h-[90vh] overflow-y-auto">
+                 <div className="p-8">
+                   <div className="flex justify-between items-center mb-6">
+                     <h2 className="text-2xl font-bold text-gray-900 dark:text-white">
+                       Book a Service
+                     </h2>
+                     <button
+                       onClick={() => setIsBookingModalOpen(false)}
+                       className="text-gray-400 hover:text-gray-600 dark:hover:text-gray-300 p-2 rounded-lg hover:bg-gray-100 dark:hover:bg-gray-700 transition-colors"
+                     >
                       <svg className="w-6 h-6" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                         <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M6 18L18 6M6 6l12 12" />
                       </svg>
                     </button>
                   </div>
 
-                  {/* Error message */}
-                  {error && profile && (
-                    <div className="mb-4 p-3 bg-red-50 dark:bg-red-900/20 border border-red-200 dark:border-red-800 rounded-lg">
-                      <p className="text-sm text-red-800 dark:text-red-200">{error}</p>
-                    </div>
-                  )}
+                   {/* Error message */}
+                   {error && profile && (
+                     <div className="mb-6 p-4 bg-red-50 dark:bg-red-900/20 border border-red-200 dark:border-red-800 rounded-lg">
+                       <p className="text-sm text-red-800 dark:text-red-200">{error}</p>
+                     </div>
+                   )}
 
                   {isAuthenticated ? (
                     <ProtectedRoute>
@@ -307,7 +307,7 @@ export default function ProfileDetailPage() {
                                </div>
                                <button
                                  onClick={() => setSelectedServiceForBooking('')}
-                                 className="text-[#14B8A6] hover:text-[#0F9488] dark:text-[#5EEAD4] dark:hover:text-[#14B8A6] text-sm font-medium underline"
+                                 className="text-[#14B8A6] hover:text-[#0F9488] dark:text-[#5EEAD4] dark:hover:text-[#14B8A6] text-sm font-medium underline hover:no-underline transition-colors"
                                >
                                  Change Service
                                </button>
@@ -347,21 +347,21 @@ export default function ProfileDetailPage() {
                               <label htmlFor="notes" className="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-2">
                                 Additional Notes (Optional)
                               </label>
-                              <textarea
-                                id="notes"
-                                value={notes}
-                                onChange={(e) => setNotes(e.target.value)}
-                                rows={3}
-                                className="w-full px-3 py-2 border border-gray-300 dark:border-gray-600 rounded-md shadow-sm focus:outline-none focus:ring-blue-500 focus:border-blue-500 dark:bg-gray-700 dark:text-white"
-                                placeholder="Any special requirements or questions..."
-                              />
+                               <textarea
+                                 id="notes"
+                                 value={notes}
+                                 onChange={(e) => setNotes(e.target.value)}
+                                 rows={3}
+                                 className="w-full px-4 py-3 border border-gray-300 dark:border-gray-600 rounded-xl focus:ring-2 focus:ring-[#14B8A6] focus:border-transparent dark:bg-gray-800 dark:text-white transition-all"
+                                 placeholder="Any special requirements or questions..."
+                               />
                             </div>
 
                             {/* Submit Button */}
                              <button
                                type="submit"
                                disabled={bookingLoading || !bookingDate || !selectedTimeSlot}
-                               className="w-full bg-[#F59E0B] text-white py-2 px-4 rounded-md hover:bg-[#D97706] focus:outline-none focus:ring-2 focus:ring-[#F59E0B] focus:ring-offset-2 disabled:opacity-50 disabled:cursor-not-allowed transition-colors"
+                               className="w-full bg-[#F59E0B] text-white py-3 px-4 rounded-xl hover:bg-[#D97706] focus:outline-none focus:ring-2 focus:ring-[#F59E0B] focus:ring-offset-2 disabled:opacity-50 disabled:cursor-not-allowed transition-all font-semibold"
                              >
                               {bookingLoading ? (
                                 <div className="flex items-center justify-center">
@@ -387,11 +387,11 @@ export default function ProfileDetailPage() {
                             Select a service to book:
                           </p>
                           {profile.services?.map((service: Service) => (
-                            <div
-                              key={service.id}
-                               className="border border-gray-200 dark:border-gray-700 rounded-lg p-4 hover:border-[#14B8A6] dark:hover:border-[#14B8A6] transition-colors cursor-pointer"
-                              onClick={() => setSelectedServiceForBooking(service.id)}
-                            >
+                             <div
+                               key={service.id}
+                                className="border border-gray-200 dark:border-gray-700 rounded-lg p-4 hover:border-[#14B8A6] dark:hover:border-[#14B8A6] transition-colors cursor-pointer hover:bg-[#14B8A6]/5 dark:hover:bg-[#14B8A6]/10"
+                               onClick={() => setSelectedServiceForBooking(service.id)}
+                             >
                               <div className="flex justify-between items-start">
                                 <div>
                                   <h3 className="text-lg font-semibold text-gray-900 dark:text-white">
@@ -422,15 +422,15 @@ export default function ProfileDetailPage() {
                       )}
                     </ProtectedRoute>
                   ) : (
-                    <div className="text-center">
-                      <div className="bg-blue-50 dark:bg-blue-900/20 border border-blue-200 dark:border-blue-800 rounded-lg p-6">
-                        <p className="text-blue-800 dark:text-blue-200 mb-4">
-                          Please log in to book a service with {profile.name}.
-                        </p>
-                        <a
-                          href="/login"
-                          className="inline-block bg-blue-600 text-white py-2 px-6 rounded-md hover:bg-blue-700 transition-colors"
-                        >
+                     <div className="text-center">
+                       <div className="bg-blue-50 dark:bg-blue-900/20 border border-blue-200 dark:border-blue-800 rounded-lg p-6">
+                         <p className="text-blue-800 dark:text-blue-200 mb-4">
+                           Please log in to book a service with {profile.name}.
+                         </p>
+                         <a
+                           href="/login"
+                           className="inline-block bg-[#14B8A6] text-white py-3 px-6 rounded-xl hover:bg-[#0F9488] transition-colors font-semibold"
+                         >
                           Log In
                         </a>
                       </div>

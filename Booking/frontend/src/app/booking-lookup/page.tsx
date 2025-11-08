@@ -117,15 +117,14 @@ export default function BookingLookupPage() {
       <div className="container mx-auto px-4 py-8">
         {/* Header */}
         <div className="mb-8">
-          <Link 
-            href="/"
-            className="inline-flex items-center text-[#14B8A6] hover:text-[#0F9488] dark:text-[#14B8A6] dark:hover:text-[#0F9488] mb-4 transition-colors"
-          >
-            <svg className="w-4 h-4 mr-2" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-              <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M15 19l-7-7 7-7" />
-            </svg>
-            Back to Home
-          </Link>
+            <Link 
+              href="/"
+              className="inline-flex items-center text-[#14B8A6] hover:text-[#0F9488] dark:text-[#14B8A6] dark:hover:text-[#0F9488] mb-4 transition-colors"
+            >
+              <svg className="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M15 19l-7-7 7-7" />
+              </svg>
+            </Link>
           <div className="text-center max-w-2xl mx-auto">
             <h1 className="text-3xl font-bold text-gray-900 dark:text-white mb-4">
               Booking Lookup
