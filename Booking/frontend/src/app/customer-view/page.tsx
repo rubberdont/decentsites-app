@@ -74,21 +74,10 @@ export default function CustomerViewPage() {
   return (
     <div className="min-h-screen bg-cream dark:bg-gray-900">
       {/* Header */}
-      <div className="bg-white dark:bg-gray-800 shadow-sm border-b border-gray-200 dark:border-gray-700">
-        <div className="container mx-auto px-4 py-4">
-          <Link 
-            href="/"
-            className="inline-flex items-center text-teal-primary hover:text-teal-hover dark:text-teal-primary dark:hover:text-teal-hover transition-colors"
-          >
-            <svg className="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-              <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M15 19l-7-7 7-7" />
-            </svg>
-          </Link>
-          <div className="text-sm text-warm-gray dark:text-gray-400">Customer View</div>
-        </div>
+      <div className="bg-white dark:bg-gray-800 shadow-sm border-b border-gray-200 dark:border-gray-700 min-h-16">
       </div>
 
-      <div className="container mx-auto px-4 py-8">
+      <div className="container mx-auto px-16 py-8">
         {/* Business Header */}
         <Card className="bg-white dark:bg-gray-800 rounded-lg overflow-hidden mb-8 border border-gray-200 dark:border-gray-700">
           {profile.image_url && (

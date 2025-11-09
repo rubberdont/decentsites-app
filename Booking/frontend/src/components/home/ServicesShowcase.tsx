@@ -40,10 +40,10 @@ export default function ServicesShowcase() {
   }
 
   return (
-    <section className="py-16 lg:py-24 bg-white dark:bg-gray-900">
+    <section className="py-16 lg:py-24 bg-white dark:bg-gray-900 lg:-mt-40">
       <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
         {/* Section Header */}
-        <div className="text-center mb-12">
+        <div className="text-center mb-12 pt-24">
           <h2 className="text-3xl lg:text-5xl font-bold text-gray-900 dark:text-white mb-4">
             Our Services <span className="text-[#F59E0B]">Available 24/7</span>
           </h2>
