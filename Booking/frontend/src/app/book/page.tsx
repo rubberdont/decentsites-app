@@ -380,22 +380,6 @@ export default function BookingPage() {
                 onNavigateToCalendar={handleNavigateToCalendar}
                 profileName={profile.name}
               />
-
-              {/* Help Section */}
-              <div className="mt-6 bg-[#2a2a2a] rounded-xl border border-[#444444] p-4">
-                <h3 className="text-[#eaeaea] font-semibold text-sm mb-2">
-                  Need Help?
-                </h3>
-                <p className="text-[#a0a0a0] text-sm mb-3">
-                  Have questions about your booking? We&apos;re here to help.
-                </p>
-                <Link
-                  href="/booking-lookup"
-                  className="text-[#d4af37] text-sm font-medium hover:underline"
-                >
-                  Look up existing booking
-                </Link>
-              </div>
             </div>
           </div>
         </div>

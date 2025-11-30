@@ -59,12 +59,6 @@ export default function Header() {
             >
               Services
             </Link>
-            <Link 
-              href="/booking-lookup" 
-              className="text-sm font-medium hover:text-[#d4af37] transition-colors font-display"
-            >
-              Lookup Booking
-            </Link>
             {isAuthenticated && (
               <Link 
                 href="/my-bookings" 
@@ -139,13 +133,6 @@ export default function Header() {
               onClick={() => setMobileMenuOpen(false)}
             >
               Services
-            </Link>
-            <Link 
-              href="/booking-lookup" 
-              className="text-sm font-medium hover:text-[#d4af37] transition-colors font-display"
-              onClick={() => setMobileMenuOpen(false)}
-            >
-              Lookup Booking
             </Link>
             {isAuthenticated && (
               <>

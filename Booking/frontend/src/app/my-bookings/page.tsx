@@ -7,6 +7,7 @@ import ProtectedRoute from '@/components/ProtectedRoute';
 import Footer from '@/components/Footer';
 import { bookingsAPI, profilesAPI } from '@/services/api';
 import { useAuth } from '@/context/AuthContext';
+import { ConfirmationModal, useToast } from '@/components/ui';
 import type { Booking, BusinessProfile, BookingStatus } from '@/types';
 
 interface BookingWithProfile extends Booking {
@@ -19,6 +20,8 @@ export default function MyBookingsPage() {
   const [error, setError] = useState<string | null>(null);
   const [cancellingId, setCancellingId] = useState<string | null>(null);
   const [activeTab, setActiveTab] = useState<'upcoming' | 'past'>('upcoming');
+  const [bookingToCancel, setBookingToCancel] = useState<string | null>(null);
+  const { toast, showToast, hideToast, ToastComponent } = useToast();
   const { user } = useAuth();
   const router = useRouter();
 
@@ -63,20 +66,27 @@ export default function MyBookingsPage() {
     }
   };
 
-  const handleCancelBooking = async (bookingId: string) => {
-    if (!confirm('Are you sure you want to cancel this booking? This action cannot be undone.')) {
-      return;
-    }
+  const openCancelModal = (bookingId: string) => {
+    setBookingToCancel(bookingId);
+  };
+
+  const closeCancelModal = () => {
+    setBookingToCancel(null);
+  };
+
+  const handleConfirmCancel = async () => {
+    if (!bookingToCancel) return;
 
     try {
-      setCancellingId(bookingId);
-      await bookingsAPI.cancel(bookingId);
-      
+      setCancellingId(bookingToCancel);
+      await bookingsAPI.cancel(bookingToCancel);
+      closeCancelModal();
+      showToast('Booking cancelled successfully', 'success');
       // Refresh bookings list
       await loadBookings();
     } catch (err) {
       console.error('Failed to cancel booking:', err);
-      alert('Failed to cancel booking. Please try again.');
+      showToast('Failed to cancel booking. Please try again.', 'error');
     } finally {
       setCancellingId(null);
     }
@@ -309,7 +319,7 @@ export default function MyBookingsPage() {
                           </Link>
                           {(booking.status === 'PENDING' || booking.status === 'CONFIRMED') && (
                             <button
-                              onClick={() => handleCancelBooking(booking.id)}
+                              onClick={() => openCancelModal(booking.id)}
                               disabled={cancellingId === booking.id}
                               className="flex min-w-[84px] cursor-pointer items-center justify-center overflow-hidden rounded-lg h-9 px-4 bg-red-500/20 hover:bg-red-500/30 text-red-400 text-sm font-medium leading-normal transition-colors disabled:opacity-50 disabled:cursor-not-allowed"
                             >
@@ -356,6 +366,22 @@ export default function MyBookingsPage() {
         {/* Footer */}
         <Footer />
       </div>
+
+      {/* Confirmation Modal */}
+      <ConfirmationModal
+        isOpen={bookingToCancel !== null}
+        onClose={closeCancelModal}
+        onConfirm={handleConfirmCancel}
+        title="Cancel Booking"
+        message="Are you sure you want to cancel this booking? This action cannot be undone."
+        confirmText="Yes, Cancel Booking"
+        cancelText="Keep Booking"
+        confirmVariant="danger"
+        isLoading={cancellingId !== null}
+      />
+
+      {/* Toast Notifications */}
+      {ToastComponent}
     </ProtectedRoute>
   );
 }
