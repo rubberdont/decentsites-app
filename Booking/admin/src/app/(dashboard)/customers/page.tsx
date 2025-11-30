@@ -305,7 +305,7 @@ export default function CustomersPage() {
                       </td>
                       <td>
                         <span className="font-medium text-admin-text">
-                          ${customer.total_spent?.toFixed(2) || '0.00'}
+                          ₱{customer.total_spent?.toFixed(2) || '0.00'}
                         </span>
                       </td>
                       <td>

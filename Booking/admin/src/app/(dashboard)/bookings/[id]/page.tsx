@@ -58,12 +58,12 @@ function formatTimestamp(timestamp: string): string {
 }
 
 /**
- * Format currency
+ * Format currency (Philippine Peso)
  */
 function formatCurrency(amount: number): string {
-  return new Intl.NumberFormat('en-US', {
+  return new Intl.NumberFormat('en-PH', {
     style: 'currency',
-    currency: 'USD',
+    currency: 'PHP',
   }).format(amount);
 }
 

@@ -81,7 +81,7 @@ export default function ServiceSelector({
 
               <div className="flex items-center justify-between mb-4">
                 <span className="text-[#d4af37] font-bold text-xl">
-                  ${service.price.toFixed(2)}
+                  ₱{service.price.toFixed(2)}
                 </span>
                 <span className="text-[#a0a0a0] text-sm">
                   45 min

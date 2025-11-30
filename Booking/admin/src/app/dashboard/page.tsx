@@ -390,7 +390,7 @@ export default function DashboardPage() {
             />
             <StatsCard
               title="Total Revenue"
-              value={`$${(stats?.total_revenue ?? 0).toLocaleString()}`}
+              value={`₱${(stats?.total_revenue ?? 0).toLocaleString()}`}
               icon={<CurrencyIcon />}
               trend={0}
               trendDirection="up"

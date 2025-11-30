@@ -18,7 +18,7 @@ export default function LoginPage() {
 
   useEffect(() => {
     if (isAuthenticated) {
-      router.push('/profiles');
+      router.push('/');
     }
   }, [isAuthenticated, router]);
 

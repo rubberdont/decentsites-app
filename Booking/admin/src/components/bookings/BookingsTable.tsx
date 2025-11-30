@@ -334,7 +334,7 @@ export function BookingsTable({
                     </div>
                     {booking.service_price !== undefined && (
                       <div className="text-sm text-admin-text-muted">
-                        ${booking.service_price.toFixed(2)}
+                        ₱{booking.service_price.toFixed(2)}
                       </div>
                     )}
                   </div>

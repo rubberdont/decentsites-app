@@ -372,7 +372,7 @@ export default function CustomerDetailPage() {
               </div>
               <div className="bg-admin-bg-hover rounded-lg p-4">
                 <p className="text-2xl font-bold text-admin-text">
-                  ${customer.total_spent}
+                  ₱{customer.total_spent}
                 </p>
                 <p className="text-sm text-admin-text-muted">Total Spent</p>
               </div>
@@ -478,7 +478,7 @@ export default function CustomerDetailPage() {
                           </td>
                           <td>
                             <span className="font-medium text-admin-text">
-                              ${booking.service_price}
+                              ₱{booking.service_price}
                             </span>
                           </td>
                           <td>

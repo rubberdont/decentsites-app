@@ -36,7 +36,9 @@ from .models import (
     BookingTrend,
     ServiceStats,
     PeakHour,
+    PeakHoursResponse,
     AnalyticsResponse,
+    AnalyticsOverviewResponse,
     ActivityLog
 )
 from .repository import AdminRepository
@@ -792,15 +794,87 @@ async def get_dashboard(
     return DashboardStats(**stats)
 
 
+@router.get("/analytics/overview", response_model=AnalyticsOverviewResponse)
+async def get_analytics_overview(
+    start_date: datetime = Query(..., description="Start date for analytics (ISO format)"),
+    end_date: datetime = Query(..., description="End date for analytics (ISO format)"),
+    current_user: UserCredentials = Depends(require_owner)
+):
+    """
+    Get comprehensive analytics overview for a date range.
+    
+    Returns:
+    - Period summary
+    - Total bookings and revenue
+    - Average booking value
+    - Completion and cancellation rates
+    - Popular services
+    - Booking trends
+    
+    This endpoint matches the frontend AnalyticsOverview interface.
+    """
+    profile_id = get_owner_profile_id(current_user.user_id)
+    
+    # Validate date range
+    if start_date > end_date:
+        raise HTTPException(
+            status_code=http_status.HTTP_400_BAD_REQUEST,
+            detail="start_date must be before end_date"
+        )
+    
+    overview = AdminRepository.get_analytics_overview(profile_id, start_date, end_date)
+    
+    return AnalyticsOverviewResponse(**overview)
+
+
+@router.get("/analytics/booking-trends")
+async def get_booking_trends_by_range(
+    start_date: datetime = Query(..., description="Start date for trends (ISO format)"),
+    end_date: datetime = Query(..., description="End date for trends (ISO format)"),
+    granularity: str = Query("day", regex="^(day|week|month)$", description="Granularity: day, week, or month"),
+    current_user: UserCredentials = Depends(require_owner)
+):
+    """
+    Get booking trends for a date range with configurable granularity.
+    
+    Args:
+        start_date: Start of date range (ISO format)
+        end_date: End of date range (ISO format)
+        granularity: "day", "week", or "month"
+    
+    Returns list of:
+    - date: Date string (format depends on granularity)
+    - count: Number of bookings
+    - revenue: Revenue from completed bookings
+    
+    This endpoint matches the frontend BookingTrend[] interface.
+    """
+    profile_id = get_owner_profile_id(current_user.user_id)
+    
+    # Validate date range
+    if start_date > end_date:
+        raise HTTPException(
+            status_code=http_status.HTTP_400_BAD_REQUEST,
+            detail="start_date must be before end_date"
+        )
+    
+    trends = AdminRepository.get_booking_trends_by_range(
+        profile_id, start_date, end_date, granularity
+    )
+    
+    return trends
+
+
 @router.get("/analytics/trends")
 async def get_trends(
     days: int = Query(30, ge=1, le=365, description="Number of days to analyze"),
     current_user: UserCredentials = Depends(require_owner)
 ):
     """
-    Get booking trends over time.
+    Get booking trends over time (legacy endpoint).
     
     Returns daily booking counts and revenue for the specified period.
+    Use /analytics/booking-trends for date range support.
     """
     profile_id = get_owner_profile_id(current_user.user_id)
     
@@ -827,15 +901,35 @@ async def get_service_stats(
 
 @router.get("/analytics/peak-hours")
 async def get_peak_hours(
+    start_date: Optional[datetime] = Query(None, description="Start date for peak hours analysis"),
+    end_date: Optional[datetime] = Query(None, description="End date for peak hours analysis"),
     current_user: UserCredentials = Depends(require_owner)
 ):
     """
     Get peak booking hours.
     
     Returns booking counts by hour of day.
+    
+    If start_date and end_date are provided, returns peak hours for that range
+    with the frontend-compatible format (hour as string, booking_count, percentage).
+    
+    If no dates provided, returns legacy format for all-time data.
     """
     profile_id = get_owner_profile_id(current_user.user_id)
     
+    # If date range provided, use new format
+    if start_date is not None and end_date is not None:
+        # Validate date range
+        if start_date > end_date:
+            raise HTTPException(
+                status_code=http_status.HTTP_400_BAD_REQUEST,
+                detail="start_date must be before end_date"
+            )
+        
+        peak_hours = AdminRepository.get_peak_hours_by_range(profile_id, start_date, end_date)
+        return peak_hours
+    
+    # Legacy format (all-time, no date filter)
     peak_hours = AdminRepository.get_peak_hours(profile_id)
     
     return {"peak_hours": peak_hours}

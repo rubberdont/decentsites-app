@@ -370,7 +370,7 @@ export default function ServicesPage() {
 
               <div className="flex items-center justify-between mb-4">
                 <span className="text-xl font-bold text-admin-primary">
-                  ${service.price}
+                  ₱{service.price}
                 </span>
                 {service.duration_minutes && (
                   <span className="text-sm text-admin-text-muted">
@@ -494,7 +494,7 @@ export default function ServicesPage() {
           <div className="grid grid-cols-2 gap-4">
             <div>
               <label className="block text-sm font-medium text-admin-text mb-1">
-                Price ($) *
+                Price (₱) *
               </label>
               <input
                 type="number"

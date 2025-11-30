@@ -140,23 +140,79 @@ class BookingTrend(BaseModel):
 
 
 class ServiceStats(BaseModel):
+    """Service statistics model with frontend-compatible field names."""
     service_id: str
     service_title: str
     booking_count: int
     revenue: float = 0.0
     percentage: float = 0.0
+    average_rating: Optional[float] = None
+    
+    # Computed properties for frontend compatibility
+    @property
+    def service_name(self) -> str:
+        """Alias for service_title for frontend compatibility."""
+        return self.service_title
+    
+    @property
+    def total_bookings(self) -> int:
+        """Alias for booking_count for frontend compatibility."""
+        return self.booking_count
+    
+    class Config:
+        """Pydantic config to include computed properties in serialization."""
+        # Allow population by field name or alias
+        populate_by_name = True
+    
+    def dict(self, **kwargs):
+        """Override to include frontend-compatible field names."""
+        data = super().dict(**kwargs)
+        # Add aliases for frontend compatibility
+        data["service_name"] = self.service_title
+        data["total_bookings"] = self.booking_count
+        return data
 
 
 class PeakHour(BaseModel):
+    """Peak hour model (legacy format with integer hour)."""
     hour: int  # 0-23
     count: int
 
 
+class PeakHoursResponse(BaseModel):
+    """Peak hours response with string hour format for frontend compatibility."""
+    hour: str  # "09:00", "10:00", etc.
+    booking_count: int
+    percentage: float
+
+
 class AnalyticsResponse(BaseModel):
+    """Legacy analytics response model."""
     dashboard: DashboardStats
     booking_trends: List[BookingTrend] = []
     popular_services: List[ServiceStats] = []
     peak_hours: List[PeakHour] = []
+
+
+class AnalyticsOverviewResponse(BaseModel):
+    """
+    Analytics overview response matching frontend AnalyticsOverview interface.
+    
+    Contains comprehensive analytics for a date range including:
+    - Period summary
+    - Booking and revenue totals
+    - Completion/cancellation rates
+    - Popular services
+    - Booking trends
+    """
+    period: str  # e.g., "2024-01-01 to 2024-01-31"
+    total_bookings: int
+    total_revenue: float
+    average_booking_value: float
+    booking_completion_rate: float
+    cancellation_rate: float
+    popular_services: List[ServiceStats] = []
+    booking_trends: List[BookingTrend] = []
 
 
 # Activity log

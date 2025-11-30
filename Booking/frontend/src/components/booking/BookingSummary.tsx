@@ -135,7 +135,7 @@ export default function BookingSummary({
           {isServicesVariant ? 'Subtotal' : 'Total'}
         </span>
         <span className="text-[#d4af37] font-bold text-2xl">
-          {service ? `$${service.price.toFixed(2)}` : '$0.00'}
+          {service ? `₱${service.price.toFixed(2)}` : '₱0.00'}
         </span>
       </div>
 

@@ -548,7 +548,7 @@ function CalendarPageContent() {
                 {selectedService.title}
               </p>
               <p className="text-[#d4af37] font-bold text-lg">
-                ${selectedService.price.toFixed(2)}
+                ₱{selectedService.price.toFixed(2)}
               </p>
             </div>
             <button

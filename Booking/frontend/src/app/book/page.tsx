@@ -392,7 +392,7 @@ export default function BookingPage() {
                 {selectedService ? selectedService.title : 'No service selected'}
               </p>
               <p className="text-[#d4af37] font-bold text-lg">
-                {selectedService ? `$${selectedService.price.toFixed(2)}` : '$0.00'}
+                {selectedService ? `₱${selectedService.price.toFixed(2)}` : '₱0.00'}
               </p>
             </div>
             <button

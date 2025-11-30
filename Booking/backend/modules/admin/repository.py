@@ -1407,6 +1407,414 @@ class AdminRepository:
         return mongo_db.aggregate(AdminRepository.BOOKINGS, pipeline)
     
     # ===========================
+    # NEW ANALYTICS METHODS (Date Range Support)
+    # ===========================
+    
+    @staticmethod
+    def get_analytics_overview(
+        profile_id: str,
+        start_date: datetime,
+        end_date: datetime
+    ) -> Dict[str, Any]:
+        """
+        Get comprehensive analytics overview for a date range.
+        
+        Calculates:
+        - Total bookings and revenue
+        - Average booking value
+        - Completion rate and cancellation rate
+        - Popular services
+        - Booking trends
+        
+        Args:
+            profile_id: The profile ID
+            start_date: Start of date range
+            end_date: End of date range
+            
+        Returns:
+            Dictionary with overview analytics
+        """
+        # Main stats aggregation for the period
+        stats_pipeline = [
+            {
+                "$match": {
+                    "profile_id": profile_id,
+                    "booking_date": {"$gte": start_date, "$lte": end_date}
+                }
+            },
+            # Join with profiles for service prices
+            {
+                "$lookup": {
+                    "from": "profiles",
+                    "localField": "profile_id",
+                    "foreignField": "id",
+                    "as": "profile"
+                }
+            },
+            {"$unwind": {"path": "$profile", "preserveNullAndEmptyArrays": True}},
+            {
+                "$addFields": {
+                    "service_price": {
+                        "$let": {
+                            "vars": {
+                                "svc": {
+                                    "$filter": {
+                                        "input": {"$ifNull": ["$profile.services", []]},
+                                        "as": "s",
+                                        "cond": {"$eq": ["$$s.id", "$service_id"]}
+                                    }
+                                }
+                            },
+                            "in": {"$ifNull": [{"$arrayElemAt": ["$$svc.price", 0]}, 0]}
+                        }
+                    }
+                }
+            },
+            {
+                "$group": {
+                    "_id": None,
+                    "total_bookings": {"$sum": 1},
+                    "completed_bookings": {
+                        "$sum": {"$cond": [{"$eq": ["$status", "COMPLETED"]}, 1, 0]}
+                    },
+                    "cancelled_bookings": {
+                        "$sum": {"$cond": [{"$eq": ["$status", "CANCELLED"]}, 1, 0]}
+                    },
+                    "total_revenue": {
+                        "$sum": {
+                            "$cond": [{"$eq": ["$status", "COMPLETED"]}, "$service_price", 0]
+                        }
+                    },
+                    "completed_revenue_sum": {
+                        "$sum": {
+                            "$cond": [{"$eq": ["$status", "COMPLETED"]}, "$service_price", 0]
+                        }
+                    },
+                    "completed_count": {
+                        "$sum": {"$cond": [{"$eq": ["$status", "COMPLETED"]}, 1, 0]}
+                    }
+                }
+            },
+            {
+                "$project": {
+                    "_id": 0,
+                    "total_bookings": 1,
+                    "completed_bookings": 1,
+                    "cancelled_bookings": 1,
+                    "total_revenue": {"$round": ["$total_revenue", 2]},
+                    "average_booking_value": {
+                        "$round": [
+                            {
+                                "$cond": [
+                                    {"$gt": ["$completed_count", 0]},
+                                    {"$divide": ["$completed_revenue_sum", "$completed_count"]},
+                                    0
+                                ]
+                            },
+                            2
+                        ]
+                    }
+                }
+            }
+        ]
+        
+        stats_result = mongo_db.aggregate(AdminRepository.BOOKINGS, stats_pipeline)
+        stats = stats_result[0] if stats_result else {
+            "total_bookings": 0,
+            "completed_bookings": 0,
+            "cancelled_bookings": 0,
+            "total_revenue": 0,
+            "average_booking_value": 0
+        }
+        
+        # Calculate rates
+        total = stats.get("total_bookings", 0)
+        completed = stats.get("completed_bookings", 0)
+        cancelled = stats.get("cancelled_bookings", 0)
+        
+        completion_rate = round((completed / total * 100), 1) if total > 0 else 0
+        cancellation_rate = round((cancelled / total * 100), 1) if total > 0 else 0
+        
+        # Get popular services for the period
+        popular_services = AdminRepository.get_popular_services_by_range(
+            profile_id, start_date, end_date
+        )
+        
+        # Get booking trends for the period
+        booking_trends = AdminRepository.get_booking_trends_by_range(
+            profile_id, start_date, end_date, "day"
+        )
+        
+        # Format period string
+        period = f"{start_date.strftime('%Y-%m-%d')} to {end_date.strftime('%Y-%m-%d')}"
+        
+        return {
+            "period": period,
+            "total_bookings": stats.get("total_bookings", 0),
+            "total_revenue": stats.get("total_revenue", 0),
+            "average_booking_value": stats.get("average_booking_value", 0),
+            "booking_completion_rate": completion_rate,
+            "cancellation_rate": cancellation_rate,
+            "popular_services": popular_services,
+            "booking_trends": booking_trends
+        }
+    
+    @staticmethod
+    def get_booking_trends_by_range(
+        profile_id: str,
+        start_date: datetime,
+        end_date: datetime,
+        granularity: str = "day"
+    ) -> List[Dict[str, Any]]:
+        """
+        Get booking trends for a date range with configurable granularity.
+        
+        Args:
+            profile_id: The profile ID
+            start_date: Start of date range
+            end_date: End of date range
+            granularity: "day", "week", or "month"
+            
+        Returns:
+            List of {date, count, revenue} objects
+        """
+        # Determine date grouping based on granularity
+        if granularity == "week":
+            date_format = "%Y-W%V"  # ISO week
+            date_expr = {
+                "$dateToString": {
+                    "format": "%Y-W%V",
+                    "date": "$booking_date"
+                }
+            }
+        elif granularity == "month":
+            date_format = "%Y-%m"
+            date_expr = {
+                "$dateToString": {
+                    "format": "%Y-%m",
+                    "date": "$booking_date"
+                }
+            }
+        else:  # day (default)
+            date_format = "%Y-%m-%d"
+            date_expr = {
+                "$dateToString": {
+                    "format": "%Y-%m-%d",
+                    "date": "$booking_date"
+                }
+            }
+        
+        pipeline = [
+            {
+                "$match": {
+                    "profile_id": profile_id,
+                    "booking_date": {"$gte": start_date, "$lte": end_date}
+                }
+            },
+            # Join for service prices
+            {
+                "$lookup": {
+                    "from": "profiles",
+                    "localField": "profile_id",
+                    "foreignField": "id",
+                    "as": "profile"
+                }
+            },
+            {"$unwind": {"path": "$profile", "preserveNullAndEmptyArrays": True}},
+            {
+                "$addFields": {
+                    "service_price": {
+                        "$let": {
+                            "vars": {
+                                "svc": {
+                                    "$filter": {
+                                        "input": {"$ifNull": ["$profile.services", []]},
+                                        "as": "s",
+                                        "cond": {"$eq": ["$$s.id", "$service_id"]}
+                                    }
+                                }
+                            },
+                            "in": {"$ifNull": [{"$arrayElemAt": ["$$svc.price", 0]}, 0]}
+                        }
+                    }
+                }
+            },
+            {
+                "$group": {
+                    "_id": date_expr,
+                    "count": {"$sum": 1},
+                    "revenue": {
+                        "$sum": {
+                            "$cond": [{"$eq": ["$status", "COMPLETED"]}, "$service_price", 0]
+                        }
+                    }
+                }
+            },
+            {"$sort": {"_id": 1}},
+            {
+                "$project": {
+                    "_id": 0,
+                    "date": "$_id",
+                    "count": 1,
+                    "revenue": {"$round": ["$revenue", 2]}
+                }
+            }
+        ]
+        
+        return mongo_db.aggregate(AdminRepository.BOOKINGS, pipeline)
+    
+    @staticmethod
+    def get_peak_hours_by_range(
+        profile_id: str,
+        start_date: datetime,
+        end_date: datetime
+    ) -> List[Dict[str, Any]]:
+        """
+        Get peak booking hours for a date range.
+        
+        Returns hours in string format (e.g., "09:00") with booking counts
+        and percentages for frontend compatibility.
+        
+        Args:
+            profile_id: The profile ID
+            start_date: Start of date range
+            end_date: End of date range
+            
+        Returns:
+            List of {hour, booking_count, percentage} objects
+        """
+        pipeline = [
+            {
+                "$match": {
+                    "profile_id": profile_id,
+                    "booking_date": {"$gte": start_date, "$lte": end_date}
+                }
+            },
+            {
+                "$group": {
+                    "_id": {"$hour": "$booking_date"},
+                    "booking_count": {"$sum": 1}
+                }
+            },
+            {"$sort": {"_id": 1}}  # Sort by hour
+        ]
+        
+        results = mongo_db.aggregate(AdminRepository.BOOKINGS, pipeline)
+        
+        # Calculate total for percentages
+        total_bookings = sum(r.get("booking_count", 0) for r in results)
+        
+        # Format results with string hours and percentages
+        formatted_results = []
+        for r in results:
+            hour_int = r["_id"]
+            hour_str = f"{hour_int:02d}:00"  # Convert 9 -> "09:00"
+            booking_count = r.get("booking_count", 0)
+            percentage = round((booking_count / total_bookings * 100), 1) if total_bookings > 0 else 0
+            
+            formatted_results.append({
+                "hour": hour_str,
+                "booking_count": booking_count,
+                "percentage": percentage
+            })
+        
+        # Sort by booking count descending
+        formatted_results.sort(key=lambda x: x["booking_count"], reverse=True)
+        
+        return formatted_results
+    
+    @staticmethod
+    def get_popular_services_by_range(
+        profile_id: str,
+        start_date: datetime,
+        end_date: datetime,
+        limit: int = 5
+    ) -> List[Dict[str, Any]]:
+        """
+        Get most popular services for a date range.
+        
+        Args:
+            profile_id: The profile ID
+            start_date: Start of date range
+            end_date: End of date range
+            limit: Maximum number of services to return
+            
+        Returns:
+            List of service statistics
+        """
+        pipeline = [
+            {
+                "$match": {
+                    "profile_id": profile_id,
+                    "booking_date": {"$gte": start_date, "$lte": end_date},
+                    "service_id": {"$ne": None}
+                }
+            },
+            # Join with profiles for service details
+            {
+                "$lookup": {
+                    "from": "profiles",
+                    "localField": "profile_id",
+                    "foreignField": "id",
+                    "as": "profile"
+                }
+            },
+            {"$unwind": {"path": "$profile", "preserveNullAndEmptyArrays": True}},
+            {
+                "$addFields": {
+                    "service_info": {
+                        "$filter": {
+                            "input": {"$ifNull": ["$profile.services", []]},
+                            "as": "s",
+                            "cond": {"$eq": ["$$s.id", "$service_id"]}
+                        }
+                    }
+                }
+            },
+            {
+                "$addFields": {
+                    "service_title": {"$arrayElemAt": ["$service_info.title", 0]},
+                    "service_price": {"$arrayElemAt": ["$service_info.price", 0]}
+                }
+            },
+            {
+                "$group": {
+                    "_id": "$service_id",
+                    "service_title": {"$first": "$service_title"},
+                    "booking_count": {"$sum": 1},
+                    "revenue": {
+                        "$sum": {
+                            "$cond": [{"$eq": ["$status", "COMPLETED"]}, "$service_price", 0]
+                        }
+                    }
+                }
+            },
+            {"$sort": {"booking_count": -1}},
+            {"$limit": limit}
+        ]
+        
+        results = mongo_db.aggregate(AdminRepository.BOOKINGS, pipeline)
+        
+        # Calculate total for percentages
+        total_bookings = sum(r.get("booking_count", 0) for r in results)
+        
+        return [
+            {
+                "service_id": r["_id"],
+                "service_title": r.get("service_title", "Unknown"),
+                "service_name": r.get("service_title", "Unknown"),  # Frontend alias
+                "booking_count": r.get("booking_count", 0),
+                "total_bookings": r.get("booking_count", 0),  # Frontend alias
+                "revenue": round(r.get("revenue", 0), 2),
+                "percentage": round(
+                    (r.get("booking_count", 0) / total_bookings * 100) if total_bookings > 0 else 0,
+                    1
+                )
+            }
+            for r in results
+        ]
+    
+    # ===========================
     # ACTIVITY LOGGING METHODS
     # ===========================
     
