@@ -1,170 +1,285 @@
-# Modern Booking App
+# Booking System
 
-An elegant modern booking application built with Next.js frontend and FastAPI backend.
+A comprehensive booking management system with customer-facing booking, owner admin portal, and robust backend API.
 
-## Features
+## 🏗️ Architecture
 
-### 1. Business Profile Management
-- Create and edit business information
-- Upload business image and description
-- Modern, responsive interface
+The system consists of three main applications:
 
-### 2. Service Management
-- Add, edit, and delete services
-- Each service includes:
-  - Title and description
-  - Price
-  - Optional image
-- Real-time CRUD operations
+| Application | Port | Description |
+|-------------|------|-------------|
+| **Frontend** | 3000 | Customer-facing booking interface |
+| **Backend** | 8000 | FastAPI REST API |
+| **Admin Portal** | 3001 | Owner/Admin dashboard |
 
-### 3. Customer View
-- Public-facing business profile display
-- Professional service showcase
-- Responsive design for all devices
+## ✨ Features
 
-## Tech Stack
+### Customer Features (Frontend)
+- 🏠 Business landing page with services showcase
+- 📅 Interactive booking calendar with time slot selection
+- 🔐 User authentication (login/signup)
+- 📋 View and manage personal bookings
+- 🔍 Booking lookup by reference number
 
-- **Frontend**: Next.js 15 with TypeScript
-- **Styling**: Tailwind CSS
-- **Backend**: FastAPI (Python)
-- **HTTP Client**: Axios
-- **Icons**: Heroicons
+### Owner/Admin Features (Admin Portal)
+- 📊 Dashboard with booking stats and revenue
+- 📅 Booking management (approve, reject, cancel, reschedule)
+- 👥 Customer management (view history, block/unblock, notes)
+- ⏰ Availability management with slot templates
+- 📈 Analytics and reporting
+- 🏢 Business profile and service management
 
-## Quick Start
+### Backend API
+- 🔑 JWT-based authentication with role-based access (USER, OWNER, ADMIN)
+- 📧 Email notifications for booking confirmations
+- 🗄️ MongoDB database with aggregation pipelines
+- 📝 Comprehensive admin endpoints
 
-### Backend Setup
+## 🛠️ Tech Stack
 
-1. Navigate to the backend directory:
-   ```bash
-   cd Booking/backend
-   ```
+| Layer | Technology |
+|-------|------------|
+| **Frontend** | Next.js 15, TypeScript, Tailwind CSS |
+| **Admin Portal** | Next.js 15, TypeScript, Tailwind CSS |
+| **Backend** | FastAPI (Python), Pydantic |
+| **Database** | MongoDB |
+| **Authentication** | JWT (python-jose), bcrypt |
+| **HTTP Client** | Axios |
 
-2. Create and activate a virtual environment:
-   ```bash
-   python3 -m venv venv
-   source venv/bin/activate  # On Windows: venv\Scripts\activate
-   ```
+## 🚀 Quick Start
 
-3. Install dependencies:
-   ```bash
-   pip install -r requirements.txt
-   ```
+### Prerequisites
+- Node.js 18+
+- Python 3.10+
+- MongoDB instance (local or Atlas)
 
-4. Start the FastAPI server:
-   ```bash
-   python main.py
-   ```
-   
-   The API will be available at `http://localhost:8000`
+### 1. Backend Setup
 
-### Frontend Setup
+```bash
+cd Booking/backend
 
-1. Navigate to the frontend directory:
-   ```bash
-   cd Booking/frontend
-   ```
+# Create virtual environment
+python3 -m venv venv
+source venv/bin/activate  # Windows: venv\Scripts\activate
 
-2. Install dependencies:
-   ```bash
-   npm install
-   ```
+# Install dependencies
+pip install -r requirements.txt
 
-3. Start the development server:
-   ```bash
-   npm run dev
-   ```
-   
-   The app will be available at `http://localhost:3000`
+# Configure environment
+cp .env.example .env
+# Edit .env with your MongoDB connection string and settings
 
-## API Documentation
-
-When the FastAPI backend is running, you can access the interactive API documentation at:
-- Swagger UI: `http://localhost:8000/docs`
-- ReDoc: `http://localhost:8000/redoc`
-
-### API Endpoints
-
-- `GET /profiles/{profile_id}` - Get business profile
-- `POST /profiles` - Create business profile
-- `PUT /profiles/{profile_id}` - Update business profile
-- `GET /profiles/{profile_id}/services` - Get services for a profile
-- `POST /profiles/{profile_id}/services` - Add service to profile
-- `PUT /profiles/{profile_id}/services/{service_id}` - Update service
-- `DELETE /profiles/{profile_id}/services/{service_id}` - Delete service
-
-## Usage
-
-1. **Home Page**: Navigate between business profile management and customer view
-2. **Profile Page**: Create/edit your business profile and manage services
-3. **Customer View**: See how customers will view your business profile
-
-## Development
-
-### Frontend Structure
-```
-frontend/src/app/
-├── page.tsx              # Home page
-├── profile/page.tsx      # Business profile management
-├── customer-view/page.tsx # Customer-facing view
-└── globals.css           # Global styles
+# Start the server
+python main.py
 ```
 
-### Backend Structure
+Backend runs at `http://localhost:8000`
+
+### 2. Frontend Setup (Customer App)
+
+```bash
+cd Booking/frontend
+
+# Install dependencies
+npm install
+
+# Start development server
+npm run dev
 ```
-backend/
-├── main.py              # FastAPI application
-├── requirements.txt     # Python dependencies
-└── venv/               # Virtual environment
+
+Frontend runs at `http://localhost:3000`
+
+### 3. Admin Portal Setup
+
+```bash
+cd Booking/admin
+
+# Install dependencies
+npm install
+
+# Start development server
+npm run dev
 ```
 
-## Features in Detail
+Admin Portal runs at `http://localhost:3001`
 
-### Profile Management
-- Intuitive form-based interface
-- Real-time saving and validation
-- Image URL support for business branding
+### Quick Start Scripts
 
-### Service Management
-- Add services with rich details
-- Edit existing services inline
-- Delete services with confirmation
-- Professional service cards display
+From the `Booking/` directory, you can use the convenience scripts:
 
-### Customer Experience
-- Clean, professional business profile display
-- Service browsing with pricing
-- Call-to-action buttons for booking
-- Responsive design for mobile and desktop
+```bash
+# Start all servers
+./start-servers.sh
 
-## Customization
+# Or start individually
+./start-backend.sh
+./start-frontend.sh
+./start-admin.sh
+```
 
-The app uses Tailwind CSS for styling, making it easy to customize:
-- Modify color schemes in component classes
-- Adjust spacing and layout
-- Add custom components
-- Extend functionality
+## ⚙️ Environment Variables
 
-## Production Deployment
+### Backend (.env)
 
-### Backend
-- Use a production WSGI server like Gunicorn
-- Set up a proper database (PostgreSQL, MySQL)
-- Configure environment variables
-- Set up CORS for your domain
+```env
+# MongoDB
+MONGODB_URI=mongodb://localhost:27017
+MONGODB_DATABASE=booking_app
 
-### Frontend
-- Build the production version: `npm run build`
-- Deploy to Vercel, Netlify, or your preferred platform
-- Update API endpoints for production
+# JWT Authentication
+SECRET_KEY=your-secret-key-here
+ALGORITHM=HS256
+ACCESS_TOKEN_EXPIRE_MINUTES=30
 
-## Contributing
+# Default Owner (for customer association)
+DEFAULT_OWNER_ID=your-owner-user-id
 
-1. Fork the repository
-2. Create a feature branch
-3. Make your changes
-4. Test thoroughly
-5. Submit a pull request
+# Email (optional)
+SMTP_HOST=smtp.example.com
+SMTP_PORT=587
+SMTP_USER=your-email
+SMTP_PASSWORD=your-password
+```
 
-## License
+### Frontend & Admin (.env.local)
+
+```env
+NEXT_PUBLIC_API_URL=http://localhost:8000
+```
+
+## 📁 Project Structure
+
+```
+Booking/
+├── backend/                    # FastAPI Backend
+│   ├── core/                   # Core utilities
+│   │   ├── mongo_helper.py     # MongoDB connection
+│   │   └── security.py         # Auth utilities
+│   ├── modules/                # Feature modules
+│   │   ├── admin/              # Admin endpoints
+│   │   ├── auth/               # Authentication
+│   │   ├── availability/       # Slot management
+│   │   ├── bookings/           # Booking operations
+│   │   ├── notifications/      # Email service
+│   │   ├── owners/             # Owner endpoints
+│   │   └── profiles/           # Business profiles
+│   ├── main.py                 # App entry point
+│   └── requirements.txt
+│
+├── frontend/                   # Customer Frontend
+│   └── src/
+│       ├── app/                # Next.js pages
+│       │   ├── book/           # Booking flow
+│       │   ├── booking-lookup/ # Find booking
+│       │   ├── my-bookings/    # User bookings
+│       │   └── ...
+│       ├── components/         # React components
+│       ├── context/            # Auth context
+│       ├── services/           # API client
+│       └── types/              # TypeScript types
+│
+├── admin/                      # Admin Portal
+│   └── src/
+│       ├── app/                # Next.js pages
+│       │   └── (dashboard)/    # Dashboard layout
+│       │       ├── bookings/   # Booking management
+│       │       ├── customers/  # Customer management
+│       │       └── availability/ # Slot management
+│       ├── components/         # React components
+│       ├── context/            # Auth context
+│       ├── services/           # API client
+│       └── types/              # TypeScript types
+│
+└── README.md                   # This file
+```
+
+## 📡 API Endpoints
+
+### Authentication
+| Method | Endpoint | Description |
+|--------|----------|-------------|
+| POST | `/auth/register` | Register new user |
+| POST | `/auth/login` | Login and get JWT token |
+| GET | `/auth/me` | Get current user |
+
+### Bookings (Customer)
+| Method | Endpoint | Description |
+|--------|----------|-------------|
+| GET | `/bookings` | Get user's bookings |
+| POST | `/bookings` | Create new booking |
+| GET | `/bookings/{id}` | Get booking details |
+| PUT | `/bookings/{id}/cancel` | Cancel booking |
+| GET | `/bookings/lookup/{ref}` | Lookup by reference |
+
+### Admin Bookings
+| Method | Endpoint | Description |
+|--------|----------|-------------|
+| GET | `/admin/bookings` | List all bookings (paginated) |
+| GET | `/admin/bookings/{id}` | Get booking with details |
+| PUT | `/admin/bookings/{id}/approve` | Approve booking |
+| PUT | `/admin/bookings/{id}/reject` | Reject booking |
+| PUT | `/admin/bookings/{id}/cancel` | Cancel booking |
+| PUT | `/admin/bookings/{id}/complete` | Mark completed |
+| PUT | `/admin/bookings/{id}/no-show` | Mark no-show |
+| PUT | `/admin/bookings/{id}/reschedule` | Reschedule booking |
+| POST | `/admin/bookings/{id}/notes` | Add admin note |
+
+### Admin Customers
+| Method | Endpoint | Description |
+|--------|----------|-------------|
+| GET | `/admin/customers` | List customers |
+| GET | `/admin/customers/{id}` | Get customer details |
+| GET | `/admin/customers/{id}/bookings` | Customer's bookings |
+| PUT | `/admin/customers/{id}/block` | Block customer |
+| PUT | `/admin/customers/{id}/unblock` | Unblock customer |
+
+### Availability
+| Method | Endpoint | Description |
+|--------|----------|-------------|
+| GET | `/availability/profiles/{id}` | Get availability slots |
+| POST | `/availability/profiles/{id}/slots` | Create slots |
+| GET | `/availability/templates` | Get slot templates |
+| POST | `/availability/templates` | Create template |
+| POST | `/availability/profiles/{id}/apply-template` | Apply template |
+
+### Profiles
+| Method | Endpoint | Description |
+|--------|----------|-------------|
+| GET | `/profiles` | List all profiles |
+| GET | `/profiles/{id}` | Get profile details |
+| GET | `/profiles/{id}/services` | Get services |
+
+## 🔒 User Roles
+
+| Role | Access |
+|------|--------|
+| **USER** | Customer booking features |
+| **OWNER** | Admin portal, manage own business |
+| **ADMIN** | Full system access |
+
+## 📖 API Documentation
+
+When the backend is running:
+- **Swagger UI**: http://localhost:8000/docs
+- **ReDoc**: http://localhost:8000/redoc
+
+## 🧪 Development
+
+### Running Tests
+```bash
+# Backend tests
+cd backend
+pytest
+
+# Frontend tests
+cd frontend
+npm test
+```
+
+### Code Style
+- Backend: Python (Black, isort)
+- Frontend/Admin: TypeScript (ESLint, Prettier)
+
+## 📝 License
 
 MIT License - feel free to use this project for your own booking applications.
