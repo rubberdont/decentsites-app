@@ -155,7 +155,7 @@ export default function BookingTimeSlots({
         onTimeSlotChange(null);
       }
     }
-  }, [slots, selectedTimeSlot, onTimeSlotChange, serverTime]);
+  }, [slots, selectedTimeSlot, onTimeSlotChange, serverTime, isSlotInPast]);
 
   // Show placeholder if no date selected
   if (!selectedDate) {

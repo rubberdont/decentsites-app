@@ -1,6 +1,7 @@
 'use client';
 
 import React from 'react';
+import Image from 'next/image';
 import type { Service } from '@/types';
 
 interface ServiceSelectorProps {
@@ -45,9 +46,11 @@ export default function ServiceSelector({
             {/* Service Image Placeholder */}
             <div className="h-40 bg-[#1a1a1a] flex items-center justify-center shrink-0">
               {service.image_url ? (
-                <img
+                <Image
                   src={service.image_url}
                   alt={service.title}
+                  width={400}
+                  height={300}
                   className="w-full h-full object-cover"
                 />
               ) : (

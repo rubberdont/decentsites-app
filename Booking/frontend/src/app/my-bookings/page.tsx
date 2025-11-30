@@ -2,11 +2,9 @@
 
 import { useState, useEffect } from 'react';
 import Link from 'next/link';
-import { useRouter } from 'next/navigation';
 import ProtectedRoute from '@/components/ProtectedRoute';
 import Footer from '@/components/Footer';
 import { bookingsAPI, profilesAPI } from '@/services/api';
-import { useAuth } from '@/context/AuthContext';
 import { ConfirmationModal, useToast } from '@/components/ui';
 import type { Booking, BusinessProfile, BookingStatus } from '@/types';
 
@@ -21,9 +19,7 @@ export default function MyBookingsPage() {
   const [cancellingId, setCancellingId] = useState<string | null>(null);
   const [activeTab, setActiveTab] = useState<'upcoming' | 'past'>('upcoming');
   const [bookingToCancel, setBookingToCancel] = useState<string | null>(null);
-  const { toast, showToast, hideToast, ToastComponent } = useToast();
-  const { user } = useAuth();
-  const router = useRouter();
+  const { showToast, ToastComponent } = useToast();
 
   useEffect(() => {
     loadBookings();
