@@ -2,6 +2,7 @@
 from dotenv import load_dotenv
 load_dotenv()
 
+import os
 from fastapi import FastAPI
 from datetime import datetime
 from fastapi.middleware.cors import CORSMiddleware
@@ -16,13 +17,13 @@ from modules.superadmin.routes import router as superadmin_router
 
 app = FastAPI(title="Booking App API", version="1.0.0")
 
-# Configure CORS
+# Configure CORS - get origins from environment variable
+cors_origins_str = os.getenv("CORS_ORIGINS", "http://localhost:1401,http://localhost:1302")
+cors_origins = [origin.strip() for origin in cors_origins_str.split(",")]
+
 app.add_middleware(
     CORSMiddleware,
-    allow_origins=[
-        "http://localhost:1401",  # Frontend (Next.js)
-        "http://localhost:1302",  # Admin portal
-    ],
+    allow_origins=cors_origins,
     allow_credentials=True,
     allow_methods=["*"],
     allow_headers=["*"],

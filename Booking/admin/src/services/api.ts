@@ -53,7 +53,19 @@ import type {
 // Axios Instance Configuration
 // ============================================================================
 
-const API_BASE = process.env.NEXT_PUBLIC_API_URL || 'http://localhost:1301';
+// Determine API base URL based on environment
+// Server-side: use internal Docker network URL (avoids Cloudflare SSL issues)
+// Client-side: use public URL (goes through Cloudflare)
+const getApiBaseUrl = () => {
+  if (typeof window === 'undefined') {
+    // Server-side: use internal URL if available
+    return process.env.INTERNAL_API_URL || process.env.NEXT_PUBLIC_API_URL || 'http://localhost:1301';
+  }
+  // Client-side: use public URL
+  return process.env.NEXT_PUBLIC_API_URL || 'http://localhost:1301';
+};
+
+const API_BASE = getApiBaseUrl();
 
 // Create axios instance with base configuration
 const api = axios.create({

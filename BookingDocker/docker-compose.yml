@@ -1,0 +1,83 @@
+services:
+  booking-api:
+    build:
+      context: ../Booking/backend
+      dockerfile: ../../BookingDocker/backend.Dockerfile
+    container_name: booking-api
+    restart: unless-stopped
+    extra_hosts:
+      - "host.docker.internal:host-gateway"
+    environment:
+      - MONGODB_URI=${MONGODB_URI:-mongodb://host.docker.internal:27017}
+      - MONGODB_DATABASE=${MONGODB_DATABASE:-booking_app}
+      - CORS_ORIGINS=${CORS_ORIGINS:-https://booking.decentsites.cloud,https://booking-admin.decentsites.cloud}
+      - DEFAULT_OWNER_ID=${DEFAULT_OWNER_ID}
+      - SUPERADMIN_USERNAME=${SUPERADMIN_USERNAME:-superadmin}
+      - SUPERADMIN_PASSWORD=${SUPERADMIN_PASSWORD}
+      - SMTP_HOST=${SMTP_HOST}
+      - SMTP_PORT=${SMTP_PORT:-587}
+      - SMTP_USERNAME=${SMTP_USERNAME}
+      - SMTP_PASSWORD=${SMTP_PASSWORD}
+      - FROM_EMAIL=${FROM_EMAIL}
+    networks:
+      - web
+      - internal
+    labels:
+      - "traefik.enable=true"
+      - "traefik.http.routers.booking-api.rule=Host(`booking-api.decentsites.cloud`)"
+      - "traefik.http.routers.booking-api.entrypoints=websecure"
+      - "traefik.http.routers.booking-api.tls=true"
+      - "traefik.http.services.booking-api.loadbalancer.server.port=1301"
+      - "traefik.docker.network=web"
+
+  booking-frontend:
+    build:
+      context: ../Booking/frontend
+      dockerfile: ../../BookingDocker/frontend.Dockerfile
+      args:
+        - NEXT_PUBLIC_API_URL=${NEXT_PUBLIC_API_URL:-https://booking-api.decentsites.cloud}
+    container_name: booking-frontend
+    restart: unless-stopped
+    environment:
+      - NEXT_PUBLIC_API_URL=${NEXT_PUBLIC_API_URL:-https://booking-api.decentsites.cloud}
+      - INTERNAL_API_URL=http://booking-api:1301
+    networks:
+      - web
+      - internal
+    labels:
+      - "traefik.enable=true"
+      - "traefik.http.routers.booking-frontend.rule=Host(`booking.decentsites.cloud`)"
+      - "traefik.http.routers.booking-frontend.entrypoints=websecure"
+      - "traefik.http.routers.booking-frontend.tls=true"
+      - "traefik.http.services.booking-frontend.loadbalancer.server.port=1401"
+      - "traefik.docker.network=web"
+
+  booking-admin:
+    build:
+      context: ../Booking/admin
+      dockerfile: ../../BookingDocker/admin.Dockerfile
+      args:
+        - NEXT_PUBLIC_API_URL=${NEXT_PUBLIC_API_URL:-https://booking-api.decentsites.cloud}
+        - NEXT_PUBLIC_APP_NAME=${NEXT_PUBLIC_APP_NAME:-Booking Admin}
+    container_name: booking-admin
+    restart: unless-stopped
+    environment:
+      - NEXT_PUBLIC_API_URL=${NEXT_PUBLIC_API_URL:-https://booking-api.decentsites.cloud}
+      - NEXT_PUBLIC_APP_NAME=${NEXT_PUBLIC_APP_NAME:-Booking Admin}
+      - INTERNAL_API_URL=http://booking-api:1301
+    networks:
+      - web
+      - internal
+    labels:
+      - "traefik.enable=true"
+      - "traefik.http.routers.booking-admin.rule=Host(`booking-admin.decentsites.cloud`)"
+      - "traefik.http.routers.booking-admin.entrypoints=websecure"
+      - "traefik.http.routers.booking-admin.tls=true"
+      - "traefik.http.services.booking-admin.loadbalancer.server.port=1302"
+      - "traefik.docker.network=web"
+
+networks:
+  web:
+    external: true
+  internal:
+    driver: bridge
