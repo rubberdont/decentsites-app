@@ -34,11 +34,9 @@ export default function BookingPage() {
         // Fetch the default profile based on DEFAULT_OWNER_ID from backend
         const response = await profilesAPI.getDefault();
         setProfile(response.data);
-      } catch (err: unknown) {
+      } catch (err) {
         console.error('Failed to fetch profile:', err);
-        const errorMessage = err instanceof Error && 'response' in err 
-          ? (err as any).response?.data?.detail 
-          : 'Unable to load services. Please try again later.';
+        const errorMessage = err.response?.data?.detail || 'Unable to load services. Please try again later.';
         setProfileError(errorMessage);
       } finally {
         setIsLoadingProfile(false);
