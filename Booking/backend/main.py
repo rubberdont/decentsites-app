@@ -7,6 +7,7 @@ from modules.auth.routes import router as auth_router
 from modules.bookings.routes import router as bookings_router
 from modules.owners.routes import router as owners_router
 from modules.availability.routes import router as availability_router
+from modules.admin.routes import router as admin_router
 
 # Load environment variables
 load_dotenv()
@@ -16,7 +17,10 @@ app = FastAPI(title="Booking App API", version="1.0.0")
 # Configure CORS
 app.add_middleware(
     CORSMiddleware,
-    allow_origins=["http://localhost:3000"],  # Next.js default port
+    allow_origins=[
+        "http://localhost:3000",  # Frontend (Next.js)
+        "http://localhost:3001",  # Admin portal
+    ],
     allow_credentials=True,
     allow_methods=["*"],
     allow_headers=["*"],
@@ -28,6 +32,7 @@ app.include_router(profiles_router)
 app.include_router(bookings_router)
 app.include_router(owners_router)
 app.include_router(availability_router)
+app.include_router(admin_router)
 
 @app.get("/")
 async def root():
@@ -69,6 +74,32 @@ async def startup_db_client():
         db.reviews.create_index("profile_id")
         db.reviews.create_index("booking_id", unique=True)
         print("✓ Created reviews indexes")
+        
+        # Blocked customers indexes
+        db.blocked_customers.create_index([("profile_id", 1), ("customer_email", 1)], unique=True)
+        db.blocked_customers.create_index("profile_id")
+        db.blocked_customers.create_index("customer_email")
+        db.blocked_customers.create_index("blocked_at")
+        print("✓ Created blocked_customers indexes")
+        
+        # Customer notes indexes
+        db.customer_notes.create_index([("profile_id", 1), ("customer_email", 1)], unique=True)
+        db.customer_notes.create_index("profile_id")
+        db.customer_notes.create_index("customer_email")
+        print("✓ Created customer_notes indexes")
+        
+        # Activity logs indexes
+        db.activity_logs.create_index("profile_id")
+        db.activity_logs.create_index("admin_id")
+        db.activity_logs.create_index("action_type")
+        db.activity_logs.create_index("created_at")
+        db.activity_logs.create_index([("profile_id", 1), ("created_at", -1)])
+        print("✓ Created activity_logs indexes")
+        
+        # Booking notes indexes
+        db.booking_notes.create_index("booking_id", unique=True)
+        db.booking_notes.create_index("profile_id")
+        print("✓ Created booking_notes indexes")
         
     except Exception as e:
         print(f"✗ Failed to connect to MongoDB: {str(e)}")

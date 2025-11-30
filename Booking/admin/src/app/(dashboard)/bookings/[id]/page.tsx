@@ -1,0 +1,718 @@
+'use client';
+
+import { useState, useEffect } from 'react';
+import Link from 'next/link';
+import { useParams } from 'next/navigation';
+import { Booking, BookingStatus } from '@/types';
+import { StatusBadge, BookingDetailCard, BookingTimeline, BookingActions } from '@/components/bookings';
+import { Modal, LoadingSpinner } from '@/components/ui';
+import { BookingActionType } from '@/components/bookings/BookingActions';
+import { TimelineEvent } from '@/components/bookings/BookingTimeline';
+import { bookingsAPI } from '@/services/api';
+
+/**
+ * Admin note structure from backend
+ */
+interface AdminNote {
+  note: string;
+  created_by: string;
+  created_at: string;
+}
+
+/**
+ * Extended booking type with admin_notes_list
+ */
+interface BookingWithNotes extends Booking {
+  customer_name?: string;
+  customer_email?: string;
+  customer_phone?: string;
+  service_title?: string;
+  admin_notes_list?: AdminNote[];
+}
+
+/**
+ * Format date for display
+ */
+function formatDate(dateString: string): string {
+  const date = new Date(dateString);
+  return date.toLocaleDateString('en-US', {
+    weekday: 'long',
+    year: 'numeric',
+    month: 'long',
+    day: 'numeric',
+  });
+}
+
+/**
+ * Format timestamp for display
+ */
+function formatTimestamp(timestamp: string): string {
+  const date = new Date(timestamp);
+  return date.toLocaleDateString('en-US', {
+    month: 'short',
+    day: 'numeric',
+    year: 'numeric',
+    hour: 'numeric',
+    minute: '2-digit',
+  });
+}
+
+/**
+ * Format currency
+ */
+function formatCurrency(amount: number): string {
+  return new Intl.NumberFormat('en-US', {
+    style: 'currency',
+    currency: 'USD',
+  }).format(amount);
+}
+
+/**
+ * Build timeline events from booking data
+ */
+function buildTimelineEvents(booking: BookingWithNotes): TimelineEvent[] {
+  const events: TimelineEvent[] = [];
+
+  // Add created event
+  events.push({
+    id: 'event-created',
+    type: 'created',
+    description: 'Booking created',
+    timestamp: booking.created_at,
+    actor: booking.customer_name || booking.user_name || 'Customer',
+  });
+
+  // Add status change event if updated_at differs from created_at
+  if (booking.updated_at && booking.updated_at !== booking.created_at) {
+    const statusDescriptions: Record<BookingStatus, string> = {
+      [BookingStatus.PENDING]: 'Status changed to pending',
+      [BookingStatus.CONFIRMED]: 'Booking confirmed',
+      [BookingStatus.CANCELLED]: 'Booking cancelled',
+      [BookingStatus.REJECTED]: 'Booking rejected',
+      [BookingStatus.COMPLETED]: 'Booking completed',
+      [BookingStatus.NO_SHOW]: 'Marked as no-show',
+    };
+
+    events.push({
+      id: 'event-status',
+      type: 'status_change',
+      description: statusDescriptions[booking.status] || `Status: ${booking.status}`,
+      timestamp: booking.updated_at,
+      actor: 'Admin',
+    });
+  }
+
+  // Add admin notes as timeline events
+  if (booking.admin_notes_list && booking.admin_notes_list.length > 0) {
+    booking.admin_notes_list.forEach((note, index) => {
+      events.push({
+        id: `event-note-${index}`,
+        type: 'note',
+        description: note.note,
+        timestamp: note.created_at,
+        actor: note.created_by || 'Admin',
+      });
+    });
+  }
+
+  // Sort events by timestamp (newest first)
+  events.sort((a, b) => new Date(b.timestamp).getTime() - new Date(a.timestamp).getTime());
+
+  return events;
+}
+
+/**
+ * Booking detail page component
+ * Displays comprehensive booking information with action capabilities
+ */
+export default function BookingDetailPage() {
+  const params = useParams();
+  const bookingId = params.id as string;
+
+  // State for booking data
+  const [booking, setBooking] = useState<BookingWithNotes | null>(null);
+  const [timelineEvents, setTimelineEvents] = useState<TimelineEvent[]>([]);
+  const [isLoadingData, setIsLoadingData] = useState(true);
+  const [error, setError] = useState<string | null>(null);
+
+  // State for modals
+  const [activeModal, setActiveModal] = useState<BookingActionType | null>(null);
+  const [isLoading, setIsLoading] = useState(false);
+  const [noteText, setNoteText] = useState('');
+  const [actionError, setActionError] = useState<string | null>(null);
+
+  // State for reschedule
+  const [rescheduleDate, setRescheduleDate] = useState('');
+  const [rescheduleTime, setRescheduleTime] = useState('');
+
+  /**
+   * Fetch booking data from API
+   */
+  const fetchBooking = async () => {
+    try {
+      setIsLoadingData(true);
+      setError(null);
+      const response = await bookingsAPI.getById(bookingId);
+      const bookingData = response.data as BookingWithNotes;
+      
+      // Map backend field names to frontend field names if needed
+      const normalizedBooking: BookingWithNotes = {
+        ...bookingData,
+        user_name: bookingData.customer_name || bookingData.user_name,
+        user_email: bookingData.customer_email || bookingData.user_email,
+        service_name: bookingData.service_title || bookingData.service_name,
+      };
+      
+      setBooking(normalizedBooking);
+      setTimelineEvents(buildTimelineEvents(normalizedBooking));
+    } catch (err) {
+      console.error('Failed to fetch booking:', err);
+      setError('Failed to load booking details. Please try again.');
+    } finally {
+      setIsLoadingData(false);
+    }
+  };
+
+  // Fetch booking on mount
+  useEffect(() => {
+    if (bookingId) {
+      fetchBooking();
+    }
+  }, [bookingId]);
+
+  /**
+   * Handle action button click
+   */
+  const handleAction = (action: BookingActionType) => {
+    setActiveModal(action);
+    setActionError(null);
+    setNoteText('');
+    setRescheduleDate('');
+    setRescheduleTime('');
+  };
+
+  /**
+   * Handle action confirmation
+   */
+  const handleConfirmAction = async () => {
+    if (!activeModal || !bookingId) return;
+
+    setIsLoading(true);
+    setActionError(null);
+
+    try {
+      switch (activeModal) {
+        case 'approve':
+          await bookingsAPI.approve(bookingId);
+          break;
+        case 'reject':
+          await bookingsAPI.reject(bookingId, noteText || undefined);
+          break;
+        case 'cancel':
+          await bookingsAPI.cancel(bookingId, noteText || undefined);
+          break;
+        case 'mark_completed':
+          await bookingsAPI.markCompleted(bookingId);
+          break;
+        case 'mark_no_show':
+          await bookingsAPI.markNoShow(bookingId);
+          break;
+        case 'add_note':
+          if (!noteText.trim()) {
+            setActionError('Note cannot be empty');
+            setIsLoading(false);
+            return;
+          }
+          await bookingsAPI.addNote(bookingId, noteText);
+          break;
+        case 'reschedule':
+          if (!rescheduleDate || !rescheduleTime) {
+            setActionError('Please select both date and time');
+            setIsLoading(false);
+            return;
+          }
+          await bookingsAPI.reschedule(bookingId, {
+            booking_date: rescheduleDate,
+            time_slot: rescheduleTime,
+          });
+          break;
+        default:
+          console.warn(`Unknown action: ${activeModal}`);
+      }
+
+      // Refresh booking data after successful action
+      await fetchBooking();
+      
+      setActiveModal(null);
+      setNoteText('');
+      setRescheduleDate('');
+      setRescheduleTime('');
+    } catch (err: unknown) {
+      console.error(`Action ${activeModal} failed:`, err);
+      const errorMessage = err instanceof Error ? err.message : 'Action failed. Please try again.';
+      setActionError(errorMessage);
+    } finally {
+      setIsLoading(false);
+    }
+  };
+
+  /**
+   * Get modal title based on action
+   */
+  const getModalTitle = (action: BookingActionType): string => {
+    switch (action) {
+      case 'approve':
+        return 'Approve Booking';
+      case 'reject':
+        return 'Reject Booking';
+      case 'cancel':
+        return 'Cancel Booking';
+      case 'reschedule':
+        return 'Reschedule Booking';
+      case 'add_note':
+        return 'Add Note';
+      case 'mark_completed':
+        return 'Mark as Completed';
+      case 'mark_no_show':
+        return 'Mark as No Show';
+      default:
+        return 'Confirm Action';
+    }
+  };
+
+  /**
+   * Get modal content based on action
+   */
+  const renderModalContent = () => {
+    if (!activeModal) return null;
+
+    switch (activeModal) {
+      case 'approve':
+        return (
+          <div className="space-y-4">
+            <p className="text-admin-text-muted">
+              Are you sure you want to approve this booking? The customer will be notified.
+            </p>
+            {actionError && (
+              <p className="text-red-500 text-sm">{actionError}</p>
+            )}
+            <div className="flex justify-end gap-3">
+              <button
+                onClick={() => setActiveModal(null)}
+                className="px-4 py-2 rounded-lg bg-admin-bg-hover text-admin-text hover:bg-admin-border transition-colors"
+              >
+                Cancel
+              </button>
+              <button
+                onClick={handleConfirmAction}
+                disabled={isLoading}
+                className="px-4 py-2 rounded-lg bg-green-600 text-white hover:bg-green-700 transition-colors disabled:opacity-50"
+              >
+                {isLoading ? 'Processing...' : 'Approve'}
+              </button>
+            </div>
+          </div>
+        );
+
+      case 'reject':
+        return (
+          <div className="space-y-4">
+            <p className="text-admin-text-muted">
+              Are you sure you want to reject this booking? This action cannot be undone.
+            </p>
+            <textarea
+              value={noteText}
+              onChange={(e) => setNoteText(e.target.value)}
+              placeholder="Reason for rejection (optional)"
+              className="admin-input min-h-[100px] resize-none"
+            />
+            {actionError && (
+              <p className="text-red-500 text-sm">{actionError}</p>
+            )}
+            <div className="flex justify-end gap-3">
+              <button
+                onClick={() => setActiveModal(null)}
+                className="px-4 py-2 rounded-lg bg-admin-bg-hover text-admin-text hover:bg-admin-border transition-colors"
+              >
+                Cancel
+              </button>
+              <button
+                onClick={handleConfirmAction}
+                disabled={isLoading}
+                className="px-4 py-2 rounded-lg bg-red-600 text-white hover:bg-red-700 transition-colors disabled:opacity-50"
+              >
+                {isLoading ? 'Processing...' : 'Reject'}
+              </button>
+            </div>
+          </div>
+        );
+
+      case 'cancel':
+        return (
+          <div className="space-y-4">
+            <p className="text-admin-text-muted">
+              Are you sure you want to cancel this booking? The customer will be notified.
+            </p>
+            <textarea
+              value={noteText}
+              onChange={(e) => setNoteText(e.target.value)}
+              placeholder="Reason for cancellation (optional)"
+              className="admin-input min-h-[100px] resize-none"
+            />
+            {actionError && (
+              <p className="text-red-500 text-sm">{actionError}</p>
+            )}
+            <div className="flex justify-end gap-3">
+              <button
+                onClick={() => setActiveModal(null)}
+                className="px-4 py-2 rounded-lg bg-admin-bg-hover text-admin-text hover:bg-admin-border transition-colors"
+              >
+                Keep Booking
+              </button>
+              <button
+                onClick={handleConfirmAction}
+                disabled={isLoading}
+                className="px-4 py-2 rounded-lg bg-red-600 text-white hover:bg-red-700 transition-colors disabled:opacity-50"
+              >
+                {isLoading ? 'Processing...' : 'Cancel Booking'}
+              </button>
+            </div>
+          </div>
+        );
+
+      case 'reschedule':
+        return (
+          <div className="space-y-4">
+            <p className="text-admin-text-muted">
+              Select a new date and time for this booking.
+            </p>
+            <div className="grid grid-cols-2 gap-4">
+              <div>
+                <label className="block text-sm text-admin-text-muted mb-1">New Date</label>
+                <input
+                  type="date"
+                  value={rescheduleDate}
+                  onChange={(e) => setRescheduleDate(e.target.value)}
+                  className="admin-input"
+                />
+              </div>
+              <div>
+                <label className="block text-sm text-admin-text-muted mb-1">New Time</label>
+                <select
+                  value={rescheduleTime}
+                  onChange={(e) => setRescheduleTime(e.target.value)}
+                  className="admin-select"
+                >
+                  <option value="">Select time</option>
+                  <option value="9:00 AM">9:00 AM</option>
+                  <option value="10:00 AM">10:00 AM</option>
+                  <option value="11:00 AM">11:00 AM</option>
+                  <option value="12:00 PM">12:00 PM</option>
+                  <option value="1:00 PM">1:00 PM</option>
+                  <option value="2:00 PM">2:00 PM</option>
+                  <option value="3:00 PM">3:00 PM</option>
+                  <option value="4:00 PM">4:00 PM</option>
+                </select>
+              </div>
+            </div>
+            {actionError && (
+              <p className="text-red-500 text-sm">{actionError}</p>
+            )}
+            <div className="flex justify-end gap-3">
+              <button
+                onClick={() => setActiveModal(null)}
+                className="px-4 py-2 rounded-lg bg-admin-bg-hover text-admin-text hover:bg-admin-border transition-colors"
+              >
+                Cancel
+              </button>
+              <button
+                onClick={handleConfirmAction}
+                disabled={isLoading}
+                className="px-4 py-2 rounded-lg bg-admin-primary text-white hover:bg-admin-primary-hover transition-colors disabled:opacity-50"
+              >
+                {isLoading ? 'Processing...' : 'Reschedule'}
+              </button>
+            </div>
+          </div>
+        );
+
+      case 'add_note':
+        return (
+          <div className="space-y-4">
+            <textarea
+              value={noteText}
+              onChange={(e) => setNoteText(e.target.value)}
+              placeholder="Add a note about this booking..."
+              className="admin-input min-h-[120px] resize-none"
+              autoFocus
+            />
+            {actionError && (
+              <p className="text-red-500 text-sm">{actionError}</p>
+            )}
+            <div className="flex justify-end gap-3">
+              <button
+                onClick={() => setActiveModal(null)}
+                className="px-4 py-2 rounded-lg bg-admin-bg-hover text-admin-text hover:bg-admin-border transition-colors"
+              >
+                Cancel
+              </button>
+              <button
+                onClick={handleConfirmAction}
+                disabled={isLoading || !noteText.trim()}
+                className="px-4 py-2 rounded-lg bg-admin-primary text-white hover:bg-admin-primary-hover transition-colors disabled:opacity-50"
+              >
+                {isLoading ? 'Saving...' : 'Save Note'}
+              </button>
+            </div>
+          </div>
+        );
+
+      case 'mark_completed':
+        return (
+          <div className="space-y-4">
+            <p className="text-admin-text-muted">
+              Mark this booking as completed? This indicates the service was provided.
+            </p>
+            {actionError && (
+              <p className="text-red-500 text-sm">{actionError}</p>
+            )}
+            <div className="flex justify-end gap-3">
+              <button
+                onClick={() => setActiveModal(null)}
+                className="px-4 py-2 rounded-lg bg-admin-bg-hover text-admin-text hover:bg-admin-border transition-colors"
+              >
+                Cancel
+              </button>
+              <button
+                onClick={handleConfirmAction}
+                disabled={isLoading}
+                className="px-4 py-2 rounded-lg bg-green-600 text-white hover:bg-green-700 transition-colors disabled:opacity-50"
+              >
+                {isLoading ? 'Processing...' : 'Mark Completed'}
+              </button>
+            </div>
+          </div>
+        );
+
+      case 'mark_no_show':
+        return (
+          <div className="space-y-4">
+            <p className="text-admin-text-muted">
+              Mark this booking as a no-show? This indicates the customer did not arrive.
+            </p>
+            {actionError && (
+              <p className="text-red-500 text-sm">{actionError}</p>
+            )}
+            <div className="flex justify-end gap-3">
+              <button
+                onClick={() => setActiveModal(null)}
+                className="px-4 py-2 rounded-lg bg-admin-bg-hover text-admin-text hover:bg-admin-border transition-colors"
+              >
+                Cancel
+              </button>
+              <button
+                onClick={handleConfirmAction}
+                disabled={isLoading}
+                className="px-4 py-2 rounded-lg bg-gray-600 text-white hover:bg-gray-700 transition-colors disabled:opacity-50"
+              >
+                {isLoading ? 'Processing...' : 'Mark No Show'}
+              </button>
+            </div>
+          </div>
+        );
+
+      default:
+        return null;
+    }
+  };
+
+  // Loading state
+  if (isLoadingData) {
+    return (
+      <div className="p-6 flex items-center justify-center min-h-[400px]">
+        <LoadingSpinner size="lg" />
+      </div>
+    );
+  }
+
+  // Error state
+  if (error || !booking) {
+    return (
+      <div className="p-6">
+        <Link
+          href="/bookings"
+          className="inline-flex items-center gap-2 text-admin-text-muted hover:text-admin-text transition-colors mb-4"
+        >
+          <svg className="w-5 h-5" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+            <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M15 19l-7-7 7-7" />
+          </svg>
+          Back to Bookings
+        </Link>
+        <div className="bg-red-500/10 border border-red-500/30 rounded-lg p-6 text-center">
+          <p className="text-red-400">{error || 'Booking not found'}</p>
+          <button
+            onClick={fetchBooking}
+            className="mt-4 px-4 py-2 bg-admin-primary text-white rounded-lg hover:bg-admin-primary-hover transition-colors"
+          >
+            Try Again
+          </button>
+        </div>
+      </div>
+    );
+  }
+
+  return (
+    <div className="p-6 space-y-6">
+      {/* Back button and header */}
+      <div className="space-y-4">
+        <Link
+          href="/bookings"
+          className="inline-flex items-center gap-2 text-admin-text-muted hover:text-admin-text transition-colors"
+        >
+          <svg className="w-5 h-5" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+            <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M15 19l-7-7 7-7" />
+          </svg>
+          Back to Bookings
+        </Link>
+
+        <div className="flex flex-col sm:flex-row sm:items-center sm:justify-between gap-4">
+          <div>
+            <h1 className="text-2xl font-bold text-admin-text flex items-center gap-3">
+              {booking.booking_ref}
+              <StatusBadge status={booking.status} />
+            </h1>
+            <p className="text-admin-text-muted mt-1">
+              Created {formatTimestamp(booking.created_at)}
+            </p>
+          </div>
+        </div>
+      </div>
+
+      {/* Action buttons */}
+      <div className="bg-admin-bg-card border border-admin-border rounded-lg p-4">
+        <BookingActions
+          booking={booking}
+          onAction={handleAction}
+          disabled={isLoading}
+        />
+      </div>
+
+      {/* Main content grid */}
+      <div className="grid grid-cols-1 lg:grid-cols-3 gap-6">
+        {/* Left column - Booking details */}
+        <div className="lg:col-span-2 space-y-6">
+          {/* Booking Details Card */}
+          <BookingDetailCard title="Booking Details">
+            <div className="space-y-4">
+              <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
+                <div>
+                  <label className="text-xs text-admin-text-muted uppercase tracking-wider">Service</label>
+                  <p className="text-admin-text mt-1">{booking.service_name || 'N/A'}</p>
+                </div>
+                <div>
+                  <label className="text-xs text-admin-text-muted uppercase tracking-wider">Price</label>
+                  <p className="text-admin-text mt-1 font-semibold">
+                    {booking.service_price ? formatCurrency(booking.service_price) : 'N/A'}
+                  </p>
+                </div>
+                <div>
+                  <label className="text-xs text-admin-text-muted uppercase tracking-wider">Date</label>
+                  <p className="text-admin-text mt-1">{formatDate(booking.booking_date)}</p>
+                </div>
+                <div>
+                  <label className="text-xs text-admin-text-muted uppercase tracking-wider">Time Slot</label>
+                  <p className="text-admin-text mt-1">{booking.time_slot || 'N/A'}</p>
+                </div>
+                <div>
+                  <label className="text-xs text-admin-text-muted uppercase tracking-wider">Duration</label>
+                  <p className="text-admin-text mt-1">45 minutes</p>
+                </div>
+                <div>
+                  <label className="text-xs text-admin-text-muted uppercase tracking-wider">Business</label>
+                  <p className="text-admin-text mt-1">{booking.profile_name || 'N/A'}</p>
+                </div>
+              </div>
+
+              {booking.notes && (
+                <div className="pt-4 border-t border-admin-border">
+                  <label className="text-xs text-admin-text-muted uppercase tracking-wider">Customer Notes</label>
+                  <p className="text-admin-text mt-1 bg-admin-bg/50 p-3 rounded-lg">{booking.notes}</p>
+                </div>
+              )}
+
+              {booking.admin_notes && (
+                <div className="pt-4 border-t border-admin-border">
+                  <label className="text-xs text-admin-text-muted uppercase tracking-wider">Admin Notes</label>
+                  <p className="text-admin-text mt-1 bg-admin-bg/50 p-3 rounded-lg">{booking.admin_notes}</p>
+                </div>
+              )}
+            </div>
+          </BookingDetailCard>
+
+          {/* Customer Details Card */}
+          <BookingDetailCard title="Customer Details">
+            <div className="space-y-4">
+              <div className="flex items-center gap-4">
+                <div className="w-12 h-12 rounded-full bg-admin-primary/20 flex items-center justify-center">
+                  <span className="text-admin-primary font-semibold text-lg">
+                    {booking.user_name?.charAt(0) || 'U'}
+                  </span>
+                </div>
+                <div>
+                  <p className="text-admin-text font-medium">{booking.user_name || 'Unknown'}</p>
+                  <p className="text-admin-text-muted text-sm">{booking.user_email || 'No email'}</p>
+                </div>
+              </div>
+
+              <div className="grid grid-cols-1 sm:grid-cols-2 gap-4 pt-4 border-t border-admin-border">
+                <div>
+                  <label className="text-xs text-admin-text-muted uppercase tracking-wider">Email</label>
+                  <p className="text-admin-text mt-1">{booking.user_email || 'N/A'}</p>
+                </div>
+                <div>
+                  <label className="text-xs text-admin-text-muted uppercase tracking-wider">Phone</label>
+                  <p className="text-admin-text mt-1">{booking.customer_phone || 'N/A'}</p>
+                </div>
+              </div>
+
+              <div className="pt-4">
+                <Link
+                  href={`/customers/${booking.user_id}`}
+                  className="inline-flex items-center gap-2 text-admin-primary hover:text-admin-primary-light transition-colors text-sm"
+                >
+                  View Customer Profile
+                  <svg className="w-4 h-4" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                    <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M9 5l7 7-7 7" />
+                  </svg>
+                </Link>
+              </div>
+            </div>
+          </BookingDetailCard>
+        </div>
+
+        {/* Right column - Timeline */}
+        <div className="lg:col-span-1">
+          <BookingDetailCard title="Timeline">
+            <BookingTimeline events={timelineEvents} />
+          </BookingDetailCard>
+        </div>
+      </div>
+
+      {/* Action Modal */}
+      {activeModal && (
+        <Modal
+          isOpen={!!activeModal}
+          onClose={() => {
+            setActiveModal(null);
+            setNoteText('');
+            setActionError(null);
+          }}
+          title={getModalTitle(activeModal)}
+          size={activeModal === 'reschedule' ? 'lg' : 'md'}
+        >
+          {renderModalContent()}
+        </Modal>
+      )}
+    </div>
+  );
+}

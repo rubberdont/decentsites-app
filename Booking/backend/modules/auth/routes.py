@@ -1,3 +1,4 @@
+import os
 from fastapi import APIRouter, HTTPException, status, Depends
 from core.security import hash_password, verify_password, create_access_token, decode_token
 from datetime import timedelta
@@ -10,6 +11,9 @@ from .security import get_current_user
 
 
 router = APIRouter(prefix="/auth", tags=["auth"])
+
+# Default owner ID for single-tenant mode (customers are linked to this owner)
+DEFAULT_OWNER_ID = os.getenv("DEFAULT_OWNER_ID")
 
 
 @router.post("/register", response_model=UserResponse)
@@ -36,12 +40,13 @@ async def register(user_data: UserRegister):
     # Hash password
     password_hash = hash_password(user_data.password)
     
-    # Create user
+    # Create user with owner_id for single-tenant mode
     user_doc = AuthRepository.create_user(
         username=user_data.username,
         name=user_data.name,
         password_hash=password_hash,
-        email=user_data.email
+        email=user_data.email,
+        owner_id=DEFAULT_OWNER_ID  # Link customer to default owner
     )
 
     print(f"USER PROC: {user_doc}")
@@ -52,6 +57,7 @@ async def register(user_data: UserRegister):
         name=user_doc["name"],
         email=user_doc.get("email"),
         role=user_doc.get("role", "USER"),
+        owner_id=user_doc.get("owner_id"),
         created_at=user_doc["created_at"]
     )
 

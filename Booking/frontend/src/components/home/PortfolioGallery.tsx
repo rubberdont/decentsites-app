@@ -1,76 +1,54 @@
 'use client';
 
 export default function PortfolioGallery() {
-  const portfolioImages = [
+  const galleryItems = [
     {
-      url: 'https://images.unsplash.com/photo-1622286342621-4bd786c2447c?w=600&h=600&fit=crop',
-      alt: 'Modern Fade Cut',
+      image: 'https://lh3.googleusercontent.com/aida-public/AB6AXuDyKH2-WfbBJ0sxbbd8PXPxPqlet1MD6UMlkD5riQniZ5PbpSM4VUbzYb_72whGn8c1odW6lgEomDW2lShkrUMFqqqVAzpPFyKtZsTVLC-YR5uFAxMIbTsQyldCQuwWAycAA7F1-2bww7gOICrAhe_f6_kwvBM02bOzsRQUmCUwWpUMbcPW8vG1OSRdPXOoMFgydeA1yirhcatWrK8H9wA350jDCkHSC0oj2FoyjhDCFS-nLLOSy-dm_42ZiAElRCFFPGTBPT-PD8A',
+      title: 'Classic Fade',
+      alt: 'Man with a classic fade haircut, side profile'
     },
     {
-      url: 'https://images.unsplash.com/photo-1605497788044-5a32c7078486?w=600&h=600&fit=crop',
-      alt: 'Classic Beard Trim',
+      image: 'https://lh3.googleusercontent.com/aida-public/AB6AXuBnFLdT-RhjJ4pv7IzCsMc7G2-gj6zqDdy_8k73wJLi1Y9M0vzWVzSRiIxTDu4dhK79hZe_rphp7Qnn8ERcEch3_0XCuOZQ664tBIYG8O_ffQMCxgrOMB9ltoWnUJQR5h5NoyEtRUqJAlxodt5DSZo-6jPw5FtqcDl2-EluBbDa9aVL7LOOE1uC_TGp5N2Ch7yFANWSxQUOpUWtHmcX0b-mg0oQ-XOCbET3-35s6g6_PniCLcAWBzuY7AyGfW4cb7U-zwLKgGWgwU8',
+      title: 'Sharp Beard Trim',
+      alt: 'Close up of a man with a perfectly trimmed and shaped beard'
     },
     {
-      url: 'https://images.unsplash.com/photo-1621605815971-fbc98d665033?w=600&h=600&fit=crop',
-      alt: 'Professional Styling',
+      image: 'https://lh3.googleusercontent.com/aida-public/AB6AXuArxsy3iIPmxU1ozWW05HwTQX5qQq8ROIlRFIExDATvzXA0AnQS-ww08EVfSSMI4ASXYJSFn95siguR2n1uPB414Cc9riBPoNPJWVelg7tvUaVjTFk3GO6z9AKXj8koBhdm62uf6SNpT2S-74JZ7pWqhTxcwbvp7r8Sp3-Jw1WQ_3JjnU7leR6swagVzaUL71Ms0MLhMd89B_7cqlMTBy9Ti5w9mAvGGqhrrpqW-jvJqbu0Ac1wf_Vm9F1PmedgxVGIaBaxN06Hnck',
+      title: 'Modern Pompadour',
+      alt: 'Man with a stylish modern pompadour hairstyle'
     },
     {
-      url: 'https://images.unsplash.com/photo-1503951914875-452162b0f3f1?w=600&h=600&fit=crop',
-      alt: 'Textured Cut',
-    },
-    {
-      url: 'https://images.unsplash.com/photo-1596387119732-1b84f8b6f35b?w=600&h=600&fit=crop',
-      alt: 'Pompadour Style',
-    },
-    {
-      url: 'https://images.unsplash.com/photo-1599351431202-1e0f0137899a?w=600&h=600&fit=crop',
-      alt: 'Grooming Service',
-    },
+      image: 'https://lh3.googleusercontent.com/aida-public/AB6AXuCyqTSkx117QlntUHbQZNUaSksmlqpNe8lJ9fnJZfP6FGd17Hp0Xoj7x0mcIynke6mnn_b5fzTFTDuNXtdo-FbtWChQyp-nfeEQQrYg_0fDSYcstyqhSptkgOX5RTJGFCX7WUD6ZRIbBYBuMFQKkIysTIOHhGi7LFRA2ERmgnwouIBKUbFEirgu0kPqGEZMfVDmtR4PZZd580LQL_KKekAgJhwzOE50si_h-YnhBPhHN3PG8m-YYyZR_X5Qu0vTtgTy0iyefMNEULI',
+      title: "The Shop's Ambiance",
+      alt: 'Interior of the stylish and modern barbershop'
+    }
   ];
 
   return (
-    <section className="py-16 lg:py-24 bg-[#F5F3EF] dark:bg-gray-800">
-      <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
-        {/* Section Header */}
-        <div className="text-center mb-12">
-          <h2 className="text-3xl lg:text-5xl font-bold text-gray-900 dark:text-white mb-4">
-            Our <span className="text-[#14B8A6]">Work</span> Gallery
-          </h2>
-          <p className="text-lg text-gray-600 dark:text-gray-400 max-w-2xl mx-auto">
-            See the quality and precision of our barber services
-          </p>
-        </div>
+    <section className="container mx-auto px-4 py-16 sm:py-24">
+      <div className="text-center mb-12">
+        <h2 className="text-3xl font-bold tracking-tight text-[#1a1a1a] dark:text-[#f5f5f5] sm:text-4xl font-display">
+          Our Work
+        </h2>
+        <p className="mt-4 text-lg text-gray-600 dark:text-gray-400 font-body">
+          A gallery of our finest cuts and satisfied clients.
+        </p>
+      </div>
 
-        {/* Gallery Grid */}
-        <div className="grid grid-cols-2 md:grid-cols-3 gap-4 lg:gap-6">
-          {portfolioImages.map((image, index) => (
-            <div
-              key={index}
-              className="group relative overflow-hidden rounded-2xl shadow-lg hover:shadow-2xl transition-all duration-300 transform hover:scale-105 aspect-square"
-            >
-              <img
-                src={image.url}
-                alt={image.alt}
-                className="w-full h-full object-cover transition-transform duration-500 group-hover:scale-110"
-              />
-              {/* Overlay */}
-              <div className="absolute inset-0 bg-gradient-to-t from-black/70 via-black/20 to-transparent opacity-0 group-hover:opacity-100 transition-opacity duration-300 flex items-end">
-                <div className="p-4 w-full">
-                  <p className="text-white font-semibold text-sm lg:text-base">
-                    {image.alt}
-                  </p>
-                </div>
-              </div>
-            </div>
-          ))}
-        </div>
-
-        {/* CTA */}
-        <div className="text-center mt-12">
-          <p className="text-gray-600 dark:text-gray-400 mb-4">
-            Want to look your best? Book an appointment today!
-          </p>
-        </div>
+      <div className="grid grid-cols-2 md:grid-cols-3 lg:grid-cols-4 gap-4">
+        {galleryItems.map((item, index) => (
+          <div key={index} className="group relative overflow-hidden rounded-lg aspect-[3/4]">
+            <div 
+              className="bg-cover bg-center w-full h-full transition-transform duration-300 group-hover:scale-110"
+              style={{ backgroundImage: `url("${item.image}")` }}
+              aria-label={item.alt}
+            />
+            <div className="absolute inset-0 bg-gradient-to-t from-black/70 via-black/30 to-transparent" />
+            <p className="absolute bottom-4 left-4 text-white text-lg font-bold font-display">
+              {item.title}
+            </p>
+          </div>
+        ))}
       </div>
     </section>
   );

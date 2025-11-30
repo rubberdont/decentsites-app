@@ -21,7 +21,8 @@ class AuthRepository:
         name: str,
         password_hash: str,
         email: Optional[str] = None,
-        role: str = "USER"
+        role: str = "USER",
+        owner_id: Optional[str] = None
     ) -> Dict[str, Any]:
         """
         Create a new user.
@@ -32,6 +33,7 @@ class AuthRepository:
             password_hash: Hashed password
             email: Optional email address
             role: User role (USER, OWNER, ADMIN)
+            owner_id: Optional owner ID to link customer to owner (single-tenant mode)
             
         Returns:
             Created user document
@@ -46,6 +48,7 @@ class AuthRepository:
             "email": email,
             "password_hash": password_hash,
             "role": role,
+            "owner_id": owner_id,  # Links customer to owner
             "created_at": now,
             "updated_at": now,
         }

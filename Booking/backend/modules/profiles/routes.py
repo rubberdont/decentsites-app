@@ -2,7 +2,7 @@ from fastapi import APIRouter, HTTPException, status, Depends
 from typing import List
 import uuid
 
-from .models import BusinessProfile, Service
+from .models import BusinessProfile, Service, ServiceUpdate
 from .repository import ProfileRepository
 from modules.auth.security import get_current_user
 from modules.auth.models import UserCredentials
@@ -106,23 +106,31 @@ async def create_service(profile_id: str, service: Service):
 
 
 @router.put("/{profile_id}/services/{service_id}", response_model=Service)
-async def update_service(profile_id: str, service_id: str, service: Service):
+async def update_service(profile_id: str, service_id: str, service_data: ServiceUpdate):
     """Update a service in a profile."""
     profile = ProfileRepository.get_profile(profile_id)
     if not profile:
         raise HTTPException(status_code=404, detail="Profile not found")
     
-    service_index = next(
-        (i for i, s in enumerate(profile.get("services", [])) if s["id"] == service_id),
+    # Find existing service
+    existing_service = next(
+        (s for s in profile.get("services", []) if s["id"] == service_id),
         None
     )
-    if service_index is None:
+    if existing_service is None:
         raise HTTPException(status_code=404, detail="Service not found")
     
-    service.id = service_id
-    updates = service.model_dump()
+    # Only update fields that were provided (not None)
+    updates = {k: v for k, v in service_data.model_dump().items() if v is not None}
     ProfileRepository.update_service_in_profile(profile_id, service_id, updates)
-    return service
+    
+    # Return updated service
+    updated_profile = ProfileRepository.get_profile(profile_id)
+    updated_service = next(
+        (s for s in updated_profile.get("services", []) if s["id"] == service_id),
+        None
+    )
+    return updated_service
 
 
 @router.delete("/{profile_id}/services/{service_id}")

@@ -12,6 +12,14 @@ class Service(BaseModel):
     image_url: Optional[str] = None
 
 
+class ServiceUpdate(BaseModel):
+    """Service update model - all fields optional for partial updates."""
+    title: Optional[str] = None
+    description: Optional[str] = None
+    price: Optional[float] = None
+    image_url: Optional[str] = None
+
+
 class BusinessProfile(BaseModel):
     """Business profile model with embedded services."""
     id: str

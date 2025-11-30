@@ -4,12 +4,26 @@
   --background: #ffffff;
   --foreground: #171717;
   
-  /* Design System Colors */
+  /* New Design System Colors - Landing Page */
+  --primary: #d4af37;
+  --primary-hover: #c9a432;
+  --background-light: #f5f5f5;
+  --background-dark: #1a1a1a;
+  --surface-dark: #2a2a2a;
+  --text-light: #1a1a1a;
+  --text-dark: #f5f5f5;
+  
+  /* Auth Pages Colors */
+  --primary-blue: #1258e2;
+  --auth-bg-light: #f6f6f8;
+  --auth-bg-dark: #101622;
+  
+  /* Legacy colors (keep for compatibility) */
   --cream-bg: #F5F3EF;
   --teal-primary: #14B8A6;
   --teal-hover: #0F9488;
-  --gold-cta: #F59E0B;
-  --gold-hover: #D97706;
+  --gold-cta: #d4af37;
+  --gold-hover: #c9a432;
   --navy-dark: #1E293B;
   --warm-gray-text: #78716C;
   --success-color: #10B981;
@@ -20,56 +34,57 @@
 @theme inline {
   --color-background: var(--background);
   --color-foreground: var(--foreground);
-  --font-sans: var(--font-geist-sans);
-  --font-mono: var(--font-geist-mono);
+  --font-display: var(--font-montserrat);
+  --font-body: var(--font-lora);
+  --font-auth: var(--font-inter);
 }
 
 @media (prefers-color-scheme: dark) {
   :root {
-    --background: #0a0a0a;
-    --foreground: #ededed;
+    --background: #1a1a1a;
+    --foreground: #f5f5f5;
   }
 }
 
+/* Base styles */
 body {
   background: var(--background);
   color: var(--foreground);
-  font-family: var(--font-geist-sans), Arial, Helvetica, sans-serif;
+  font-family: var(--font-lora), Georgia, serif;
   scroll-behavior: smooth;
 }
 
-/* Design System Utility Classes */
-.bg-cream {
-  background-color: var(--cream-bg);
+/* Typography utilities */
+.font-display {
+  font-family: var(--font-montserrat), system-ui, sans-serif;
 }
 
-.bg-teal-primary {
-  background-color: var(--teal-primary);
+.font-body {
+  font-family: var(--font-lora), Georgia, serif;
 }
 
-.bg-gold-cta {
-  background-color: var(--gold-cta);
+.font-auth {
+  font-family: var(--font-inter), system-ui, sans-serif;
 }
 
-.text-teal-primary {
-  color: var(--teal-primary);
+/* Headings use display font */
+h1, h2, h3, h4, h5, h6, button, nav a {
+  font-family: var(--font-montserrat), system-ui, sans-serif;
 }
 
-.text-warm-gray {
-  color: var(--warm-gray-text);
+/* Primary gold button */
+.btn-gold {
+  @apply bg-[#d4af37] hover:bg-[#c9a432] text-black px-6 py-3 rounded-lg font-bold tracking-wide transition-transform hover:scale-105;
 }
 
-.hover\:text-teal-hover:hover {
-  color: var(--teal-hover);
+/* Primary outline button */
+.btn-outline-gold {
+  @apply border border-[#d4af37] text-[#d4af37] hover:bg-[#d4af37]/10 px-4 py-2 rounded-lg font-bold tracking-wide transition-colors;
 }
 
-.transition-smooth {
-  transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
-}
-
-/* Additional utility classes for consistency */
+/* Legacy button styles (keep for compatibility) */
 .btn-primary {
-  @apply bg-[#F59E0B] hover:bg-[#D97706] text-white px-8 py-4 rounded-full font-semibold transition-all duration-300 transform hover:scale-105 shadow-lg hover:shadow-xl;
+  @apply bg-[#d4af37] hover:bg-[#c9a432] text-black px-8 py-4 rounded-lg font-semibold transition-all duration-300 transform hover:scale-105 shadow-lg hover:shadow-xl;
 }
 
 .btn-secondary {
@@ -80,15 +95,25 @@ body {
   @apply bg-transparent border-2 border-[#14B8A6] text-[#14B8A6] hover:bg-[#14B8A6] hover:text-white px-6 py-3 rounded-full font-medium transition-all;
 }
 
-.form-input {
-  @apply w-full px-4 py-3 border border-gray-300 dark:border-gray-600 rounded-xl focus:ring-2 focus:ring-[#14B8A6] focus:border-transparent dark:bg-gray-800 dark:text-white transition-all;
+/* Card styles */
+.card-service {
+  @apply flex flex-col rounded-lg border border-white/10 bg-[#f5f5f5] dark:bg-[#2a2a2a] p-8 text-center transition-shadow hover:shadow-xl hover:shadow-[#d4af37]/10;
 }
 
-.card-modern {
-  @apply bg-white dark:bg-gray-800 rounded-3xl shadow-lg hover:shadow-2xl transition-all p-6 border border-gray-100 dark:border-gray-700;
+.card-testimonial {
+  @apply flex flex-col rounded-lg border border-white/10 bg-[#f5f5f5] dark:bg-[#1a1a1a] p-6;
 }
 
-/* Status colors for functionality */
+.card-social {
+  @apply relative flex flex-col items-center justify-center rounded-xl bg-[#f5f5f5] dark:bg-[#2a2a2a] p-8 text-center transition-all duration-300 hover:-translate-y-2 hover:shadow-2xl hover:shadow-[#d4af37]/20;
+}
+
+/* Form input for auth pages */
+.form-input-auth {
+  @apply flex w-full min-w-0 flex-1 resize-none overflow-hidden rounded-lg border border-gray-300 bg-white px-4 py-3.5 text-base font-normal leading-normal text-black placeholder:text-gray-400 focus:border-[#1258e2] focus:outline-0 focus:ring-2 focus:ring-[#1258e2]/20 dark:border-gray-700 dark:bg-gray-800 dark:text-white dark:placeholder:text-gray-500 dark:focus:border-[#1258e2];
+}
+
+/* Status colors */
 .text-success {
   color: var(--success-color);
 }
@@ -143,4 +168,68 @@ body {
 
 .animate-float-delayed {
   animation: float-delayed 4s ease-in-out infinite;
+}
+
+/* Booking Page Styles */
+.booking-card {
+  @apply bg-[#2a2a2a] rounded-xl border border-[#444444];
+}
+
+.booking-header {
+  @apply sticky top-0 z-10 bg-[#1a1a1a]/95 backdrop-blur-sm border-b border-[#444444];
+}
+
+.time-slot {
+  @apply w-full text-center py-3 rounded-lg border border-[#444444] text-[#eaeaea] transition-colors;
+}
+
+.time-slot:hover:not(:disabled) {
+  @apply border-[#d4af37] text-[#d4af37];
+}
+
+.time-slot:disabled {
+  @apply text-[#a0a0a0] cursor-not-allowed opacity-60;
+}
+
+.time-slot-selected {
+  @apply bg-[#d4af37] border-[#d4af37] text-[#1a1a1a] font-semibold;
+}
+
+.calendar-day {
+  @apply h-12 w-full text-sm font-medium rounded-full transition-colors;
+}
+
+.calendar-day:hover:not(:disabled) {
+  @apply bg-white/10;
+}
+
+.calendar-day-selected {
+  @apply bg-[#d4af37] text-[#1a1a1a];
+}
+
+.calendar-day-today {
+  @apply ring-2 ring-[#d4af37]/50;
+}
+
+/* Service card styles */
+.service-card {
+  @apply flex flex-col bg-[#2a2a2a] border border-[#444444] rounded-xl overflow-hidden transition-all;
+}
+
+.service-card:hover {
+  @apply border-[#d4af37]/50;
+}
+
+.service-card-selected {
+  @apply border-[#d4af37] ring-2 ring-[#d4af37]/30;
+}
+
+/* Booking summary sticky sidebar */
+.booking-summary {
+  @apply sticky top-24 bg-[#2a2a2a] rounded-xl border border-[#444444] p-6 lg:p-8;
+}
+
+/* Mobile bottom bar */
+.mobile-booking-bar {
+  @apply fixed bottom-0 left-0 right-0 bg-[#2a2a2a] border-t border-[#444444] p-4 lg:hidden z-50;
 }

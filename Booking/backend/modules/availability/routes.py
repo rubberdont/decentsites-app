@@ -1,12 +1,18 @@
 from fastapi import APIRouter, HTTPException, status, Depends
 from typing import List
 from datetime import datetime
+import uuid
 
 from modules.auth.security import get_current_user
 from modules.auth.models import UserCredentials
 from modules.profiles.repository import ProfileRepository
-from .models import AvailabilityCreate, AvailabilitySlot, DateAvailability, SlotCapacityUpdate
-from .repository import AvailabilityRepository
+from .models import (
+    AvailabilityCreate, AvailabilitySlot, DateAvailability, SlotCapacityUpdate,
+    SlotTemplate, SlotTemplateCreate, SlotTemplateUpdate, 
+    ApplyTemplateRequest, GenerateTemplatePreview, TemplateSlot,
+    BulkApplyTemplateRequest, BulkDeleteSlotsRequest, BulkOperationResult
+)
+from .repository import AvailabilityRepository, SlotTemplateRepository
 
 
 router = APIRouter(prefix="/availability", tags=["availability"])
@@ -235,3 +241,409 @@ async def delete_slot(
         )
     
     AvailabilityRepository.delete_slot(slot_id)
+
+
+# ============================================================================
+# SLOT TEMPLATES ENDPOINTS
+# ============================================================================
+
+
+@router.get("/templates", response_model=List[SlotTemplate])
+async def list_templates(
+    current_user: UserCredentials = Depends(get_current_user),
+):
+    """
+    List all slot templates for the current user.
+    
+    Returns:
+        List of SlotTemplate
+    """
+    templates = SlotTemplateRepository.get_templates_by_owner(current_user.user_id)
+    return [SlotTemplate(**t) for t in templates]
+
+
+@router.post("/templates", response_model=SlotTemplate, status_code=status.HTTP_201_CREATED)
+async def create_template(
+    template_data: SlotTemplateCreate,
+    current_user: UserCredentials = Depends(get_current_user),
+):
+    """
+    Create a new slot template.
+    
+    Args:
+        template_data: Template name, slots, and default flag
+        current_user: Authenticated user
+        
+    Returns:
+        Created SlotTemplate
+    """
+    slots = [{"start_time": s.start_time, "end_time": s.end_time} for s in template_data.slots]
+    
+    template = SlotTemplateRepository.create_template(
+        owner_id=current_user.user_id,
+        name=template_data.name,
+        slots=slots,
+        is_default=template_data.is_default
+    )
+    
+    return SlotTemplate(**template)
+
+
+@router.post("/templates/preview", response_model=List[TemplateSlot])
+async def generate_template_preview(
+    config: GenerateTemplatePreview,
+    current_user: UserCredentials = Depends(get_current_user),
+):
+    """
+    Generate a preview of slots based on configuration.
+    Does not create anything, just returns the slot definitions.
+    
+    Args:
+        config: Start time, end time, duration, and optional break
+        current_user: Authenticated user
+        
+    Returns:
+        List of TemplateSlot with start_time and end_time
+    """
+    slots = SlotTemplateRepository.generate_slots_preview(
+        start_time=config.start_time,
+        end_time=config.end_time,
+        slot_duration=config.slot_duration,
+        break_start=config.break_start,
+        break_end=config.break_end
+    )
+    
+    return [TemplateSlot(**s) for s in slots]
+
+
+@router.get("/templates/{template_id}", response_model=SlotTemplate)
+async def get_template(
+    template_id: str,
+    current_user: UserCredentials = Depends(get_current_user),
+):
+    """
+    Get a specific template by ID.
+    
+    Args:
+        template_id: Template ID
+        current_user: Authenticated user
+        
+    Returns:
+        SlotTemplate
+        
+    Raises:
+        HTTPException: If template not found or not owned by user
+    """
+    template = SlotTemplateRepository.get_template(template_id)
+    
+    if not template:
+        raise HTTPException(
+            status_code=status.HTTP_404_NOT_FOUND,
+            detail="Template not found"
+        )
+    
+    if template["owner_id"] != current_user.user_id:
+        raise HTTPException(
+            status_code=status.HTTP_403_FORBIDDEN,
+            detail="Not authorized to access this template"
+        )
+    
+    return SlotTemplate(**template)
+
+
+@router.put("/templates/{template_id}", response_model=SlotTemplate)
+async def update_template(
+    template_id: str,
+    update_data: SlotTemplateUpdate,
+    current_user: UserCredentials = Depends(get_current_user),
+):
+    """
+    Update a slot template.
+    
+    Args:
+        template_id: Template ID
+        update_data: Fields to update
+        current_user: Authenticated user
+        
+    Returns:
+        Updated SlotTemplate
+        
+    Raises:
+        HTTPException: If template not found or not owned by user
+    """
+    template = SlotTemplateRepository.get_template(template_id)
+    
+    if not template:
+        raise HTTPException(
+            status_code=status.HTTP_404_NOT_FOUND,
+            detail="Template not found"
+        )
+    
+    if template["owner_id"] != current_user.user_id:
+        raise HTTPException(
+            status_code=status.HTTP_403_FORBIDDEN,
+            detail="Not authorized to update this template"
+        )
+    
+    # Build updates dict
+    updates = {}
+    if update_data.name is not None:
+        updates["name"] = update_data.name
+    if update_data.slots is not None:
+        updates["slots"] = [{"start_time": s.start_time, "end_time": s.end_time} for s in update_data.slots]
+    if update_data.is_default is not None:
+        updates["is_default"] = update_data.is_default
+    
+    updated = SlotTemplateRepository.update_template(template_id, updates, current_user.user_id)
+    
+    return SlotTemplate(**updated)
+
+
+@router.delete("/templates/{template_id}", status_code=status.HTTP_204_NO_CONTENT)
+async def delete_template(
+    template_id: str,
+    current_user: UserCredentials = Depends(get_current_user),
+):
+    """
+    Delete a slot template.
+    
+    Args:
+        template_id: Template ID
+        current_user: Authenticated user
+        
+    Raises:
+        HTTPException: If template not found or not owned by user
+    """
+    template = SlotTemplateRepository.get_template(template_id)
+    
+    if not template:
+        raise HTTPException(
+            status_code=status.HTTP_404_NOT_FOUND,
+            detail="Template not found"
+        )
+    
+    if template["owner_id"] != current_user.user_id:
+        raise HTTPException(
+            status_code=status.HTTP_403_FORBIDDEN,
+            detail="Not authorized to delete this template"
+        )
+    
+    SlotTemplateRepository.delete_template(template_id)
+
+
+@router.post("/profiles/{profile_id}/apply-template", response_model=List[AvailabilitySlot])
+async def apply_template_to_date(
+    profile_id: str,
+    request: ApplyTemplateRequest,
+    current_user: UserCredentials = Depends(get_current_user),
+):
+    """
+    Apply a slot template to a specific date.
+    Creates availability slots based on the template.
+    
+    Args:
+        profile_id: Profile ID
+        request: Template ID, date, and max capacity
+        current_user: Authenticated user
+        
+    Returns:
+        List of created AvailabilitySlot
+        
+    Raises:
+        HTTPException: If profile/template not found or user is not authorized
+    """
+    # Verify profile ownership
+    profile = ProfileRepository.get_profile(profile_id)
+    
+    if not profile:
+        raise HTTPException(
+            status_code=status.HTTP_404_NOT_FOUND,
+            detail="Profile not found"
+        )
+    
+    if profile.get("owner_id") != current_user.user_id:
+        raise HTTPException(
+            status_code=status.HTTP_403_FORBIDDEN,
+            detail="Only profile owner can apply templates"
+        )
+    
+    # Get template
+    template = SlotTemplateRepository.get_template(request.template_id)
+    
+    if not template:
+        raise HTTPException(
+            status_code=status.HTTP_404_NOT_FOUND,
+            detail="Template not found"
+        )
+    
+    if template["owner_id"] != current_user.user_id:
+        raise HTTPException(
+            status_code=status.HTTP_403_FORBIDDEN,
+            detail="Not authorized to use this template"
+        )
+    
+    # Normalize date to midnight
+    date_normalized = request.date.replace(hour=0, minute=0, second=0, microsecond=0)
+    
+    # Create slots from template
+    created_slots = []
+    for slot_def in template["slots"]:
+        time_slot = f"{slot_def['start_time']}-{slot_def['end_time']}"
+        
+        slot_doc = {
+            "id": str(uuid.uuid4()),
+            "profile_id": profile_id,
+            "date": date_normalized,
+            "time_slot": time_slot,
+            "max_capacity": request.max_capacity,
+            "booked_count": 0,
+            "is_available": True,
+            "created_at": datetime.utcnow(),
+            "updated_at": datetime.utcnow(),
+        }
+        
+        db = __import__('core.mongo_helper', fromlist=['mongo_db']).mongo_db
+        db.insert_one(AvailabilityRepository.COLLECTION, slot_doc)
+        created_slots.append(slot_doc)
+    
+    return [AvailabilitySlot(**s) for s in created_slots]
+
+
+# ============================================================================
+# BULK OPERATIONS ENDPOINTS
+# ============================================================================
+
+
+@router.post("/profiles/{profile_id}/bulk-apply-template", response_model=BulkOperationResult)
+async def bulk_apply_template(
+    profile_id: str,
+    request: BulkApplyTemplateRequest,
+    current_user: UserCredentials = Depends(get_current_user),
+):
+    """
+    Apply a slot template to multiple dates.
+    Creates availability slots based on the template for each date.
+    
+    Args:
+        profile_id: Profile ID
+        request: Template ID, list of dates, and max capacity
+        current_user: Authenticated user
+        
+    Returns:
+        BulkOperationResult with success/failure counts
+    """
+    # Verify profile ownership
+    profile = ProfileRepository.get_profile(profile_id)
+    
+    if not profile:
+        raise HTTPException(
+            status_code=status.HTTP_404_NOT_FOUND,
+            detail="Profile not found"
+        )
+    
+    if profile.get("owner_id") != current_user.user_id:
+        raise HTTPException(
+            status_code=status.HTTP_403_FORBIDDEN,
+            detail="Only profile owner can apply templates"
+        )
+    
+    # Get template
+    template = SlotTemplateRepository.get_template(request.template_id)
+    
+    if not template:
+        raise HTTPException(
+            status_code=status.HTTP_404_NOT_FOUND,
+            detail="Template not found"
+        )
+    
+    if template["owner_id"] != current_user.user_id:
+        raise HTTPException(
+            status_code=status.HTTP_403_FORBIDDEN,
+            detail="Not authorized to use this template"
+        )
+    
+    db = __import__('core.mongo_helper', fromlist=['mongo_db']).mongo_db
+    
+    success_count = 0
+    failed_dates = []
+    
+    for date in request.dates:
+        try:
+            # Normalize date to midnight
+            date_normalized = date.replace(hour=0, minute=0, second=0, microsecond=0)
+            
+            # Delete existing slots for this date first (optional: could make this configurable)
+            AvailabilityRepository.delete_slots_for_date(profile_id, date_normalized)
+            
+            # Create slots from template
+            for slot_def in template["slots"]:
+                time_slot = f"{slot_def['start_time']}-{slot_def['end_time']}"
+                
+                slot_doc = {
+                    "id": str(uuid.uuid4()),
+                    "profile_id": profile_id,
+                    "date": date_normalized,
+                    "time_slot": time_slot,
+                    "max_capacity": request.max_capacity,
+                    "booked_count": 0,
+                    "is_available": True,
+                    "created_at": datetime.utcnow(),
+                    "updated_at": datetime.utcnow(),
+                }
+                
+                db.insert_one(AvailabilityRepository.COLLECTION, slot_doc)
+            
+            success_count += 1
+        except Exception as e:
+            failed_dates.append(date_normalized.strftime("%Y-%m-%d"))
+    
+    return BulkOperationResult(
+        success_count=success_count,
+        failed_count=len(failed_dates),
+        failed_dates=failed_dates,
+        protected_dates=[]
+    )
+
+
+@router.delete("/profiles/{profile_id}/bulk-delete-slots", response_model=BulkOperationResult)
+async def bulk_delete_slots(
+    profile_id: str,
+    request: BulkDeleteSlotsRequest,
+    current_user: UserCredentials = Depends(get_current_user),
+):
+    """
+    Delete availability slots from multiple dates.
+    Dates with existing bookings are protected and will not be deleted.
+    
+    Args:
+        profile_id: Profile ID
+        request: List of dates to delete slots from
+        current_user: Authenticated user
+        
+    Returns:
+        BulkOperationResult with success/failure counts and protected dates
+    """
+    # Verify profile ownership
+    profile = ProfileRepository.get_profile(profile_id)
+    
+    if not profile:
+        raise HTTPException(
+            status_code=status.HTTP_404_NOT_FOUND,
+            detail="Profile not found"
+        )
+    
+    if profile.get("owner_id") != current_user.user_id:
+        raise HTTPException(
+            status_code=status.HTTP_403_FORBIDDEN,
+            detail="Only profile owner can delete slots"
+        )
+    
+    # Use the bulk delete method from repository
+    result = AvailabilityRepository.bulk_delete_slots(profile_id, request.dates)
+    
+    return BulkOperationResult(
+        success_count=result["success_count"],
+        failed_count=result["failed_count"],
+        failed_dates=result["failed_dates"],
+        protected_dates=result["protected_dates"]
+    )

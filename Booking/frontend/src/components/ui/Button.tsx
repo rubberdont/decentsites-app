@@ -22,16 +22,16 @@ export default function Button({
   ...props
 }: ButtonProps) {
   const baseClasses =
-    'font-semibold transition-all duration-300 transform focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-[#14B8A6] disabled:opacity-50 disabled:cursor-not-allowed';
+    'font-semibold transition-all duration-300 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-[#d4af37] focus:ring-offset-[#1a1a1a] disabled:opacity-50 disabled:cursor-not-allowed';
 
   const variantClasses = {
     primary:
-      'bg-[#F59E0B] hover:bg-[#D97706] text-white shadow-lg hover:shadow-xl hover:scale-105',
+      'bg-[#d4af37] hover:bg-[#c4a030] text-[#1a1a1a] shadow-lg hover:shadow-xl',
     secondary:
-      'bg-[#14B8A6] hover:bg-[#0F9488] text-white shadow-lg hover:shadow-xl',
+      'bg-[#2a2a2a] hover:bg-[#3a3a3a] text-[#eaeaea] border border-[#444444] shadow-lg hover:shadow-xl',
     ghost:
-      'bg-transparent border-2 border-[#14B8A6] text-[#14B8A6] hover:bg-[#14B8A6] hover:text-white',
-    subtle: 'bg-gray-800/10 hover:bg-gray-800/20 backdrop-blur-sm text-gray-900 dark:text-white',
+      'bg-transparent border-2 border-[#d4af37] text-[#d4af37] hover:bg-[#d4af37] hover:text-[#1a1a1a]',
+    subtle: 'bg-white/10 hover:bg-white/20 backdrop-blur-sm text-[#eaeaea]',
   };
 
   const sizeClasses = {

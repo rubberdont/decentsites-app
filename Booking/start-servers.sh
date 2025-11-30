@@ -47,13 +47,26 @@ npm run dev &
 FRONTEND_PID=$!
 echo "🚀 Frontend started on http://localhost:3000 (PID: $FRONTEND_PID)"
 
+# Start admin portal in background
+cd ../admin
+echo "🔧 Starting Admin Portal..."
+if [ ! -d "node_modules" ]; then
+    echo "📦 Installing admin dependencies..."
+    npm install > /dev/null 2>&1
+fi
+
+npm run dev &
+ADMIN_PID=$!
+echo "🚀 Admin Portal started on http://localhost:3001 (PID: $ADMIN_PID)"
+
 echo ""
 echo "🎉 Modern Booking App is running!"
-echo "   Frontend: http://localhost:3000"
-echo "   Backend API: http://localhost:8000"
-echo "   API Docs: http://localhost:8000/docs"
+echo "   Customer Frontend: http://localhost:3000"
+echo "   Admin Portal:      http://localhost:3001"
+echo "   Backend API:       http://localhost:8000"
+echo "   API Docs:          http://localhost:8000/docs"
 echo ""
-echo "Press Ctrl+C to stop both servers"
+echo "Press Ctrl+C to stop all servers"
 
 # Function to cleanup on exit
 cleanup() {
@@ -61,7 +74,8 @@ cleanup() {
     echo "🛑 Stopping servers..."
     kill $BACKEND_PID 2>/dev/null
     kill $FRONTEND_PID 2>/dev/null
-    echo "✅ Servers stopped"
+    kill $ADMIN_PID 2>/dev/null
+    echo "✅ All servers stopped"
     exit 0
 }
 

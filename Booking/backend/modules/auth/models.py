@@ -55,6 +55,7 @@ class UserResponse(BaseModel):
     name: str
     email: Optional[str] = None
     role: UserRole = UserRole.USER
+    owner_id: Optional[str] = None  # Links customer to owner (for single-tenant mode)
     created_at: datetime
 
 
