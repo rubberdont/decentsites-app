@@ -107,7 +107,7 @@ function buildTimelineEvents(booking: BookingWithNotes): TimelineEvent[] {
     booking.admin_notes_list.forEach((note, index) => {
       events.push({
         id: `event-note-${index}`,
-        type: 'note',
+        type: 'note_added',
         description: note.note,
         timestamp: note.created_at,
         actor: note.created_by || 'Admin',
