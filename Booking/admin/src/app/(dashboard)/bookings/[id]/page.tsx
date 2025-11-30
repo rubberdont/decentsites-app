@@ -95,7 +95,7 @@ function buildTimelineEvents(booking: BookingWithNotes): TimelineEvent[] {
 
     events.push({
       id: 'event-status',
-      type: 'status_change',
+      type: 'status_changed',
       description: statusDescriptions[booking.status] || `Status: ${booking.status}`,
       timestamp: booking.updated_at,
       actor: 'Admin',
