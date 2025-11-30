@@ -27,10 +27,12 @@ interface DaySlotsListProps {
 }
 
 /**
- * Format time slot for display (e.g., "09:00" -> "9:00 AM")
+ * Format time slot for display (e.g., "09:00-10:00" -> "9:00 AM")
  */
 function formatTimeSlot(timeSlot: string): string {
-  const [hours, minutes] = timeSlot.split(':').map(Number);
+  // Extract start time from time range (e.g., "09:00-10:00" -> "09:00")
+  const startTime = timeSlot.split('-')[0].trim();
+  const [hours, minutes] = startTime.split(':').map(Number);
   const period = hours >= 12 ? 'PM' : 'AM';
   const displayHours = hours === 0 ? 12 : hours > 12 ? hours - 12 : hours;
   return `${displayHours}:${String(minutes).padStart(2, '0')} ${period}`;

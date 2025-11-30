@@ -590,91 +590,40 @@ export default function AvailabilityPage() {
         </div>
       )}
       
-      {/* Month Navigation */}
-      <div className="flex items-center justify-between mb-6 bg-admin-bg-card p-4 rounded-lg border border-admin-border">
-        <button
-          onClick={goToPreviousMonth}
-          className="flex items-center gap-2 px-3 py-2 text-admin-text hover:bg-admin-bg-hover rounded-lg transition-colors"
-        >
-          <svg className="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-            <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M15 19l-7-7 7-7" />
-          </svg>
-          <span className="hidden sm:inline">Previous</span>
-        </button>
-        
-        <div className="flex items-center gap-3">
-          {/* Month Selector */}
-          <select
-            value={currentMonth}
-            onChange={(e) => {
-              setCurrentMonth(Number(e.target.value));
-              setSelectedDate(null);
-            }}
-            className="px-3 py-2 bg-admin-bg-input border border-admin-border rounded-lg text-admin-text focus:ring-2 focus:ring-admin-primary/50 focus:border-admin-primary"
-          >
-            {monthNames.map((name, index) => (
-              <option key={index} value={index}>
-                {name}
-              </option>
-            ))}
-          </select>
-          
-          {/* Year Selector */}
-          <select
-            value={currentYear}
-            onChange={(e) => {
-              setCurrentYear(Number(e.target.value));
-              setSelectedDate(null);
-            }}
-            className="px-3 py-2 bg-admin-bg-input border border-admin-border rounded-lg text-admin-text focus:ring-2 focus:ring-admin-primary/50 focus:border-admin-primary"
-          >
-            {[currentYear - 1, currentYear, currentYear + 1].map((year) => (
-              <option key={year} value={year}>
-                {year}
-              </option>
-            ))}
-          </select>
-          
-          {/* Today Button */}
-          <button
-            onClick={() => {
-              setCurrentMonth(today.getMonth());
-              setCurrentYear(today.getFullYear());
-              setSelectedDate(null);
-            }}
-            className="px-3 py-2 text-sm text-admin-primary hover:bg-admin-primary/10 rounded-lg transition-colors"
-          >
-            Today
-          </button>
-          
-          {/* Refresh Button */}
-          <button
-            onClick={loadAvailability}
-            disabled={isLoading}
-            className="px-3 py-2 text-sm text-admin-text-muted hover:text-admin-text hover:bg-admin-bg-hover rounded-lg transition-colors disabled:opacity-50"
-            title="Refresh availability data"
-          >
-            <svg className={`w-5 h-5 ${isLoading ? 'animate-spin' : ''}`} fill="none" stroke="currentColor" viewBox="0 0 24 24">
-              <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M4 4v5h.582m15.356 2A8.001 8.001 0 004.582 9m0 0H9m11 11v-5h-.581m0 0a8.003 8.003 0 01-15.357-2m15.357 2H15" />
-            </svg>
-          </button>
-        </div>
-        
-        <button
-          onClick={goToNextMonth}
-          className="flex items-center gap-2 px-3 py-2 text-admin-text hover:bg-admin-bg-hover rounded-lg transition-colors"
-        >
-          <span className="hidden sm:inline">Next</span>
-          <svg className="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-            <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M9 5l7 7-7 7" />
-          </svg>
-        </button>
-      </div>
-      
       {/* Main Content */}
       <div className="grid grid-cols-1 xl:grid-cols-3 gap-6">
         {/* Calendar Grid */}
         <div className="xl:col-span-2">
+          {/* Month Navigation */}
+          <div className="flex items-center justify-between mb-6 bg-admin-bg-card p-4 rounded-lg border border-admin-border">
+            {/* Previous button - always visible */}
+            <button
+              onClick={goToPreviousMonth}
+              className="flex items-center gap-2 px-3 py-2 text-admin-text hover:bg-admin-bg-hover rounded-lg transition-colors"
+            >
+              <svg className="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M15 19l-7-7 7-7" />
+              </svg>
+              <span className="hidden sm:inline">Previous</span>
+            </button>
+            
+            {/* Month/Year display - stacked on mobile */}
+            <div className="flex flex-col sm:flex-row items-center gap-1 sm:gap-3 text-admin-text font-medium">
+              <span>{monthNames[currentMonth]}</span>
+              <span>{currentYear}</span>
+            </div>
+            
+            {/* Next button - always visible */}
+            <button
+              onClick={goToNextMonth}
+              className="flex items-center gap-2 px-3 py-2 text-admin-text hover:bg-admin-bg-hover rounded-lg transition-colors"
+            >
+              <span className="hidden sm:inline">Next</span>
+              <svg className="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M9 5l7 7-7 7" />
+              </svg>
+            </button>
+          </div>
           {isLoading ? (
             <div className="bg-admin-bg-card rounded-lg border border-admin-border p-12 flex items-center justify-center">
               <div className="flex flex-col items-center gap-4">
