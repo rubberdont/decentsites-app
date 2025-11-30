@@ -8,9 +8,9 @@ The system consists of three main applications:
 
 | Application | Port | Description |
 |-------------|------|-------------|
-| **Frontend** | 3000 | Customer-facing booking interface |
-| **Backend** | 8000 | FastAPI REST API |
-| **Admin Portal** | 3001 | Owner/Admin dashboard |
+| **Frontend** | 1401 | Customer-facing booking interface |
+| **Backend** | 1301 | FastAPI REST API |
+| **Admin Portal** | 1302 | Owner/Admin dashboard |
 
 ## ✨ Features
 
@@ -73,7 +73,7 @@ cp .env.example .env
 python main.py
 ```
 
-Backend runs at `http://localhost:8000`
+Backend runs at `http://localhost:1301`
 
 ### 2. Frontend Setup (Customer App)
 
@@ -87,7 +87,7 @@ npm install
 npm run dev
 ```
 
-Frontend runs at `http://localhost:3000`
+Frontend runs at `http://localhost:1401`
 
 ### 3. Admin Portal Setup
 
@@ -101,7 +101,7 @@ npm install
 npm run dev
 ```
 
-Admin Portal runs at `http://localhost:3001`
+Admin Portal runs at `http://localhost:1302`
 
 ### Quick Start Scripts
 
@@ -144,7 +144,7 @@ SMTP_PASSWORD=your-password
 ### Frontend & Admin (.env.local)
 
 ```env
-NEXT_PUBLIC_API_URL=http://localhost:8000
+NEXT_PUBLIC_API_URL=http://localhost:1301
 ```
 
 ## 📁 Project Structure
@@ -260,8 +260,8 @@ Booking/
 ## 📖 API Documentation
 
 When the backend is running:
-- **Swagger UI**: http://localhost:8000/docs
-- **ReDoc**: http://localhost:8000/redoc
+- **Swagger UI**: http://localhost:1301/docs
+- **ReDoc**: http://localhost:1301/redoc
 
 ## 🧪 Development
 

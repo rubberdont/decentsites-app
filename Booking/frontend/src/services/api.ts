@@ -27,7 +27,7 @@ interface ServerTimeResponse {
   server_time: string;
 }
 
-const API_BASE = 'http://localhost:8000';
+const API_BASE = 'http://localhost:1301';
 
 // Create axios instance with base configuration
 const api = axios.create({

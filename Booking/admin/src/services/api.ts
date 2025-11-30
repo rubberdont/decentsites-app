@@ -53,7 +53,7 @@ import type {
 // Axios Instance Configuration
 // ============================================================================
 
-const API_BASE = process.env.NEXT_PUBLIC_API_URL || 'http://localhost:8000';
+const API_BASE = process.env.NEXT_PUBLIC_API_URL || 'http://localhost:1301';
 
 // Create axios instance with base configuration
 const api = axios.create({

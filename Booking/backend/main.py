@@ -20,8 +20,8 @@ app = FastAPI(title="Booking App API", version="1.0.0")
 app.add_middleware(
     CORSMiddleware,
     allow_origins=[
-        "http://localhost:3000",  # Frontend (Next.js)
-        "http://localhost:3001",  # Admin portal
+        "http://localhost:1401",  # Frontend (Next.js)
+        "http://localhost:1302",  # Admin portal
     ],
     allow_credentials=True,
     allow_methods=["*"],
@@ -121,4 +121,4 @@ async def shutdown_db_client():
 
 if __name__ == "__main__":
     import uvicorn
-    uvicorn.run(app, host="0.0.0.0", port=8000)
+    uvicorn.run(app, host="0.0.0.0", port=1301)
