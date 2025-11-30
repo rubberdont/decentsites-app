@@ -27,6 +27,7 @@ services:
       - "traefik.http.routers.booking-api.rule=Host(`booking-api.decentsites.cloud`)"
       - "traefik.http.routers.booking-api.entrypoints=websecure"
       - "traefik.http.routers.booking-api.tls=true"
+      - "traefik.http.routers.booking-api.priority=10"
       - "traefik.http.services.booking-api.loadbalancer.server.port=1301"
       - "traefik.docker.network=web"
 
@@ -49,6 +50,7 @@ services:
       - "traefik.http.routers.booking-frontend.rule=Host(`booking.decentsites.cloud`)"
       - "traefik.http.routers.booking-frontend.entrypoints=websecure"
       - "traefik.http.routers.booking-frontend.tls=true"
+      - "traefik.http.routers.booking-frontend.priority=10"
       - "traefik.http.services.booking-frontend.loadbalancer.server.port=1401"
       - "traefik.docker.network=web"
 
@@ -73,6 +75,7 @@ services:
       - "traefik.http.routers.booking-admin.rule=Host(`booking-admin.decentsites.cloud`)"
       - "traefik.http.routers.booking-admin.entrypoints=websecure"
       - "traefik.http.routers.booking-admin.tls=true"
+      - "traefik.http.routers.booking-admin.priority=10"
       - "traefik.http.services.booking-admin.loadbalancer.server.port=1302"
       - "traefik.docker.network=web"
 
