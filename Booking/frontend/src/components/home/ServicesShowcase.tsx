@@ -1,6 +1,6 @@
 'use client';
 
-import { useState, useEffect } from 'react';
+import React, { useState, useEffect } from 'react';
 import Link from 'next/link';
 import { profilesAPI } from '@/services/api';
 import type { Service } from '@/types';
@@ -79,7 +79,7 @@ export default function ServicesShowcase() {
   }, []);
 
   // SVG icons as components
-  const icons: Record<string, JSX.Element> = {
+  const icons: Record<string, React.ReactNode> = {
     content_cut: (
       <svg className="w-8 h-8" fill="none" stroke="currentColor" strokeWidth={1.5} viewBox="0 0 24 24">
         <path strokeLinecap="round" strokeLinejoin="round" d="M7.848 8.25l1.536.887M7.848 8.25a3 3 0 11-5.196-3 3 3 0 015.196 3zm1.536.887a2.165 2.165 0 011.083 1.838c.052.394.05.742.05 1.025v.075M7.848 15.75l1.536-.887m-1.536.887a3 3 0 11-5.196 3 3 3 0 015.196-3zm1.536-.887a2.165 2.165 0 001.083-1.838c.052-.394.05-.742.05-1.025v-.075m0 0l1.5.863m0 0l4.5 2.598m-4.5-2.598l4.5-2.598" />
