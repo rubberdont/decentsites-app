@@ -12,8 +12,6 @@ interface DaySlotsListProps {
   profileId?: string;
   /** Callback when slot toggle is changed */
   onSlotToggle: (slotId: string, isAvailable: boolean) => void;
-  /** Callback when edit button is clicked */
-  onSlotEdit: (slot: AvailabilitySlot) => void;
   /** Callback when add slot button is clicked */
   onSlotAdd: () => void;
   /** Callback when delete button is clicked */
@@ -50,8 +48,6 @@ function getStatusStyles(slot: AvailabilitySlot): { bg: string; text: string; la
   
   if (remaining === 0) {
     return { bg: 'bg-red-500/20', text: 'text-red-400', label: 'Full' };
-  } else if (remaining <= 2) {
-    return { bg: 'bg-amber-500/20', text: 'text-amber-400', label: `${remaining} left` };
   } else {
     return { bg: 'bg-green-500/20', text: 'text-green-400', label: 'Available' };
   }
@@ -78,7 +74,6 @@ export function DaySlotsList({
   slots,
   profileId,
   onSlotToggle,
-  onSlotEdit,
   onSlotAdd,
   onSlotDelete,
   onTemplateApply,
@@ -120,7 +115,7 @@ export function DaySlotsList({
             <svg className="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
               <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M12 4v16m8-8H4" />
             </svg>
-            Add Slot
+            Slot
           </button>
         </div>
         
@@ -160,86 +155,52 @@ export function DaySlotsList({
                     ${!slot.is_available ? 'bg-admin-bg-hover/30' : ''}
                   `}
                 >
-                  {/* Time & Capacity Info */}
-                  <div className="flex items-center gap-4">
-                    {/* Time */}
-                    <div className="w-24">
-                      <span className={`
-                        text-lg font-medium
-                        ${slot.is_available ? 'text-admin-text' : 'text-admin-text-dark'}
-                      `}>
-                        {formatTimeSlot(slot.time_slot)}
-                      </span>
-                    </div>
-                    
-                    {/* Capacity - Now readonly with tooltip */}
-                    <div className="flex items-center gap-2">
-                      <div 
-                        className={`
-                          flex items-center gap-1 px-2 py-1 rounded text-sm relative group
-                          ${slot.is_available ? 'bg-admin-bg-hover' : 'bg-admin-bg-hover/50'}
-                        `}
-                        title="Capacity is set when applying a template"
-                      >
-                        <svg className="w-4 h-4 text-admin-text-muted" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                          <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M17 20h5v-2a3 3 0 00-5.356-1.857M17 20H7m10 0v-2c0-.656-.126-1.283-.356-1.857M7 20H2v-2a3 3 0 015.356-1.857M7 20v-2c0-.656.126-1.283.356-1.857m0 0a5.002 5.002 0 019.288 0M15 7a3 3 0 11-6 0 3 3 0 016 0zm6 3a2 2 0 11-4 0 2 2 0 014 0zM7 10a2 2 0 11-4 0 2 2 0 014 0z" />
-                        </svg>
-                        <span className={slot.is_available ? 'text-admin-text' : 'text-admin-text-dark'}>
-                          {slot.booked_count}/{slot.max_capacity}
-                        </span>
-                        {/* Tooltip */}
-                        <div className="absolute bottom-full left-1/2 -translate-x-1/2 mb-2 px-2 py-1 bg-admin-bg-card border border-admin-border rounded text-xs text-admin-text-muted whitespace-nowrap opacity-0 group-hover:opacity-100 transition-opacity pointer-events-none">
-                          Booked / Total capacity
-                        </div>
-                      </div>
-                      
-                      {/* Status Badge */}
-                      <span className={`px-2 py-1 rounded text-xs font-medium ${status.bg} ${status.text}`}>
-                        {status.label}
-                      </span>
-                    </div>
-                  </div>
+                   {/* Time & Status */}
+                   <div className="flex items-center gap-4">
+                     {/* Time */}
+                     <div className="w-24">
+                       <span className={`
+                         text-lg font-medium
+                         ${slot.is_available ? 'text-admin-text' : 'text-admin-text-dark'}
+                       `}>
+                         {formatTimeSlot(slot.time_slot)}
+                       </span>
+                     </div>
+                     
+                     {/* Status Badge */}
+                     <span className={`px-2 py-1 rounded text-xs font-medium ${status.bg} ${status.text}`}>
+                       {status.label}
+                     </span>
+                   </div>
                   
-                  {/* Actions */}
-                  <div className="flex items-center gap-3">
-                    {/* Toggle Switch */}
-                    <label className="relative inline-flex items-center cursor-pointer">
-                      <input
-                        type="checkbox"
-                        checked={slot.is_available}
-                        onChange={(e) => onSlotToggle(slot.id, e.target.checked)}
-                        disabled={isLoading}
-                        className="sr-only peer"
-                      />
-                      <div className="w-11 h-6 bg-admin-bg-hover peer-focus:outline-none peer-focus:ring-2 peer-focus:ring-admin-primary/50 rounded-full peer peer-checked:after:translate-x-full rtl:peer-checked:after:-translate-x-full peer-checked:after:border-white after:content-[''] after:absolute after:top-[2px] after:start-[2px] after:bg-white after:border-gray-300 after:border after:rounded-full after:h-5 after:w-5 after:transition-all peer-checked:bg-admin-primary peer-disabled:opacity-50"></div>
-                    </label>
-                    
-                    {/* Edit Button */}
-                    <button
-                      onClick={() => onSlotEdit(slot)}
-                      disabled={isLoading}
-                      className="p-2 text-admin-text-muted hover:text-admin-text hover:bg-admin-bg-hover rounded-lg transition-colors disabled:opacity-50"
-                      title="Edit slot"
-                    >
-                      <svg className="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                        <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M11 5H6a2 2 0 00-2 2v11a2 2 0 002 2h11a2 2 0 002-2v-5m-1.414-9.414a2 2 0 112.828 2.828L11.828 15H9v-2.828l8.586-8.586z" />
-                      </svg>
-                    </button>
-                    
-                    {/* Delete Button */}
-                    {onSlotDelete && slot.booked_count === 0 && (
-                      <button
-                        onClick={() => onSlotDelete(slot.id)}
-                        disabled={isLoading}
-                        className="p-2 text-admin-text-muted hover:text-red-400 hover:bg-red-500/10 rounded-lg transition-colors disabled:opacity-50"
-                        title="Delete slot"
-                      >
-                        <svg className="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                          <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M19 7l-.867 12.142A2 2 0 0116.138 21H7.862a2 2 0 01-1.995-1.858L5 7m5 4v6m4-6v6m1-10V4a1 1 0 00-1-1h-4a1 1 0 00-1 1v3M4 7h16" />
-                        </svg>
-                      </button>
-                    )}
-                  </div>
+                   {/* Actions */}
+                   <div className="flex items-center gap-3">
+                     {/* Toggle Switch */}
+                     <label className="relative inline-flex items-center cursor-pointer">
+                       <input
+                         type="checkbox"
+                         checked={slot.is_available}
+                         onChange={(e) => onSlotToggle(slot.id, e.target.checked)}
+                         disabled={isLoading}
+                         className="sr-only peer"
+                       />
+                       <div className="w-11 h-6 bg-admin-bg-hover peer-focus:outline-none peer-focus:ring-2 peer-focus:ring-admin-primary/50 rounded-full peer peer-checked:after:translate-x-full rtl:peer-checked:after:-translate-x-full peer-checked:after:border-white after:content-[''] after:absolute after:top-[2px] after:start-[2px] after:bg-white after:border-gray-300 after:border after:rounded-full after:h-5 after:w-5 after:transition-all peer-checked:bg-admin-primary peer-disabled:opacity-50"></div>
+                     </label>
+                     
+                     {/* Delete Button */}
+                     {onSlotDelete && slot.booked_count === 0 && (
+                       <button
+                         onClick={() => onSlotDelete(slot.id)}
+                         disabled={isLoading}
+                         className="p-2 text-admin-text-muted hover:text-red-400 hover:bg-red-500/10 rounded-lg transition-colors disabled:opacity-50"
+                         title="Delete slot"
+                       >
+                         <svg className="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                           <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M19 7l-.867 12.142A2 2 0 0116.138 21H7.862a2 2 0 01-1.995-1.858L5 7m5 4v6m4-6v6m1-10V4a1 1 0 00-1-1h-4a1 1 0 00-1 1v3M4 7h16" />
+                         </svg>
+                       </button>
+                     )}
+                   </div>
                 </div>
               );
             })

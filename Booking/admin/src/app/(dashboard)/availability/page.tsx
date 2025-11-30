@@ -532,7 +532,7 @@ export default function AvailabilityPage() {
   }
   
   return (
-    <div>
+    <div className="pb-24">
       {/* Page Header */}
       <div className="flex items-center justify-between mb-6">
         <div>
