@@ -21,7 +21,7 @@ export default function CustomersPage() {
   const [filters, setFilters] = useState<CustomerFilters>({
     search: '',
     page: 1,
-    page_size: 10,
+    limit: 10,
   });
 
   // Block modal state
@@ -39,7 +39,7 @@ export default function CustomersPage() {
     try {
       const params: Record<string, unknown> = {
         page: filters.page,
-        page_size: filters.page_size,
+        limit: filters.limit,
       };
 
       // Only add search if not empty
