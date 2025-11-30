@@ -34,6 +34,11 @@ class ProfileRepository:
         return mongo_db.find_many(ProfileRepository.COLLECTION)
     
     @staticmethod
+    def get_profiles_by_owner(owner_id: str) -> List[Dict[str, Any]]:
+        """Get all profiles for a specific owner."""
+        return mongo_db.find_many(ProfileRepository.COLLECTION, {"owner_id": owner_id})
+    
+    @staticmethod
     def create_profile(profile: BusinessProfile) -> Dict[str, Any]:
         """Create a new profile."""
         if not profile.id:

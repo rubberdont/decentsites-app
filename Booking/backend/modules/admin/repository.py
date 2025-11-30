@@ -338,6 +338,7 @@ class AdminRepository:
         return mongo_db.find_many(
             AdminRepository.BOOKING_NOTES,
             {"booking_id": booking_id},
+            projection={"_id": 0},
             sort=[("created_at", -1)]
         )
     
@@ -958,6 +959,7 @@ class AdminRepository:
         return mongo_db.find_many(
             AdminRepository.CUSTOMER_NOTES,
             query,
+            projection={"_id": 0},
             sort=[("created_at", -1)]
         )
     
@@ -1879,6 +1881,7 @@ class AdminRepository:
         return mongo_db.find_many(
             AdminRepository.ACTIVITIES,
             {"profile_id": profile_id},
+            projection={"_id": 0},
             sort=[("created_at", -1)],
             limit=limit
         )
@@ -1917,6 +1920,7 @@ class AdminRepository:
         activities = mongo_db.find_many(
             AdminRepository.ACTIVITIES,
             query,
+            projection={"_id": 0},
             sort=[("created_at", -1)],
             skip=skip,
             limit=page_size

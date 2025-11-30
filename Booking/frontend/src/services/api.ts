@@ -145,6 +145,9 @@ export const profilesAPI = {
   getAll: () => 
     api.get<BusinessProfile[]>('/profiles'),
   
+  getDefault: () => 
+    api.get<BusinessProfile>('/profiles/default'),
+  
   getById: (id: string) => 
     api.get<BusinessProfile>(`/profiles/${id}`),
   

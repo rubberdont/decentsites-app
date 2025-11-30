@@ -31,11 +31,13 @@ export default function BookingPage() {
       setProfileError(null);
 
       try {
-        const response = await profilesAPI.getById('default-profile');
+        // Fetch the default profile based on DEFAULT_OWNER_ID from backend
+        const response = await profilesAPI.getDefault();
         setProfile(response.data);
-      } catch (err) {
+      } catch (err: any) {
         console.error('Failed to fetch profile:', err);
-        setProfileError('Profile not found. Please check the URL and try again.');
+        const errorMessage = err.response?.data?.detail || 'Unable to load services. Please try again later.';
+        setProfileError(errorMessage);
       } finally {
         setIsLoadingProfile(false);
       }

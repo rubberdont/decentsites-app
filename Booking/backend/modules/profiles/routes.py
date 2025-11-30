@@ -17,6 +17,38 @@ async def list_profiles():
     return profiles
 
 
+@router.get("/default", response_model=BusinessProfile)
+async def get_default_profile():
+    """
+    Get the default business profile based on DEFAULT_OWNER_ID from environment.
+    This is used by customers to see available services.
+    """
+    import os
+    
+    default_owner_id = os.getenv("DEFAULT_OWNER_ID")
+    if not default_owner_id:
+        raise HTTPException(
+            status_code=status.HTTP_503_SERVICE_UNAVAILABLE,
+            detail="Default owner not configured. Please contact support."
+        )
+    
+    # Get all profiles for the default owner
+    profiles = ProfileRepository.get_profiles_by_owner(default_owner_id)
+    
+    if not profiles or len(profiles) == 0:
+        raise HTTPException(
+            status_code=404,
+            detail="No business profile found. Please contact support."
+        )
+    
+    # Return the first active profile, or just the first one if none are active
+    active_profile = next((p for p in profiles if p.get("is_active", True)), None)
+    if active_profile:
+        return active_profile
+    
+    return profiles[0]
+
+
 @router.get("/slug/{slug}", response_model=BusinessProfile)
 async def get_profile_by_slug(slug: str):
     """Get a specific business profile by slug."""
