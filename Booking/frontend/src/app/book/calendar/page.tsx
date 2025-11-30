@@ -50,11 +50,16 @@ function CalendarPageContent() {
       setProfileError(null);
 
       try {
-        const response = await profilesAPI.getById('default-profile');
+        const response = await profilesAPI.getDefault();
         setProfile(response.data);
-      } catch (err) {
+      } catch (err: unknown) {
         console.error('Failed to fetch profile:', err);
-        setProfileError('Profile not found. Please check the URL and try again.');
+        const errorMessage = err instanceof Error && 'response' in err && 
+          typeof err.response === 'object' && err.response !== null && 'data' in err.response &&
+          err.response.data && typeof err.response.data === 'object' && 'detail' in err.response.data
+            ? String(err.response.data.detail)
+            : 'Unable to load services. Please try again later.';
+        setProfileError(errorMessage);
       } finally {
         setIsLoadingProfile(false);
       }
