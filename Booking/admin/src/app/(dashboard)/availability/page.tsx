@@ -3,10 +3,10 @@
 import { useState, useEffect, useMemo, useCallback } from 'react';
 import { DateAvailability, AvailabilitySlot, BusinessProfile, SlotTemplate } from '@/types';
 import { availabilityAPI, ownersAPI } from '@/services/api';
-import { 
-  CalendarGrid, 
-  DaySlotsList, 
-  SlotEditModal, 
+import {
+  CalendarGrid,
+  DaySlotsList,
+  SlotEditModal,
   GenerateSlotsModal,
   SlotTemplateModal,
   BulkActionBar,
@@ -30,7 +30,7 @@ function formatDateString(year: number, month: number, day: number): string {
 function getMonthDateRange(year: number, month: number): { startDate: string; endDate: string } {
   const firstDay = new Date(year, month, 1);
   const lastDay = new Date(year, month + 1, 0);
-  
+
   return {
     startDate: formatDateString(year, month, 1),
     endDate: formatDateString(year, month, lastDay.getDate()),
@@ -45,10 +45,10 @@ function transformAvailabilityData(apiData: DateAvailability[]): DateAvailabilit
   return apiData.map((day) => {
     // Handle date which could be ISO string or Date object from API
     const dateObj = typeof day.date === 'string' ? new Date(day.date) : day.date;
-    const dateStr = dateObj instanceof Date 
+    const dateStr = dateObj instanceof Date
       ? `${dateObj.getFullYear()}-${String(dateObj.getMonth() + 1).padStart(2, '0')}-${String(dateObj.getDate()).padStart(2, '0')}`
       : day.date;
-    
+
     // Calculate available slots correctly
     const availableSlots = day.slots.reduce((acc, slot) => {
       if (slot.is_available) {
@@ -56,9 +56,9 @@ function transformAvailabilityData(apiData: DateAvailability[]): DateAvailabilit
       }
       return acc;
     }, 0);
-    
+
     const bookedSlots = day.slots.reduce((acc, slot) => acc + slot.booked_count, 0);
-    
+
     return {
       ...day,
       date: dateStr,
@@ -85,29 +85,29 @@ export default function AvailabilityPage() {
   const [availabilityData, setAvailabilityData] = useState<DateAvailability[]>([]);
   const [isLoading, setIsLoading] = useState(true);
   const [error, setError] = useState<string | null>(null);
-  
+
   // Profile state
   const [profile, setProfile] = useState<BusinessProfile | null>(null);
   const [isLoadingProfile, setIsLoadingProfile] = useState(true);
-  
+
   // Modal states
   const [editingSlot, setEditingSlot] = useState<AvailabilitySlot | null>(null);
   const [isSlotModalOpen, setIsSlotModalOpen] = useState(false);
   const [isNewSlot, setIsNewSlot] = useState(false);
   const [isGenerateModalOpen, setIsGenerateModalOpen] = useState(false);
-  
+
   // Template modal states
   const [isTemplateModalOpen, setIsTemplateModalOpen] = useState(false);
   const [editingTemplate, setEditingTemplate] = useState<SlotTemplate | null>(null);
-  
+
   // Operation states
   const [isSaving, setIsSaving] = useState(false);
   const [saveError, setSaveError] = useState<string | null>(null);
-  
+
   // Multi-select mode states
   const [isMultiSelectMode, setIsMultiSelectMode] = useState(false);
   const [selectedDates, setSelectedDates] = useState<string[]>([]);
-  
+
   /**
    * Fetch owner's profile on mount
    */
@@ -115,11 +115,11 @@ export default function AvailabilityPage() {
     const fetchProfile = async () => {
       setIsLoadingProfile(true);
       setError(null);
-      
+
       try {
         const response = await ownersAPI.getMyProfiles();
         const profiles = response.data;
-        
+
         if (profiles && profiles.length > 0) {
           // Use the first profile (owners typically have one profile)
           setProfile(profiles[0]);
@@ -133,23 +133,23 @@ export default function AvailabilityPage() {
         setIsLoadingProfile(false);
       }
     };
-    
+
     fetchProfile();
   }, []);
-  
+
   /**
    * Load availability data for the current month
    */
   const loadAvailability = useCallback(async () => {
     if (!profile?.id) return;
-    
+
     setIsLoading(true);
     setError(null);
-    
+
     try {
       const { startDate, endDate } = getMonthDateRange(currentYear, currentMonth);
       const response = await availabilityAPI.getSlots(profile.id, startDate, endDate);
-      
+
       // Transform and set data
       const transformedData = transformAvailabilityData(response.data);
       setAvailabilityData(transformedData);
@@ -161,7 +161,7 @@ export default function AvailabilityPage() {
       setIsLoading(false);
     }
   }, [profile?.id, currentMonth, currentYear]);
-  
+
   /**
    * Load availability when profile or month changes
    */
@@ -170,7 +170,7 @@ export default function AvailabilityPage() {
       loadAvailability();
     }
   }, [profile?.id, loadAvailability]);
-  
+
   /**
    * Get slots for selected date
    */
@@ -178,7 +178,7 @@ export default function AvailabilityPage() {
     if (!selectedDate) return null;
     return availabilityData.find((d) => d.date === selectedDate) || null;
   }, [selectedDate, availabilityData]);
-  
+
   /**
    * Navigate to previous month
    */
@@ -191,7 +191,7 @@ export default function AvailabilityPage() {
     }
     setSelectedDate(null);
   };
-  
+
   /**
    * Navigate to next month
    */
@@ -204,14 +204,14 @@ export default function AvailabilityPage() {
     }
     setSelectedDate(null);
   };
-  
+
   /**
    * Handle day click
    */
   const handleDayClick = (date: string) => {
     setSelectedDate(date);
   };
-  
+
   /**
    * Handle slot toggle (enable/disable availability)
    */
@@ -232,10 +232,10 @@ export default function AvailabilityPage() {
         }, 0),
       }))
     );
-    
+
     // TODO: Call API to persist the toggle when backend supports it
   };
-  
+
   /**
    * Handle slot edit click
    */
@@ -244,7 +244,7 @@ export default function AvailabilityPage() {
     setIsNewSlot(false);
     setIsSlotModalOpen(true);
   };
-  
+
   /**
    * Handle add slot click
    */
@@ -253,21 +253,21 @@ export default function AvailabilityPage() {
     setIsNewSlot(true);
     setIsSlotModalOpen(true);
   };
-  
+
   /**
    * Handle slot save (update capacity or create new slot)
    */
   const handleSlotSave = async (slotId: string | null, capacity: number, timeSlot?: string) => {
     if (!profile?.id) return;
-    
+
     setIsSaving(true);
     setSaveError(null);
-    
+
     try {
       if (slotId) {
         // Update existing slot capacity
         await availabilityAPI.updateSlot(slotId, { max_capacity: capacity });
-        
+
         // Update local state
         setAvailabilityData((prev) =>
           prev.map((dayData) => ({
@@ -286,10 +286,10 @@ export default function AvailabilityPage() {
         );
       } else if (selectedDate && timeSlot) {
         // Create new slot using the generate slots API
-        const [startTime, endTime] = timeSlot.includes('-') 
-          ? timeSlot.split('-') 
+        const [startTime, endTime] = timeSlot.includes('-')
+          ? timeSlot.split('-')
           : [timeSlot, addMinutesToTime(timeSlot, 30)];
-        
+
         await availabilityAPI.createSlots(profile.id, {
           date: selectedDate,
           config: {
@@ -299,11 +299,11 @@ export default function AvailabilityPage() {
             max_capacity_per_slot: capacity,
           },
         });
-        
+
         // Reload availability to get the newly created slot with proper ID
         await loadAvailability();
       }
-      
+
       // Close modal on success
       setIsSlotModalOpen(false);
       setEditingSlot(null);
@@ -314,7 +314,7 @@ export default function AvailabilityPage() {
       setIsSaving(false);
     }
   };
-  
+
   /**
    * Handle generate slots for date range
    */
@@ -328,17 +328,17 @@ export default function AvailabilityPage() {
     daysOfWeek: number[];
   }) => {
     if (!profile?.id) return;
-    
+
     setIsSaving(true);
     setSaveError(null);
-    
+
     try {
       // Generate slots for each day in range
       const current = new Date(config.startDate);
       const end = new Date(config.endDate);
-      
+
       const createPromises: Promise<unknown>[] = [];
-      
+
       while (current <= end) {
         if (config.daysOfWeek.includes(current.getDay())) {
           const dateStr = formatDateString(
@@ -346,10 +346,10 @@ export default function AvailabilityPage() {
             current.getMonth(),
             current.getDate()
           );
-          
+
           const startTime = `${String(config.startHour).padStart(2, '0')}:00`;
           const endTime = `${String(config.endHour).padStart(2, '0')}:00`;
-          
+
           createPromises.push(
             availabilityAPI.createSlots(profile.id, {
               date: dateStr,
@@ -364,13 +364,13 @@ export default function AvailabilityPage() {
         }
         current.setDate(current.getDate() + 1);
       }
-      
+
       // Wait for all slot creations
       await Promise.all(createPromises);
-      
+
       // Reload availability data
       await loadAvailability();
-      
+
       // Close modal on success
       setIsGenerateModalOpen(false);
     } catch (err) {
@@ -380,17 +380,17 @@ export default function AvailabilityPage() {
       setIsSaving(false);
     }
   };
-  
+
   /**
    * Handle slot deletion
    */
   const handleSlotDelete = async (slotId: string) => {
     setIsSaving(true);
     setSaveError(null);
-    
+
     try {
       await availabilityAPI.deleteSlot(slotId);
-      
+
       // Update local state
       setAvailabilityData((prev) =>
         prev.map((dayData) => {
@@ -415,14 +415,14 @@ export default function AvailabilityPage() {
       setIsSaving(false);
     }
   };
-  
+
   /**
    * Handle template apply - reload availability data
    */
   const handleTemplateApply = () => {
     loadAvailability();
   };
-  
+
   /**
    * Handle manage templates click - open template modal
    */
@@ -430,7 +430,7 @@ export default function AvailabilityPage() {
     setEditingTemplate(null);
     setIsTemplateModalOpen(true);
   };
-  
+
   /**
    * Handle template save
    */
@@ -440,7 +440,7 @@ export default function AvailabilityPage() {
     // Template is saved, could show a success toast here
     console.log('Template saved:', template.name);
   };
-  
+
   /**
    * Toggle a date in multi-select mode
    */
@@ -488,18 +488,18 @@ export default function AvailabilityPage() {
       // Reload availability data
       loadAvailability();
     }
-    
+
     // If there were protected dates, show a warning
     if (result.protected_dates.length > 0) {
       setError(
         `${result.success_count} date(s) updated. ${result.protected_dates.length} date(s) were protected due to existing bookings.`
       );
     }
-    
+
     // Clear selection
     setSelectedDates([]);
   };
-  
+
   // Show loading state while fetching profile
   if (isLoadingProfile) {
     return (
@@ -511,7 +511,7 @@ export default function AvailabilityPage() {
       </div>
     );
   }
-  
+
   // Show error state if no profile found
   if (!profile) {
     return (
@@ -530,7 +530,7 @@ export default function AvailabilityPage() {
       </div>
     );
   }
-  
+
   return (
     <div className="pb-24">
       {/* Page Header */}
@@ -541,7 +541,7 @@ export default function AvailabilityPage() {
             Manage time slots for <span className="font-medium text-admin-text">{profile.name}</span>
           </p>
         </div>
-        
+
         {/* Quick Actions */}
         <div className="flex items-center gap-3">
           <button
@@ -566,7 +566,7 @@ export default function AvailabilityPage() {
           </button>
         </div>
       </div>
-      
+
       {/* Error Banner */}
       {(error || saveError) && (
         <div className="mb-6 p-4 bg-red-50 border border-red-200 rounded-lg flex items-center justify-between">
@@ -589,7 +589,7 @@ export default function AvailabilityPage() {
           </button>
         </div>
       )}
-      
+
       {/* Main Content */}
       <div className="grid grid-cols-1 xl:grid-cols-3 gap-6">
         {/* Calendar Grid */}
@@ -606,13 +606,13 @@ export default function AvailabilityPage() {
               </svg>
               <span className="hidden sm:inline">Previous</span>
             </button>
-            
+
             {/* Month/Year display - stacked on mobile */}
             <div className="flex flex-col sm:flex-row items-center gap-1 sm:gap-3 text-admin-text font-medium">
               <span>{monthNames[currentMonth]}</span>
               <span>{currentYear}</span>
             </div>
-            
+
             {/* Next button - always visible */}
             <button
               onClick={goToNextMonth}
@@ -644,7 +644,7 @@ export default function AvailabilityPage() {
             />
           )}
         </div>
-        
+
         {/* Day Details Panel - Only show when NOT in multi-select mode */}
         {!isMultiSelectMode && (
           <div className="xl:col-span-1">
@@ -654,7 +654,6 @@ export default function AvailabilityPage() {
                 slots={selectedDayData.slots}
                 profileId={profile.id}
                 onSlotToggle={handleSlotToggle}
-                onSlotEdit={handleSlotEdit}
                 onSlotAdd={handleAddSlot}
                 onSlotDelete={handleSlotDelete}
                 onTemplateApply={handleTemplateApply}
@@ -667,7 +666,6 @@ export default function AvailabilityPage() {
                 slots={[]}
                 profileId={profile.id}
                 onSlotToggle={handleSlotToggle}
-                onSlotEdit={handleSlotEdit}
                 onSlotAdd={handleAddSlot}
                 onSlotDelete={handleSlotDelete}
                 onTemplateApply={handleTemplateApply}
@@ -707,14 +705,14 @@ export default function AvailabilityPage() {
                   </p>
                 </div>
               </div>
-              
+
               <div className="space-y-3 text-sm text-admin-text-muted">
                 <p>• Click on future dates to select/deselect them</p>
                 <p>• Past dates cannot be selected</p>
                 <p>• Use the action bar below to apply templates or remove slots</p>
                 <p>• Dates with bookings are protected from deletion</p>
               </div>
-              
+
               {selectedDates.length > 0 && (
                 <div className="mt-4 pt-4 border-t border-admin-border">
                   <p className="text-sm text-admin-text-muted mb-2">Selected dates:</p>
@@ -739,7 +737,7 @@ export default function AvailabilityPage() {
           </div>
         )}
       </div>
-      
+
       {/* Modals */}
       <SlotEditModal
         slot={editingSlot}
@@ -754,7 +752,7 @@ export default function AvailabilityPage() {
         isSaving={isSaving}
         error={saveError}
       />
-      
+
       <GenerateSlotsModal
         isOpen={isGenerateModalOpen}
         onClose={() => {
@@ -765,7 +763,7 @@ export default function AvailabilityPage() {
         isSaving={isSaving}
         error={saveError}
       />
-      
+
       <SlotTemplateModal
         template={editingTemplate}
         isOpen={isTemplateModalOpen}
