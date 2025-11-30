@@ -35,7 +35,7 @@ export default function ServiceSelector({
           <div
             key={service.id}
             className={`
-              bg-[#2a2a2a] rounded-xl border-2 overflow-hidden transition-all duration-200
+              bg-[#2a2a2a] rounded-xl border-2 overflow-hidden transition-all duration-200 flex flex-col
               ${isSelected 
                 ? 'border-[#d4af37] ring-2 ring-[#d4af37]/30' 
                 : 'border-[#444444] hover:border-[#555555]'
@@ -43,7 +43,7 @@ export default function ServiceSelector({
             `}
           >
             {/* Service Image Placeholder */}
-            <div className="aspect-video bg-[#1a1a1a] flex items-center justify-center">
+            <div className="h-40 bg-[#1a1a1a] flex items-center justify-center shrink-0">
               {service.image_url ? (
                 <img
                   src={service.image_url}
@@ -68,13 +68,13 @@ export default function ServiceSelector({
             </div>
 
             {/* Service Details */}
-            <div className="p-4">
+            <div className="p-4 flex flex-col flex-1">
               <h3 className="text-[#eaeaea] font-semibold text-lg mb-1">
                 {service.title}
               </h3>
               
               {service.description && (
-                <p className="text-[#a0a0a0] text-sm mb-3 line-clamp-2">
+                <p className="text-[#a0a0a0] text-sm mb-3 line-clamp-2 flex-grow">
                   {service.description}
                 </p>
               )}

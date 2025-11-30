@@ -7,6 +7,7 @@ export enum UserRole {
   USER = 'USER',
   OWNER = 'OWNER',
   ADMIN = 'ADMIN',
+  SUPERADMIN = 'SUPERADMIN',
 }
 
 // Booking Status
@@ -29,6 +30,7 @@ export interface User {
   name: string;
   email?: string;
   role: UserRole;
+  must_change_password?: boolean;
   created_at: string;
   updated_at?: string;
 }
@@ -448,4 +450,50 @@ export interface SystemSettings {
   auto_confirm_bookings: boolean;
   send_reminder_emails: boolean;
   reminder_hours_before: number;
+}
+
+// ============================================================================
+// Owner Management Types (Superadmin)
+// ============================================================================
+
+export interface Owner {
+  id: string;
+  username: string;
+  name: string;
+  email?: string;
+  role: string;
+  is_active: boolean;
+  is_deleted: boolean;
+  must_change_password: boolean;
+  profile_count: number;
+  created_at: string;
+  updated_at?: string;
+}
+
+export interface OwnerCreate {
+  username: string;
+  name: string;
+  email?: string;
+  password?: string;
+}
+
+export interface OwnerUpdate {
+  name?: string;
+  email?: string;
+  is_active?: boolean;
+}
+
+export interface OwnerListResponse {
+  items: Owner[];
+  total: number;
+  page: number;
+  limit: number;
+  total_pages: number;
+}
+
+export interface OwnerFilters {
+  page?: number;
+  limit?: number;
+  search?: string;
+  include_deleted?: boolean;
 }

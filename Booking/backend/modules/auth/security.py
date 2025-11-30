@@ -1,3 +1,4 @@
+import os
 from fastapi import Depends, HTTPException, status
 from fastapi.security import HTTPBearer, HTTPAuthorizationCredentials
 from core.security import decode_token
@@ -31,6 +32,17 @@ async def get_current_user(credentials: HTTPAuthorizationCredentials = Depends(s
             headers={"WWW-Authenticate": "Bearer"},
         )
     
+    # Handle superadmin special case
+    if user_id == "superadmin":
+        superadmin_username = os.getenv("SUPERADMIN_USERNAME", "superadmin")
+        return UserCredentials(
+            user_id="superadmin",
+            username=superadmin_username,
+            name="Super Admin",
+            role=UserRole.SUPERADMIN,
+            must_change_password=False
+        )
+    
     user = AuthRepository.get_user_by_id(user_id)
     
     if user is None:
@@ -44,7 +56,8 @@ async def get_current_user(credentials: HTTPAuthorizationCredentials = Depends(s
         user_id=user["id"],
         username=user["username"],
         name=user["name"],
-        role=user.get("role", "USER")
+        role=user.get("role", "USER"),
+        must_change_password=user.get("must_change_password", False)
     )
 
 
@@ -89,3 +102,23 @@ async def require_admin(current_user: UserCredentials = Depends(get_current_user
         )
     return current_user
 
+
+async def require_superadmin(current_user: UserCredentials = Depends(get_current_user)) -> UserCredentials:
+    """
+    Dependency to require superadmin role.
+    
+    Args:
+        current_user: Current authenticated user
+        
+    Returns:
+        UserCredentials if user is superadmin
+        
+    Raises:
+        HTTPException: If user is not superadmin
+    """
+    if current_user.role != UserRole.SUPERADMIN:
+        raise HTTPException(
+            status_code=status.HTTP_403_FORBIDDEN,
+            detail="Superadmin access required"
+        )
+    return current_user

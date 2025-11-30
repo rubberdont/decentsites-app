@@ -11,7 +11,8 @@ import {
 import { useRouter } from 'next/navigation';
 import { authAPI } from '@/services/api';
 import { getToken, setToken, removeToken } from '@/utils/auth';
-import type { User, UserRole } from '@/types';
+import type { User } from '@/types';
+import { UserRole } from '@/types';
 
 /**
  * Authentication context type definition
@@ -23,8 +24,12 @@ interface AuthContextType {
   isLoading: boolean;
   /** Whether user is currently authenticated */
   isAuthenticated: boolean;
+  /** Whether user is a superadmin */
+  isSuperAdmin: boolean;
   /** Login with username and password */
   login: (username: string, password: string) => Promise<void>;
+  /** Login as superadmin with username and password */
+  loginAsSuperAdmin: (username: string, password: string) => Promise<void>;
   /** Logout and redirect to login page */
   logout: () => void;
   /** Refresh current user data from API */
@@ -144,6 +149,46 @@ export function AuthProvider({ children }: AuthProviderProps) {
   );
 
   /**
+   * Login as superadmin with username and password
+   */
+  const loginAsSuperAdmin = useCallback(
+    async (username: string, password: string): Promise<void> => {
+      setIsLoading(true);
+      try {
+        // Call superadmin login endpoint
+        const response = await fetch(`${process.env.NEXT_PUBLIC_API_URL || 'http://localhost:8000'}/auth/superadmin/login`, {
+          method: 'POST',
+          headers: { 'Content-Type': 'application/json' },
+          body: JSON.stringify({ username, password }),
+        });
+        
+        if (!response.ok) {
+          const error = await response.json();
+          throw new Error(error.detail || 'Invalid superadmin credentials');
+        }
+        
+        const tokenData = await response.json();
+        setToken(tokenData.access_token);
+        
+        // Fetch user data
+        const currentUser = await fetchCurrentUser();
+        if (!currentUser) {
+          throw new Error('Failed to fetch user after login');
+        }
+        
+        setUser(currentUser);
+      } catch (error) {
+        removeToken();
+        setUser(null);
+        throw error;
+      } finally {
+        setIsLoading(false);
+      }
+    },
+    [fetchCurrentUser]
+  );
+
+  /**
    * Logout user and redirect to login page
    */
   const logout = useCallback((): void => {
@@ -168,11 +213,16 @@ export function AuthProvider({ children }: AuthProviderProps) {
     [user]
   );
 
+  // Computed value for superadmin check
+  const isSuperAdmin = user?.role === UserRole.SUPERADMIN;
+
   const value: AuthContextType = {
     user,
     isLoading,
     isAuthenticated: !!user,
+    isSuperAdmin,
     login,
+    loginAsSuperAdmin,
     logout,
     refreshUser,
     hasRole,

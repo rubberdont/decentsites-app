@@ -1,6 +1,10 @@
-from fastapi import FastAPI
-from fastapi.middleware.cors import CORSMiddleware
+# Load environment variables FIRST, before any other imports
 from dotenv import load_dotenv
+load_dotenv()
+
+from fastapi import FastAPI
+from datetime import datetime
+from fastapi.middleware.cors import CORSMiddleware
 from core.mongo_helper import mongo_db
 from modules.profiles.routes import router as profiles_router
 from modules.auth.routes import router as auth_router
@@ -8,9 +12,7 @@ from modules.bookings.routes import router as bookings_router
 from modules.owners.routes import router as owners_router
 from modules.availability.routes import router as availability_router
 from modules.admin.routes import router as admin_router
-
-# Load environment variables
-load_dotenv()
+from modules.superadmin.routes import router as superadmin_router
 
 app = FastAPI(title="Booking App API", version="1.0.0")
 
@@ -33,10 +35,16 @@ app.include_router(bookings_router)
 app.include_router(owners_router)
 app.include_router(availability_router)
 app.include_router(admin_router)
+app.include_router(superadmin_router)
 
 @app.get("/")
 async def root():
     return {"message": "Booking App API"}
+
+@app.get("/server-time")
+async def get_server_time():
+    """Return current server time (UTC) for client-side validation."""
+    return {"server_time": datetime.utcnow().isoformat() + "Z"}
 
 @app.on_event("startup")
 async def startup_db_client():

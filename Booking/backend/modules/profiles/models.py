@@ -9,7 +9,19 @@ class Service(BaseModel):
     title: str
     description: str
     price: float
+    duration_minutes: Optional[int] = None
     image_url: Optional[str] = None
+    is_active: bool = True
+
+
+class ServiceCreate(BaseModel):
+    """Service creation model - id is auto-generated."""
+    title: str
+    description: str
+    price: float
+    duration_minutes: Optional[int] = None
+    image_url: Optional[str] = None
+    is_active: bool = True
 
 
 class ServiceUpdate(BaseModel):
@@ -17,7 +29,9 @@ class ServiceUpdate(BaseModel):
     title: Optional[str] = None
     description: Optional[str] = None
     price: Optional[float] = None
+    duration_minutes: Optional[int] = None
     image_url: Optional[str] = None
+    is_active: Optional[bool] = None
 
 
 class BusinessProfile(BaseModel):

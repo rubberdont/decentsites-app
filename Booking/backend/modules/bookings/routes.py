@@ -56,12 +56,39 @@ async def create_booking(
                 detail="Service not found in profile"
             )
     
-    # Validate booking date is in future
-    if booking_data.booking_date <= datetime.utcnow():
+    # Validate booking is not for a past date
+    now = datetime.utcnow()
+    booking_date_only = booking_data.booking_date.date()
+    today = now.date()
+    
+    # Reject bookings for dates before today
+    if booking_date_only < today:
         raise HTTPException(
             status_code=status.HTTP_400_BAD_REQUEST,
-            detail="Booking date must be in the future"
+            detail="Cannot book for a past date"
         )
+    
+    # For today's bookings with a time slot, validate the slot hasn't passed
+    if booking_data.time_slot and booking_date_only == today:
+        # Parse start time from time_slot (e.g., "09:00-10:00" -> "09:00")
+        try:
+            start_time_str = booking_data.time_slot.split('-')[0].strip()
+            slot_hour, slot_minute = map(int, start_time_str.split(':'))
+        except (ValueError, IndexError):
+            raise HTTPException(
+                status_code=status.HTTP_400_BAD_REQUEST,
+                detail="Invalid time slot format"
+            )
+        
+        # Create datetime for the slot start time today (using UTC for consistency)
+        slot_datetime = datetime.combine(today, datetime.min.time().replace(hour=slot_hour, minute=slot_minute))
+        
+        # Check if this time has already passed (with 5 min buffer for edge cases)
+        if now > slot_datetime:
+            raise HTTPException(
+                status_code=status.HTTP_400_BAD_REQUEST,
+                detail="This time slot has already passed"
+            )
     
     # NEW: Handle time slot if provided
     slot_id = None

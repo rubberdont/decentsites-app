@@ -6,25 +6,25 @@ import { useAuth } from '@/context/AuthContext';
 import { LoadingSpinner } from '@/components/ui';
 
 /**
- * Admin Login Page
- * Handles user authentication with username/password
+ * Superadmin Login Page
+ * Handles superadmin authentication with environment-based credentials
  * Redirects to dashboard on success or if already authenticated
  */
-export default function LoginPage() {
+export default function SuperadminLoginPage() {
   const router = useRouter();
-  const { login, isAuthenticated, isLoading: authLoading } = useAuth();
+  const { loginAsSuperAdmin, isAuthenticated, isLoading: authLoading, isSuperAdmin } = useAuth();
 
   const [username, setUsername] = useState('');
   const [password, setPassword] = useState('');
   const [error, setError] = useState('');
   const [isSubmitting, setIsSubmitting] = useState(false);
 
-  // Redirect if already authenticated
+  // Redirect if already authenticated as superadmin
   useEffect(() => {
-    if (!authLoading && isAuthenticated) {
+    if (!authLoading && isAuthenticated && isSuperAdmin) {
       router.push('/dashboard');
     }
-  }, [isAuthenticated, authLoading, router]);
+  }, [isAuthenticated, isSuperAdmin, authLoading, router]);
 
   /**
    * Handle form submission
@@ -42,13 +42,15 @@ export default function LoginPage() {
     setIsSubmitting(true);
 
     try {
-      await login(username.trim(), password);
+      await loginAsSuperAdmin(username.trim(), password);
       router.push('/dashboard');
     } catch (err) {
       // Handle different error types
       if (err instanceof Error) {
         if (err.message.includes('401') || err.message.includes('Unauthorized') || err.message.includes('Invalid')) {
-          setError('Invalid username or password');
+          setError('Invalid superadmin credentials');
+        } else if (err.message.includes('503') || err.message.includes('not configured')) {
+          setError('Superadmin is not configured on this server');
         } else if (err.message.includes('Network') || err.message.includes('fetch')) {
           setError('Unable to connect to server. Please try again.');
         } else {
@@ -72,7 +74,7 @@ export default function LoginPage() {
   }
 
   // Don't render login form if already authenticated (will redirect)
-  if (isAuthenticated) {
+  if (isAuthenticated && isSuperAdmin) {
     return null;
   }
 
@@ -83,9 +85,9 @@ export default function LoginPage() {
         <div className="bg-admin-bg-card border border-admin-border rounded-xl shadow-admin-card p-8">
           {/* Logo/App Name */}
           <div className="text-center mb-8">
-            <div className="inline-flex items-center justify-center w-16 h-16 bg-admin-primary/10 rounded-xl mb-4">
+            <div className="inline-flex items-center justify-center w-16 h-16 bg-purple-500/10 rounded-xl mb-4">
               <svg
-                className="w-8 h-8 text-admin-primary"
+                className="w-8 h-8 text-purple-500"
                 fill="none"
                 stroke="currentColor"
                 viewBox="0 0 24 24"
@@ -95,12 +97,12 @@ export default function LoginPage() {
                   strokeLinecap="round"
                   strokeLinejoin="round"
                   strokeWidth={2}
-                  d="M8 7V3m8 4V3m-9 8h10M5 21h14a2 2 0 002-2V7a2 2 0 00-2-2H5a2 2 0 00-2 2v12a2 2 0 002 2z"
+                  d="M9 12l2 2 4-4m5.618-4.016A11.955 11.955 0 0112 2.944a11.955 11.955 0 01-8.618 3.04A12.02 12.02 0 003 9c0 5.591 3.824 10.29 9 11.622 5.176-1.332 9-6.03 9-11.622 0-1.042-.133-2.052-.382-3.016z"
                 />
               </svg>
             </div>
-            <h1 className="text-2xl font-bold text-admin-text">Booking Admin</h1>
-            <p className="text-admin-text-muted mt-2">Sign in to your account</p>
+            <h1 className="text-2xl font-bold text-admin-text">Super Admin Portal</h1>
+            <p className="text-admin-text-muted mt-2">Superadmin access only</p>
           </div>
 
           {/* Error Message */}
@@ -126,7 +128,7 @@ export default function LoginPage() {
                 value={username}
                 onChange={(e) => setUsername(e.target.value)}
                 className="admin-input"
-                placeholder="Enter your username"
+                placeholder="Enter superadmin username"
                 disabled={isSubmitting}
                 autoComplete="username"
                 autoFocus
@@ -147,7 +149,7 @@ export default function LoginPage() {
                 value={password}
                 onChange={(e) => setPassword(e.target.value)}
                 className="admin-input"
-                placeholder="Enter your password"
+                placeholder="Enter superadmin password"
                 disabled={isSubmitting}
                 autoComplete="current-password"
               />
@@ -157,7 +159,7 @@ export default function LoginPage() {
             <button
               type="submit"
               disabled={isSubmitting}
-              className="admin-btn-primary w-full py-3 flex items-center justify-center gap-2"
+              className="w-full py-3 flex items-center justify-center gap-2 bg-purple-600 hover:bg-purple-700 text-white font-medium rounded-lg transition-colors disabled:opacity-50 disabled:cursor-not-allowed"
             >
               {isSubmitting ? (
                 <>
@@ -165,25 +167,10 @@ export default function LoginPage() {
                   <span>Signing in...</span>
                 </>
               ) : (
-                'Sign In'
+                'Sign In as Superadmin'
               )}
             </button>
           </form>
-
-          {/* Forgot Password Link */}
-          <div className="mt-6 text-center">
-            <a
-              href="#"
-              className="text-sm text-admin-primary hover:text-admin-primary-light transition-colors"
-              onClick={(e) => {
-                e.preventDefault();
-                // TODO: Implement forgot password functionality
-                alert('Please contact your administrator to reset your password.');
-              }}
-            >
-              Forgot password?
-            </a>
-          </div>
         </div>
 
         {/* Footer */}

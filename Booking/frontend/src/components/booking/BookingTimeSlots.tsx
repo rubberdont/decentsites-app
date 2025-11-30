@@ -1,7 +1,7 @@
 'use client';
 
 import React, { useState, useEffect } from 'react';
-import { availabilityAPI } from '@/services/api';
+import { availabilityAPI, utilityAPI } from '@/services/api';
 import type { AvailabilitySlot } from '@/types';
 
 interface BookingTimeSlotsProps {
@@ -39,6 +39,7 @@ export default function BookingTimeSlots({
   const [slots, setSlots] = useState<AvailabilitySlot[]>([]);
   const [isLoading, setIsLoading] = useState(false);
   const [error, setError] = useState<string | null>(null);
+  const [serverTime, setServerTime] = useState<Date | null>(null);
 
   // Format date for display
   const formatDateForDisplay = (date: Date): string => {
@@ -56,6 +57,25 @@ export default function BookingTimeSlots({
     const day = String(date.getDate()).padStart(2, '0');
     return `${year}-${month}-${day}`;
   };
+
+  // Fetch server time on mount and refresh periodically
+  useEffect(() => {
+    const fetchServerTime = async () => {
+      try {
+        const response = await utilityAPI.getServerTime();
+        setServerTime(new Date(response.data.server_time));
+      } catch (err) {
+        console.error('Failed to fetch server time:', err);
+        // Fallback to client time if server time unavailable
+        setServerTime(new Date());
+      }
+    };
+
+    fetchServerTime();
+    // Refresh every minute
+    const interval = setInterval(fetchServerTime, 60000);
+    return () => clearInterval(interval);
+  }, []);
 
   // Fetch slots when selectedDate changes
   useEffect(() => {
@@ -85,17 +105,57 @@ export default function BookingTimeSlots({
     fetchSlots();
   }, [selectedDate, profileId]);
 
-  // Clear selected time slot when date changes and slot is no longer available
+  /**
+   * Check if a time slot is in the past based on server time
+   */
+  const isSlotInPast = (timeSlot: string): boolean => {
+    if (!serverTime || !selectedDate) return false;
+    
+    // Get today's date in local timezone from server time
+    const serverYear = serverTime.getFullYear();
+    const serverMonth = serverTime.getMonth();
+    const serverDay = serverTime.getDate();
+    
+    // Get selected date components
+    const selectedYear = selectedDate.getFullYear();
+    const selectedMonth = selectedDate.getMonth();
+    const selectedDay = selectedDate.getDate();
+    
+    // Check if selected date is today (using local time)
+    const isToday = serverYear === selectedYear && 
+                    serverMonth === selectedMonth && 
+                    serverDay === selectedDay;
+    
+    if (!isToday) {
+      // Not today, so no slots are in the past (future dates)
+      // For past dates, they shouldn't even be selectable in calendar
+      return false;
+    }
+    
+    // Parse start time from slot (e.g., "09:00-10:00" -> "09:00")
+    const startTimeStr = timeSlot.split('-')[0].trim();
+    const [slotHour, slotMinute] = startTimeStr.split(':').map(Number);
+    
+    // Compare with server time (using LOCAL hours, not UTC)
+    const serverHour = serverTime.getHours();
+    const serverMinute = serverTime.getMinutes();
+    
+    // Slot is in the past if current time is past the slot start time
+    return (serverHour > slotHour) || (serverHour === slotHour && serverMinute >= slotMinute);
+  };
+
+  // Clear selected time slot when date changes and slot is no longer available OR slot is in the past
   useEffect(() => {
     if (selectedTimeSlot) {
       const isSlotAvailable = slots.some(
         (slot) => slot.time_slot === selectedTimeSlot && slot.is_available
       );
-      if (!isSlotAvailable && slots.length > 0) {
+      const isPast = isSlotInPast(selectedTimeSlot);
+      if ((!isSlotAvailable && slots.length > 0) || isPast) {
         onTimeSlotChange(null);
       }
     }
-  }, [slots, selectedTimeSlot, onTimeSlotChange]);
+  }, [slots, selectedTimeSlot, onTimeSlotChange, serverTime]);
 
   // Show placeholder if no date selected
   if (!selectedDate) {
@@ -108,7 +168,7 @@ export default function BookingTimeSlots({
     );
   }
 
-  // Filter to only show available slots
+  // Filter to available slots (past slots will be shown but disabled)
   const availableSlots = slots.filter((slot) => slot.is_available);
 
   return (
@@ -175,21 +235,26 @@ export default function BookingTimeSlots({
         <div className="grid grid-cols-2 sm:grid-cols-3 lg:grid-cols-4 gap-3">
           {availableSlots.map((slot) => {
             const isSelected = selectedTimeSlot === slot.time_slot;
+            const isPast = isSlotInPast(slot.time_slot);
 
             return (
               <button
                 key={slot.id}
-                onClick={() => onTimeSlotChange(isSelected ? null : slot.time_slot)}
+                onClick={() => !isPast && onTimeSlotChange(isSelected ? null : slot.time_slot)}
+                disabled={isPast}
                 className={`
                   py-3 px-4 rounded-lg border text-sm font-medium
                   transition-all duration-200
-                  ${isSelected
-                    ? 'bg-[#d4af37] border-[#d4af37] text-[#1a1a1a] font-semibold'
-                    : 'border-[#444444] text-[#eaeaea] hover:border-[#d4af37] hover:text-[#d4af37] bg-[#1a1a1a]'
+                  ${isPast
+                    ? 'bg-[#1a1a1a] border-[#333333] text-[#555555] cursor-not-allowed opacity-50'
+                    : isSelected
+                      ? 'bg-[#d4af37] border-[#d4af37] text-[#1a1a1a] font-semibold'
+                      : 'border-[#444444] text-[#eaeaea] hover:border-[#d4af37] hover:text-[#d4af37] bg-[#1a1a1a]'
                   }
                 `}
               >
                 {formatTimeSlotForDisplay(slot.time_slot)}
+                {isPast && <span className="block text-xs mt-1">Passed</span>}
               </button>
             );
           })}

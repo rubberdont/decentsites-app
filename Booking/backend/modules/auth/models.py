@@ -9,6 +9,7 @@ class UserRole(str, Enum):
     USER = "USER"
     OWNER = "OWNER"
     ADMIN = "ADMIN"
+    SUPERADMIN = "SUPERADMIN"
 
 
 class UserRegister(BaseModel):
@@ -23,6 +24,12 @@ class UserLogin(BaseModel):
     """User login request model."""
     username: str = Field(..., min_length=3)
     password: str = Field(..., min_length=6)
+
+
+class SuperAdminLogin(BaseModel):
+    """Superadmin login request model (no password length validation)."""
+    username: str = Field(..., min_length=1)
+    password: str = Field(..., min_length=1)
 
 
 class UserProfile(BaseModel):
@@ -56,6 +63,7 @@ class UserResponse(BaseModel):
     email: Optional[str] = None
     role: UserRole = UserRole.USER
     owner_id: Optional[str] = None  # Links customer to owner (for single-tenant mode)
+    must_change_password: bool = False  # True if user must change password on first login
     created_at: datetime
 
 
@@ -71,3 +79,4 @@ class UserCredentials(BaseModel):
     username: str
     name: str
     role: UserRole = UserRole.USER
+    must_change_password: bool = False

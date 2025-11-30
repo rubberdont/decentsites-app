@@ -1,10 +1,11 @@
 import os
 from fastapi import APIRouter, HTTPException, status, Depends
 from core.security import hash_password, verify_password, create_access_token, decode_token
-from datetime import timedelta
+from datetime import datetime, timedelta
 from .models import (
-    UserRegister, UserLogin, UserResponse, TokenResponse, UserCredentials,
-    UserProfile, ForgotPasswordRequest, ResetPasswordRequest, ChangePasswordRequest
+    UserRegister, UserLogin, SuperAdminLogin, UserResponse, TokenResponse, UserCredentials,
+    UserProfile, ForgotPasswordRequest, ResetPasswordRequest, ChangePasswordRequest,
+    UserRole
 )
 from .repository import AuthRepository
 from .security import get_current_user
@@ -14,6 +15,10 @@ router = APIRouter(prefix="/auth", tags=["auth"])
 
 # Default owner ID for single-tenant mode (customers are linked to this owner)
 DEFAULT_OWNER_ID = os.getenv("DEFAULT_OWNER_ID")
+
+# Superadmin credentials from environment
+SUPERADMIN_USERNAME = os.getenv("SUPERADMIN_USERNAME")
+SUPERADMIN_PASSWORD = os.getenv("SUPERADMIN_PASSWORD")
 
 
 @router.post("/register", response_model=UserResponse)
@@ -98,6 +103,29 @@ async def login(credentials: UserLogin):
     return TokenResponse(access_token=access_token, token_type="bearer")
 
 
+@router.post("/superadmin/login", response_model=TokenResponse)
+async def superadmin_login(credentials: SuperAdminLogin):
+    """
+    Login as superadmin using environment credentials.
+    """
+    if not SUPERADMIN_USERNAME or not SUPERADMIN_PASSWORD:
+        raise HTTPException(
+            status_code=status.HTTP_503_SERVICE_UNAVAILABLE,
+            detail="Superadmin not configured"
+        )
+    
+    if credentials.username != SUPERADMIN_USERNAME or credentials.password != SUPERADMIN_PASSWORD:
+        raise HTTPException(
+            status_code=status.HTTP_401_UNAUTHORIZED,
+            detail="Invalid superadmin credentials"
+        )
+    
+    # Create token with superadmin user_id
+    access_token = create_access_token(user_id="superadmin")
+    
+    return TokenResponse(access_token=access_token, token_type="bearer")
+
+
 @router.get("/me", response_model=UserResponse)
 async def get_current_user_info(current_user: UserCredentials = Depends(get_current_user)):
     """
@@ -109,6 +137,17 @@ async def get_current_user_info(current_user: UserCredentials = Depends(get_curr
     Returns:
         UserResponse with user information
     """
+    # Handle superadmin case
+    if current_user.user_id == "superadmin":
+        return UserResponse(
+            id="superadmin",
+            username=SUPERADMIN_USERNAME or "superadmin",
+            name="Super Admin",
+            email=None,
+            role=UserRole.SUPERADMIN,
+            created_at=datetime.utcnow()
+        )
+    
     user = AuthRepository.get_user_by_id(current_user.user_id)
     
     if not user:

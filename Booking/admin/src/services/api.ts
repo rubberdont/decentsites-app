@@ -42,6 +42,11 @@ import type {
   BulkApplyTemplateRequest,
   BulkDeleteSlotsRequest,
   BulkOperationResult,
+  Owner,
+  OwnerCreate,
+  OwnerUpdate,
+  OwnerListResponse,
+  OwnerFilters,
 } from '@/types';
 
 // ============================================================================
@@ -600,6 +605,54 @@ export const profilesAPIClient = {
    */
   deleteService: (profileId: string, serviceId: string): Promise<AxiosResponse<void>> =>
     api.delete(`/profiles/${profileId}/services/${serviceId}`),
+};
+
+// ============================================================================
+// Superadmin API (Owner Management)
+// ============================================================================
+
+export const superadminAPI = {
+  /**
+   * Get paginated list of owners
+   */
+  getOwners: (filters?: OwnerFilters): Promise<AxiosResponse<OwnerListResponse>> =>
+    api.get('/superadmin/owners', { params: filters }),
+
+  /**
+   * Get owner by ID
+   */
+  getOwner: (id: string): Promise<AxiosResponse<Owner>> =>
+    api.get(`/superadmin/owners/${id}`),
+
+  /**
+   * Create a new owner
+   */
+  createOwner: (data: OwnerCreate): Promise<AxiosResponse<Owner>> =>
+    api.post('/superadmin/owners', data),
+
+  /**
+   * Update an owner
+   */
+  updateOwner: (id: string, data: OwnerUpdate): Promise<AxiosResponse<Owner>> =>
+    api.put(`/superadmin/owners/${id}`, data),
+
+  /**
+   * Delete (soft) an owner
+   */
+  deleteOwner: (id: string): Promise<AxiosResponse<void>> =>
+    api.delete(`/superadmin/owners/${id}`),
+
+  /**
+   * Restore a deleted owner
+   */
+  restoreOwner: (id: string): Promise<AxiosResponse<Owner>> =>
+    api.post(`/superadmin/owners/${id}/restore`),
+
+  /**
+   * Reset owner password to default
+   */
+  resetOwnerPassword: (id: string): Promise<AxiosResponse<{ message: string }>> =>
+    api.post(`/superadmin/owners/${id}/reset-password`),
 };
 
 // ============================================================================

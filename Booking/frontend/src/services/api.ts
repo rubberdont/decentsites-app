@@ -23,6 +23,10 @@ import type {
   SlotCapacityUpdate,
 } from '@/types';
 
+interface ServerTimeResponse {
+  server_time: string;
+}
+
 const API_BASE = 'http://localhost:8000';
 
 // Create axios instance with base configuration
@@ -196,6 +200,12 @@ export const availabilityAPI = {
   
   deleteSlot: (slotId: string) => 
     api.delete(`/availability/slots/${slotId}`),
+};
+
+// Utility API
+export const utilityAPI = {
+  getServerTime: () =>
+    api.get<ServerTimeResponse>('/server-time'),
 };
 
 export default api;

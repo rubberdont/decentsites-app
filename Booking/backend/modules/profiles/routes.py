@@ -2,7 +2,7 @@ from fastapi import APIRouter, HTTPException, status, Depends
 from typing import List
 import uuid
 
-from .models import BusinessProfile, Service, ServiceUpdate
+from .models import BusinessProfile, Service, ServiceCreate, ServiceUpdate
 from .repository import ProfileRepository
 from modules.auth.security import get_current_user
 from modules.auth.models import UserCredentials
@@ -92,17 +92,20 @@ async def get_profile_services(profile_id: str):
 
 
 @router.post("/{profile_id}/services", response_model=Service)
-async def create_service(profile_id: str, service: Service):
+async def create_service(profile_id: str, service: ServiceCreate):
     """Add a service to a profile."""
     profile = ProfileRepository.get_profile(profile_id)
     if not profile:
         raise HTTPException(status_code=404, detail="Profile not found")
     
-    if not service.id:
-        service.id = str(uuid.uuid4())
+    # Create Service with auto-generated ID
+    new_service = Service(
+        id=str(uuid.uuid4()),
+        **service.model_dump()
+    )
     
-    ProfileRepository.add_service_to_profile(profile_id, service)
-    return service
+    ProfileRepository.add_service_to_profile(profile_id, new_service)
+    return new_service
 
 
 @router.put("/{profile_id}/services/{service_id}", response_model=Service)
