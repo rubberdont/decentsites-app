@@ -1,6 +1,6 @@
 'use client';
 
-import React, { useState, useEffect } from 'react';
+import React, { useState, useEffect, useCallback } from 'react';
 import { availabilityAPI, utilityAPI } from '@/services/api';
 import type { AvailabilitySlot } from '@/types';
 
@@ -106,9 +106,9 @@ export default function BookingTimeSlots({
   }, [selectedDate, profileId]);
 
   /**
-   * Check if a time slot is in the past based on server time
-   */
-  const isSlotInPast = (timeSlot: string): boolean => {
+    * Check if a time slot is in the past based on server time
+    */
+  const isSlotInPast = useCallback((timeSlot: string): boolean => {
     if (!serverTime || !selectedDate) return false;
     
     // Get today's date in local timezone from server time
@@ -142,7 +142,7 @@ export default function BookingTimeSlots({
     
     // Slot is in the past if current time is past the slot start time
     return (serverHour > slotHour) || (serverHour === slotHour && serverMinute >= slotMinute);
-  };
+  }, [serverTime, selectedDate]);
 
   // Clear selected time slot when date changes and slot is no longer available OR slot is in the past
   useEffect(() => {

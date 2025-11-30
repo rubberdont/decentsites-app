@@ -36,9 +36,11 @@ export default function BookingPage() {
         setProfile(response.data);
       } catch (err: unknown) {
         console.error('Failed to fetch profile:', err);
-        const errorMessage = err instanceof Error && 'response' in err && err.response?.data?.detail
-          ? err.response.data.detail
-          : 'Unable to load services. Please try again later.';
+        const errorMessage = err instanceof Error && 'response' in err && 
+          typeof err.response === 'object' && err.response !== null && 'data' in err.response &&
+          err.response.data && typeof err.response.data === 'object' && 'detail' in err.response.data
+            ? String(err.response.data.detail)
+            : 'Unable to load services. Please try again later.';
         setProfileError(errorMessage);
       } finally {
         setIsLoadingProfile(false);
