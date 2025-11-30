@@ -7,20 +7,6 @@ import { customersAPI } from '@/services/api';
 import { LoadingSpinner } from '@/components/ui';
 
 /**
- * Interface for booking history item from API
- */
-interface BookingHistoryItem {
-  id: string;
-  booking_ref: string;
-  service_title: string;
-  service_price: number;
-  booking_date: string;
-  time_slot: string;
-  status: BookingStatus;
-  created_at: string;
-}
-
-/**
  * Customer detail page
  * Shows customer info, stats, and booking history
  */
@@ -37,7 +23,7 @@ export default function CustomerDetailPage() {
   const [customer, setCustomer] = useState<Customer | null>(null);
 
   // Booking history with pagination
-  const [bookings, setBookings] = useState<BookingHistoryItem[]>([]);
+  const [bookings, setBookings] = useState<Booking[]>([]);
   const [bookingsPage, setBookingsPage] = useState(1);
   const [bookingsTotalPages, setBookingsTotalPages] = useState(1);
   const [isLoadingBookings, setIsLoadingBookings] = useState(false);
@@ -73,7 +59,7 @@ export default function CustomerDetailPage() {
     setIsLoadingBookings(true);
     try {
       const response = await customersAPI.getBookings(customerId, { page, limit: 10 });
-      const data = response.data as PaginatedResponse<BookingHistoryItem>;
+      const data = response.data;
       setBookings(data.items);
       setBookingsTotalPages(data.total_pages);
       setBookingsPage(page);
@@ -464,7 +450,7 @@ export default function CustomerDetailPage() {
                             </span>
                           </td>
                           <td>
-                            <span className="text-admin-text">{booking.service_title}</span>
+                            <span className="text-admin-text">{booking.service_name}</span>
                           </td>
                           <td>
                             <div className="text-sm">
