@@ -3,6 +3,7 @@
 import { useState, useRef, useEffect } from 'react';
 import { useAuth } from '@/context/AuthContext';
 import { UserRole } from '@/types';
+import { ThemeToggle } from '@/components/ui/ThemeToggle';
 
 interface HeaderProps {
   /** Callback to toggle mobile sidebar */
@@ -104,6 +105,9 @@ export function Header({ onMenuClick, isSidebarCollapsed = false }: HeaderProps)
           </button>
         )}
 
+        {/* Theme Toggle */}
+        <ThemeToggle />
+
         {/* Notifications */}
         <div className="relative" ref={notificationsRef}>
           <button
@@ -184,7 +188,7 @@ export function Header({ onMenuClick, isSidebarCollapsed = false }: HeaderProps)
                 <p className="text-sm font-medium text-admin-text">{user?.name || 'User'}</p>
                 <p className="text-xs text-admin-text-muted">{user?.email || user?.username}</p>
               </div>
-              
+
               {/* Menu Items */}
               <div className="py-1">
                 <a
@@ -207,7 +211,7 @@ export function Header({ onMenuClick, isSidebarCollapsed = false }: HeaderProps)
                   Settings
                 </a>
               </div>
-              
+
               {/* Logout */}
               <div className="border-t border-admin-border py-1">
                 <button

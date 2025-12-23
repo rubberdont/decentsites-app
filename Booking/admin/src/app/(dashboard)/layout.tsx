@@ -2,7 +2,7 @@
 
 import { useState, useEffect } from 'react';
 import { ProtectedRoute } from '@/components/ProtectedRoute';
-import { Sidebar, Header, Breadcrumb } from '@/components/layout';
+import { Sidebar, Header, Breadcrumb, GlobalFAB } from '@/components/layout';
 
 interface DashboardLayoutProps {
   children: React.ReactNode;
@@ -92,6 +92,9 @@ export default function DashboardLayout({ children }: DashboardLayoutProps) {
             {children}
           </div>
         </main>
+
+        {/* Global Floating Action Button */}
+        <GlobalFAB />
       </div>
     </ProtectedRoute>
   );

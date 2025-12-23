@@ -138,6 +138,7 @@ export interface Booking {
   user_id: string;
   user_name?: string;
   user_email?: string;
+  user_phone?: string;
   profile_id: string;
   profile_name?: string;
   service_id?: string;

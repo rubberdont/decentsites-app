@@ -108,25 +108,25 @@ export default function AvailabilityPage() {
   const [isMultiSelectMode, setIsMultiSelectMode] = useState(false);
   const [selectedDates, setSelectedDates] = useState<string[]>([]);
 
-   // Mobile bottom sheet states
-   const [isBottomSheetOpen, setIsBottomSheetOpen] = useState(false);
-   const [selectedDateForMobile, setSelectedDateForMobile] = useState<string | null>(null);
+  // Mobile bottom sheet states
+  const [isBottomSheetOpen, setIsBottomSheetOpen] = useState(false);
+  const [selectedDateForMobile, setSelectedDateForMobile] = useState<string | null>(null);
 
-   // Responsive detection
-   const [isMobile, setIsMobile] = useState(false);
+  // Responsive detection
+  const [isMobile, setIsMobile] = useState(false);
 
-   /**
-    * Handle responsive detection
-    */
-   useEffect(() => {
-     const checkMobile = () => {
-       setIsMobile(window.innerWidth < 1280); // xl breakpoint
-     };
+  /**
+   * Handle responsive detection
+   */
+  useEffect(() => {
+    const checkMobile = () => {
+      setIsMobile(window.innerWidth < 1280); // xl breakpoint
+    };
 
-     checkMobile();
-     window.addEventListener('resize', checkMobile);
-     return () => window.removeEventListener('resize', checkMobile);
-   }, []);
+    checkMobile();
+    window.addEventListener('resize', checkMobile);
+    return () => window.removeEventListener('resize', checkMobile);
+  }, []);
 
   /**
    * Fetch owner's profile on mount
@@ -401,48 +401,48 @@ export default function AvailabilityPage() {
     }
   };
 
-   /**
-    * Handle slot deletion
-    */
-   const handleSlotDelete = async (slotId: string) => {
-     setIsSaving(true);
-     setSaveError(null);
+  /**
+   * Handle slot deletion
+   */
+  const handleSlotDelete = async (slotId: string) => {
+    setIsSaving(true);
+    setSaveError(null);
 
-     try {
-       await availabilityAPI.deleteSlot(slotId);
+    try {
+      await availabilityAPI.deleteSlot(slotId);
 
-       // Update local state
-       setAvailabilityData((prev) =>
-         prev.map((dayData) => {
-           const filteredSlots = dayData.slots.filter((slot) => slot.id !== slotId);
-           return {
-             ...dayData,
-             slots: filteredSlots,
-             total_slots: filteredSlots.length,
-             available_slots: filteredSlots.reduce((acc, slot) => {
-               if (slot.is_available) {
-                 return acc + Math.max(0, slot.max_capacity - slot.booked_count);
-               }
-               return acc;
-             }, 0),
-           };
-         }).filter((dayData) => dayData.slots.length > 0)
-       );
-     } catch (err) {
-       console.error('Error deleting slot:', err);
-       setSaveError('Failed to delete slot. Please try again.');
-     } finally {
-       setIsSaving(false);
-     }
-   };
+      // Update local state
+      setAvailabilityData((prev) =>
+        prev.map((dayData) => {
+          const filteredSlots = dayData.slots.filter((slot) => slot.id !== slotId);
+          return {
+            ...dayData,
+            slots: filteredSlots,
+            total_slots: filteredSlots.length,
+            available_slots: filteredSlots.reduce((acc, slot) => {
+              if (slot.is_available) {
+                return acc + Math.max(0, slot.max_capacity - slot.booked_count);
+              }
+              return acc;
+            }, 0),
+          };
+        }).filter((dayData) => dayData.slots.length > 0)
+      );
+    } catch (err) {
+      console.error('Error deleting slot:', err);
+      setSaveError('Failed to delete slot. Please try again.');
+    } finally {
+      setIsSaving(false);
+    }
+  };
 
-   /**
-    * Handle mobile bottom sheet close
-    */
-   const handleCloseMobileSheet = () => {
-     setSelectedDate(null);
-     setSelectedDateForMobile(null);
-   };
+  /**
+   * Handle mobile bottom sheet close
+   */
+  const handleCloseMobileSheet = () => {
+    setSelectedDate(null);
+    setSelectedDateForMobile(null);
+  };
 
   /**
    * Handle template apply - reload availability data
@@ -562,7 +562,7 @@ export default function AvailabilityPage() {
   return (
     <div className="pb-24">
       {/* Page Header */}
-      <div className="flex items-center justify-between mb-6">
+      <div className="flex flex-col sm:flex-row justify-between mb-6">
         <div>
           <h1 className="text-2xl font-bold text-admin-text">Availability</h1>
           <p className="text-admin-text-muted mt-1">
@@ -571,11 +571,11 @@ export default function AvailabilityPage() {
         </div>
 
         {/* Quick Actions */}
-        <div className="flex-col sm:flex-row gap-2 w-full sm:w-auto flex items-center">
+        <div className="flex-row sm:flex-col gap-2 w-full sm:w-auto pt-4 sm:pt-0 flex items-center">
           <button
             onClick={handleManageTemplates}
             disabled={isSaving}
-            className="flex items-center gap-2 px-4 py-2 bg-admin-bg-card border border-admin-border text-admin-text rounded-lg hover:bg-admin-bg-hover transition-colors disabled:opacity-50 w-full sm:w-auto"
+            className="flex items-center gap-2 px-2 py-2 bg-admin-bg-card border border-admin-border text-admin-text rounded-lg hover:bg-admin-bg-hover transition-colors disabled:opacity-50 w-full sm:w-auto"
           >
             <svg className="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
               <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M9 5H7a2 2 0 00-2 2v12a2 2 0 002 2h10a2 2 0 002-2V7a2 2 0 00-2-2h-2M9 5a2 2 0 002 2h2a2 2 0 002-2M9 5a2 2 0 012-2h2a2 2 0 012 2" />

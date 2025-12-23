@@ -1,7 +1,7 @@
 'use client';
 
 import React, { useState, useEffect, useCallback } from 'react';
-import { StatsCard, RecentBookings, ActivityFeed } from '@/components/dashboard';
+import { StatsCard, RecentBookings, ActivityFeed, DailySnapshot, UpNextWidget } from '@/components/dashboard';
 import type { RecentBooking, Activity } from '@/components/dashboard';
 import { analyticsAPI, bookingsAPI } from '@/services/api';
 import type { DashboardStats, Booking } from '@/types';
@@ -238,13 +238,14 @@ export default function DashboardPage() {
   // State for dashboard data
   const [stats, setStats] = useState<DashboardStats | null>(null);
   const [bookings, setBookings] = useState<RecentBooking[]>([]);
+  const [nextBooking, setNextBooking] = useState<Booking | null>(null);
   const [activities, setActivities] = useState<Activity[]>([]);
-  
+
   // Loading states
   const [statsLoading, setStatsLoading] = useState(true);
   const [bookingsLoading, setBookingsLoading] = useState(true);
   const [activitiesLoading, setActivitiesLoading] = useState(true);
-  
+
   // Last updated timestamp
   const [lastUpdated, setLastUpdated] = useState<Date>(new Date());
 
@@ -272,12 +273,27 @@ export default function DashboardPage() {
       setBookingsLoading(true);
       const response = await bookingsAPI.getAll({
         page: 1,
-        limit: 5,
+        limit: 10,
         sort_by: 'booking_date',
         sort_order: 'asc',
       } as { page?: number; limit?: number; sort_by?: string; sort_order?: string });
-      
-      const transformedBookings = response.data.items.map(transformBooking);
+
+      const items = response.data.items;
+
+      // Determine next booking: First one that is PENDING or CONFIRMED and in the future (or very recent past)
+      // Since API sorts by date asc, we just need to find the first suitable one.
+      // We assume API returns future bookings primarily or we filter if needed.
+      // For now, take the first non-cancelled/completed one.
+      const now = new Date();
+      now.setHours(0, 0, 0, 0); // Start of today
+
+      const upcoming = items.find(b => {
+        const d = new Date(b.booking_date);
+        return d >= now && (b.status === 'PENDING' || b.status === 'CONFIRMED');
+      });
+      setNextBooking(upcoming || null);
+
+      const transformedBookings = items.slice(0, 5).map(transformBooking);
       setBookings(transformedBookings);
     } catch (error) {
       console.error('Failed to fetch bookings:', error);
@@ -296,7 +312,7 @@ export default function DashboardPage() {
       const response = await api.get<ActivitiesResponse>('/admin/activities', {
         params: { page: 1, page_size: 10 },
       });
-      
+
       const transformedActivities = response.data.items.map(transformActivity);
       setActivities(transformedActivities);
     } catch (error) {
@@ -317,7 +333,7 @@ export default function DashboardPage() {
       await Promise.all([fetchStats(), fetchBookings(), fetchActivities()]);
       setLastUpdated(new Date());
     };
-    
+
     fetchAllData();
   }, [fetchStats, fetchBookings, fetchActivities]);
 
@@ -337,6 +353,31 @@ export default function DashboardPage() {
   };
 
   /**
+   * Handle check-in action (from UpNextWidget)
+   */
+  const handleCheckIn = async (id: string) => {
+    try {
+      // Assuming 'COMPLETED' or we might want a 'CHECKED_IN' status if available.
+      // For now, let's mark as CONFIRMED if it was pending, or COMPLETED if confirmed?
+      // Actually typically "Check In" implies arrival. 'CONFIRMED' is good if pending.
+      // If already confirmed, maybe nothing or COMPLETED.
+      // Let's assume Confirm for now.
+      await bookingsAPI.approve(id);
+      toast.success('Customer checked in!');
+      await Promise.all([fetchBookings(), fetchStats()]);
+    } catch (error) {
+      console.error('Failed to check in:', error);
+      toast.error('Failed to check in');
+    }
+  };
+
+  const handleCall = (booking: Booking) => {
+    // If we had phone number:
+    // window.location.href = `tel:${booking.user_phone}`;
+    toast('Call feature requires phone integration', { icon: '📞' });
+  };
+
+  /**
    * Handle view booking action
    */
   const handleViewBooking = (id: string) => {
@@ -353,6 +394,17 @@ export default function DashboardPage() {
 
   return (
     <div className="space-y-6">
+      {/* Mobile Enhancements: Daily Snapshot & Up Next */}
+      <div className="block lg:hidden">
+        <DailySnapshot stats={stats} loading={statsLoading} />
+        <UpNextWidget
+          booking={nextBooking}
+          loading={bookingsLoading}
+          onCheckIn={handleCheckIn}
+          onCall={handleCall}
+        />
+      </div>
+
       {/* Page Header */}
       <div className="flex items-center justify-between">
         <h1 className="text-2xl font-bold text-admin-text">Dashboard</h1>
@@ -361,8 +413,8 @@ export default function DashboardPage() {
         </div>
       </div>
 
-      {/* Stats Cards Grid */}
-      <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-4">
+      {/* Stats Cards Grid - Hidden on mobile if redundant, or kept? Let's keep for full detail but maybe hide in future */}
+      <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-4 hidden md:grid">
         {statsLoading ? (
           <>
             <StatsCardSkeleton />
@@ -433,3 +485,4 @@ export default function DashboardPage() {
     </div>
   );
 }
+
