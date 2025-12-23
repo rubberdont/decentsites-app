@@ -120,7 +120,7 @@ a {
   
   /* Select styles */
   .admin-select {
-    @apply w-full bg-admin-bg-input border border-admin-border rounded-lg px-4 py-2 text-admin-text cursor-pointer focus:border-admin-primary focus:ring-1 focus:ring-admin-primary outline-none transition-colors duration-200 appearance-none;
+    @apply w-full bg-admin-bg-input border border-admin-border rounded-lg px-4 py-3 sm:py-2 text-base sm:text-sm text-admin-text cursor-pointer focus:border-admin-primary focus:ring-1 focus:ring-admin-primary outline-none transition-colors duration-200 appearance-none;
     background-image: url("data:image/svg+xml,%3csvg xmlns='http://www.w3.org/2000/svg' fill='none' viewBox='0 0 20 20'%3e%3cpath stroke='%2394a3b8' stroke-linecap='round' stroke-linejoin='round' stroke-width='1.5' d='M6 8l4 4 4-4'/%3e%3c/svg%3e");
     background-position: right 0.5rem center;
     background-repeat: no-repeat;

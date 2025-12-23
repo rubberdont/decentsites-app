@@ -49,6 +49,32 @@ function getAvailabilityColor(availability: DateAvailability | undefined, isPast
 }
 
 /**
+ * Get the dot color for mobile view based on availability
+ */
+function getDotColor(availability: DateAvailability | undefined, isPast: boolean, isToday: boolean): string {
+  if (isPast && !isToday) {
+    return 'bg-gray-400';
+  }
+  
+  if (!availability || availability.total_slots === 0) {
+    return 'bg-gray-400';
+  }
+  
+  const availableRatio = availability.available_slots / availability.total_slots;
+  
+  if (availableRatio === 0) {
+    // Fully booked - red
+    return 'bg-red-500';
+  } else if (availableRatio < 0.3) {
+    // Few slots - yellow/amber
+    return 'bg-amber-500';
+  } else {
+    // Available - green
+    return 'bg-green-500';
+  }
+}
+
+/**
  * CalendarGrid component for displaying monthly availability
  * Shows each day with slot counts and color-coded availability status
  * Supports both single-select and multi-select modes
@@ -161,7 +187,7 @@ export function CalendarGrid({
               }}
               disabled={!dayInfo.isCurrentMonth || (isMultiSelectMode && dayInfo.date < todayStr)}
               className={`
-                relative min-h-[90px] p-2 border-b border-r border-admin-border
+                relative h-16 md:h-32 p-1 md:p-2 border-b border-r border-admin-border
                 transition-all duration-150 text-left
                 ${dayInfo.isCurrentMonth 
                   ? isPastInMultiSelect
@@ -211,22 +237,34 @@ export function CalendarGrid({
               
               {/* Availability Info */}
               {dayInfo.isCurrentMonth && availability && (
-                <div className={`
-                  mt-1 px-2 py-1 rounded text-xs font-medium border
-                  ${colorClass}
-                `}>
-                  <div className="flex items-center gap-1">
-                    <span>{availability.available_slots}/{availability.total_slots}</span>
-                    <span className="hidden sm:inline">slots</span>
+                <>
+                  {/* Mobile: Color dots */}
+                  <div className="mt-1 block md:hidden">
+                    <div className={`w-1.5 h-1.5 rounded-full mx-auto ${getDotColor(availability, isPast, isToday)}`}></div>
                   </div>
-                </div>
+                  {/* Desktop: Text badges */}
+                  <div className={`
+                    hidden md:block mt-1 px-2 py-1 rounded text-xs font-medium border
+                    ${colorClass}
+                  `}>
+                    <div className="flex items-center gap-1">
+                      <span>{availability.available_slots}/{availability.total_slots}</span>
+                      <span className="hidden sm:inline">slots</span>
+                    </div>
+                  </div>
+                </>
               )}
               
               {/* No slots indicator */}
               {dayInfo.isCurrentMonth && !availability && !isPast && (
-                <div className="mt-1 px-2 py-1 rounded text-xs text-admin-text-dark">
-                  No slots
-                </div>
+                <>
+                  <div className="mt-1 block md:hidden">
+                    <div className="w-1.5 h-1.5 rounded-full mx-auto bg-gray-400"></div>
+                  </div>
+                  <div className="hidden md:block mt-1 px-2 py-1 rounded text-xs text-admin-text-dark">
+                    No slots
+                  </div>
+                </>
               )}
             </button>
           );
@@ -236,19 +274,19 @@ export function CalendarGrid({
       {/* Legend */}
       <div className="flex items-center justify-center gap-6 py-3 bg-admin-bg-hover/30 border-t border-admin-border">
         <div className="flex items-center gap-2">
-          <div className="w-3 h-3 rounded bg-green-500/40 border border-green-500/50"></div>
+          <div className="w-3 h-3 rounded-full bg-green-500"></div>
           <span className="text-xs text-admin-text-muted">Available</span>
         </div>
         <div className="flex items-center gap-2">
-          <div className="w-3 h-3 rounded bg-amber-500/40 border border-amber-500/50"></div>
+          <div className="w-3 h-3 rounded-full bg-amber-500"></div>
           <span className="text-xs text-admin-text-muted">Few Slots</span>
         </div>
         <div className="flex items-center gap-2">
-          <div className="w-3 h-3 rounded bg-red-500/40 border border-red-500/50"></div>
+          <div className="w-3 h-3 rounded-full bg-red-500"></div>
           <span className="text-xs text-admin-text-muted">Fully Booked</span>
         </div>
         <div className="flex items-center gap-2">
-          <div className="w-3 h-3 rounded bg-admin-bg-hover/60"></div>
+          <div className="w-3 h-3 rounded-full bg-gray-400"></div>
           <span className="text-xs text-admin-text-muted">Past</span>
         </div>
       </div>

@@ -22,6 +22,8 @@ interface BulkActionBarProps {
   isMultiSelectMode: boolean;
   /** Toggle multi-select mode */
   onToggleMultiSelect: () => void;
+  /** Currently selected date (to detect bottom sheet on mobile) */
+  selectedDate?: string | null;
 }
 
 /**
@@ -35,6 +37,7 @@ export function BulkActionBar({
   onOperationComplete,
   isMultiSelectMode,
   onToggleMultiSelect,
+  selectedDate,
 }: BulkActionBarProps) {
   const [templates, setTemplates] = useState<SlotTemplate[]>([]);
   const [selectedTemplateId, setSelectedTemplateId] = useState<string>('');
@@ -42,6 +45,19 @@ export function BulkActionBar({
   const [isLoading, setIsLoading] = useState(false);
   const [showTemplateDropdown, setShowTemplateDropdown] = useState(false);
   const [error, setError] = useState<string | null>(null);
+  const [isMobile, setIsMobile] = useState(false);
+
+  /**
+   * Check if viewport is mobile (below xl breakpoint)
+   */
+  useEffect(() => {
+    const checkMobile = () => {
+      setIsMobile(window.innerWidth < 1280); // xl breakpoint
+    };
+    checkMobile();
+    window.addEventListener('resize', checkMobile);
+    return () => window.removeEventListener('resize', checkMobile);
+  }, []);
 
   /**
    * Load templates when component mounts
@@ -124,16 +140,23 @@ export function BulkActionBar({
 
   // Don't render if not in multi-select mode
   if (!isMultiSelectMode) {
+    // Hide button on mobile when bottom sheet is showing (date selected)
+    if (isMobile && selectedDate) {
+      return null;
+    }
+    
     return (
-      <div className="fixed bottom-6 left-1/2 -translate-x-1/2 z-50">
+      <div className="fixed bottom-6 left-1/2 -translate-x-1/2 z-50 transition-opacity duration-200">
         <button
           onClick={onToggleMultiSelect}
-          className="flex items-center gap-2 px-4 py-2.5 bg-admin-primary text-white rounded-full shadow-lg hover:bg-admin-primary/90 transition-all hover:scale-105"
+          className="flex items-center gap-2 px-4 py-2.5 min-h-[44px] bg-admin-primary text-white rounded-full shadow-lg hover:bg-admin-primary/90 transition-all hover:scale-105"
+          aria-label="Enable Multi-Select Mode"
         >
           <svg className="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
             <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M9 5H7a2 2 0 00-2 2v12a2 2 0 002 2h10a2 2 0 002-2V7a2 2 0 00-2-2h-2M9 5a2 2 0 002 2h2a2 2 0 002-2M9 5a2 2 0 012-2h2a2 2 0 012 2m-6 9l2 2 4-4" />
           </svg>
-          Multi-Select Mode
+          <span className="hidden sm:inline">Multi-Select Mode</span>
+          <span className="sm:hidden">Select</span>
         </button>
       </div>
     );
@@ -154,18 +177,18 @@ export function BulkActionBar({
           </div>
         )}
 
-        <div className="flex items-center justify-between gap-4">
+        <div className="flex flex-col sm:flex-row items-center justify-between gap-2 md:gap-4">
           {/* Left: Selection info */}
-          <div className="flex items-center gap-4">
+          <div className="flex items-center gap-2 md:gap-4 w-full sm:w-auto">
             <div className="flex items-center gap-2">
               <div className="w-10 h-10 rounded-full bg-admin-primary/20 flex items-center justify-center">
-                <span className="text-admin-primary font-bold">{selectedDates.length}</span>
+                <span className="text-admin-primary font-bold text-sm md:text-base">{selectedDates.length}</span>
               </div>
               <div>
-                <div className="text-admin-text font-medium">
+                <div className="text-admin-text font-medium text-sm md:text-base">
                   {selectedDates.length === 0 ? 'No dates selected' : `${selectedDates.length} date${selectedDates.length > 1 ? 's' : ''} selected`}
                 </div>
-                <div className="text-admin-text-muted text-sm">
+                <div className="text-admin-text-muted text-xs md:text-sm hidden md:block">
                   Click dates on the calendar to select
                 </div>
               </div>
@@ -174,7 +197,8 @@ export function BulkActionBar({
             {selectedDates.length > 0 && (
               <button
                 onClick={onClearSelection}
-                className="text-admin-text-muted hover:text-admin-text text-sm underline"
+                className="text-admin-text-muted hover:text-admin-text text-xs md:text-sm underline min-h-[44px] flex items-center"
+                aria-label="Clear selection"
               >
                 Clear selection
               </button>
@@ -182,19 +206,21 @@ export function BulkActionBar({
           </div>
 
           {/* Right: Actions */}
-          <div className="flex items-center gap-3">
+          <div className="flex items-center gap-2 md:gap-3 flex-wrap sm:flex-nowrap w-full sm:w-auto justify-end">
             {/* Template Dropdown */}
             <div className="relative">
               <button
                 onClick={() => setShowTemplateDropdown(!showTemplateDropdown)}
                 disabled={selectedDates.length === 0 || isLoading || templates.length === 0}
-                className="flex items-center gap-2 px-4 py-2.5 bg-green-600 text-white rounded-lg hover:bg-green-700 transition-colors disabled:opacity-50 disabled:cursor-not-allowed"
+                className="flex items-center gap-2 px-3 md:px-4 py-2.5 bg-green-600 text-white rounded-lg hover:bg-green-700 transition-colors disabled:opacity-50 disabled:cursor-not-allowed min-h-[44px] min-w-[44px]"
+                title="Apply Template"
+                aria-label="Apply Template"
               >
                 <svg className="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                   <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M9 5H7a2 2 0 00-2 2v12a2 2 0 002 2h10a2 2 0 002-2V7a2 2 0 00-2-2h-2M9 5a2 2 0 002 2h2a2 2 0 002-2M9 5a2 2 0 012-2h2a2 2 0 012 2" />
                 </svg>
-                Apply Template
-                <svg className={`w-4 h-4 transition-transform ${showTemplateDropdown ? 'rotate-180' : ''}`} fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                <span className="hidden md:inline">Apply Template</span>
+                <svg className={`hidden md:block w-4 h-4 transition-transform ${showTemplateDropdown ? 'rotate-180' : ''}`} fill="none" stroke="currentColor" viewBox="0 0 24 24">
                   <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M19 9l-7 7-7-7" />
                 </svg>
               </button>
@@ -259,7 +285,9 @@ export function BulkActionBar({
             <button
               onClick={handleRemoveSlots}
               disabled={selectedDates.length === 0 || isLoading}
-              className="flex items-center gap-2 px-4 py-2.5 bg-red-600 text-white rounded-lg hover:bg-red-700 transition-colors disabled:opacity-50 disabled:cursor-not-allowed"
+              className="flex items-center gap-2 px-3 md:px-4 py-2.5 bg-red-600 text-white rounded-lg hover:bg-red-700 transition-colors disabled:opacity-50 disabled:cursor-not-allowed min-h-[44px] min-w-[44px]"
+              title="Remove Slots"
+              aria-label="Remove Slots"
             >
               {isLoading ? (
                 <div className="w-5 h-5 border-2 border-white/30 border-t-white rounded-full animate-spin" />
@@ -268,7 +296,7 @@ export function BulkActionBar({
                   <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M19 7l-.867 12.142A2 2 0 0116.138 21H7.862a2 2 0 01-1.995-1.858L5 7m5 4v6m4-6v6m1-10V4a1 1 0 00-1-1h-4a1 1 0 00-1 1v3M4 7h16" />
                 </svg>
               )}
-              Remove Slots
+              <span className="hidden md:inline">Remove Slots</span>
             </button>
 
             {/* Exit Multi-Select */}
@@ -277,12 +305,14 @@ export function BulkActionBar({
                 onClearSelection();
                 onToggleMultiSelect();
               }}
-              className="flex items-center gap-2 px-4 py-2.5 bg-admin-bg-hover text-admin-text rounded-lg hover:bg-admin-border transition-colors"
+              className="flex items-center gap-2 px-3 md:px-4 py-2.5 bg-admin-bg-hover text-admin-text rounded-lg hover:bg-admin-border transition-colors min-h-[44px] min-w-[44px]"
+              title="Exit Multi-Select Mode"
+              aria-label="Exit Multi-Select Mode"
             >
               <svg className="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                 <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M6 18L18 6M6 6l12 12" />
               </svg>
-              Exit
+              <span className="hidden md:inline">Exit</span>
             </button>
           </div>
         </div>

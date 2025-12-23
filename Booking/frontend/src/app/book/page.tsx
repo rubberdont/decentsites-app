@@ -36,11 +36,11 @@ export default function BookingPage() {
         setProfile(response.data);
       } catch (err: unknown) {
         console.error('Failed to fetch profile:', err);
-        const errorMessage = err instanceof Error && 'response' in err && 
+        const errorMessage = err instanceof Error && 'response' in err &&
           typeof err.response === 'object' && err.response !== null && 'data' in err.response &&
           err.response.data && typeof err.response.data === 'object' && 'detail' in err.response.data
-            ? String(err.response.data.detail)
-            : 'Unable to load services. Please try again later.';
+          ? String(err.response.data.detail)
+          : 'Unable to load services. Please try again later.';
         setProfileError(errorMessage);
       } finally {
         setIsLoadingProfile(false);
@@ -84,33 +84,6 @@ export default function BookingPage() {
   if (!isAuthenticated) {
     return (
       <div className="min-h-screen bg-[#1a1a1a]">
-        {/* Header */}
-        <header className="border-b border-[#444444] bg-[#2a2a2a]">
-          <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
-            <div className="flex items-center justify-between h-16">
-              {/* Logo */}
-              <Link href="/" className="flex items-center gap-2">
-                <div className="w-8 h-8 bg-[#d4af37] rounded-lg flex items-center justify-center">
-                  <svg
-                    className="w-5 h-5 text-[#1a1a1a]"
-                    fill="none"
-                    stroke="currentColor"
-                    viewBox="0 0 24 24"
-                  >
-                    <path
-                      strokeLinecap="round"
-                      strokeLinejoin="round"
-                      strokeWidth={2}
-                      d="M8 7V3m8 4V3m-9 8h10M5 21h14a2 2 0 002-2V7a2 2 0 00-2-2H5a2 2 0 00-2 2v12a2 2 0 002 2z"
-                    />
-                  </svg>
-                </div>
-                <span className="text-[#eaeaea] font-semibold text-lg">BookPro</span>
-              </Link>
-            </div>
-          </div>
-        </header>
-
         {/* Login Prompt */}
         <div className="flex flex-col items-center justify-center min-h-[calc(100vh-4rem)] px-4">
           <div className="bg-[#2a2a2a] rounded-xl border border-[#444444] p-8 max-w-md w-full text-center">
@@ -129,7 +102,7 @@ export default function BookingPage() {
                 />
               </svg>
             </div>
-            
+
             <h1 className="text-[#eaeaea] font-bold text-2xl mb-2">
               Sign in to Book
             </h1>
@@ -211,31 +184,6 @@ export default function BookingPage() {
   if (profileError || !profile) {
     return (
       <div className="min-h-screen bg-[#1a1a1a]">
-        {/* Header */}
-        <header className="border-b border-[#444444] bg-[#2a2a2a]">
-          <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
-            <div className="flex items-center justify-between h-16">
-              <Link href="/" className="flex items-center gap-2">
-                <div className="w-8 h-8 bg-[#d4af37] rounded-lg flex items-center justify-center">
-                  <svg
-                    className="w-5 h-5 text-[#1a1a1a]"
-                    fill="none"
-                    stroke="currentColor"
-                    viewBox="0 0 24 24"
-                  >
-                    <path
-                      strokeLinecap="round"
-                      strokeLinejoin="round"
-                      strokeWidth={2}
-                      d="M8 7V3m8 4V3m-9 8h10M5 21h14a2 2 0 002-2V7a2 2 0 00-2-2H5a2 2 0 00-2 2v12a2 2 0 002 2z"
-                    />
-                  </svg>
-                </div>
-                <span className="text-[#eaeaea] font-semibold text-lg">BookPro</span>
-              </Link>
-            </div>
-          </div>
-        </header>
 
         {/* Error State */}
         <div className="flex flex-col items-center justify-center min-h-[calc(100vh-4rem)] px-4">
@@ -255,7 +203,7 @@ export default function BookingPage() {
                 />
               </svg>
             </div>
-            
+
             <h1 className="text-[#eaeaea] font-bold text-2xl mb-2">
               Profile Not Found
             </h1>
@@ -278,70 +226,6 @@ export default function BookingPage() {
   // Main services selection page
   return (
     <div className="min-h-screen bg-[#1a1a1a]">
-      {/* Header */}
-      <header className="border-b border-[#444444] bg-[#2a2a2a] sticky top-0 z-40">
-        <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
-          <div className="flex items-center justify-between h-16">
-            {/* Left: Back button and logo */}
-            <div className="flex items-center gap-4">
-              <button
-                onClick={() => router.back()}
-                className="p-2 rounded-lg hover:bg-white/10 text-[#a0a0a0] hover:text-[#eaeaea] transition-colors"
-                aria-label="Go back"
-              >
-                <svg
-                  className="w-5 h-5"
-                  fill="none"
-                  stroke="currentColor"
-                  viewBox="0 0 24 24"
-                >
-                  <path
-                    strokeLinecap="round"
-                    strokeLinejoin="round"
-                    strokeWidth={2}
-                    d="M15 19l-7-7 7-7"
-                  />
-                </svg>
-              </button>
-
-              <Link href="/" className="flex items-center gap-2">
-                <div className="w-8 h-8 bg-[#d4af37] rounded-lg flex items-center justify-center">
-                  <svg
-                    className="w-5 h-5 text-[#1a1a1a]"
-                    fill="none"
-                    stroke="currentColor"
-                    viewBox="0 0 24 24"
-                  >
-                    <path
-                      strokeLinecap="round"
-                      strokeLinejoin="round"
-                      strokeWidth={2}
-                      d="M8 7V3m8 4V3m-9 8h10M5 21h14a2 2 0 002-2V7a2 2 0 00-2-2H5a2 2 0 00-2 2v12a2 2 0 002 2z"
-                    />
-                  </svg>
-                </div>
-                <span className="text-[#eaeaea] font-semibold text-lg hidden sm:block">
-                  {profile.name}
-                </span>
-              </Link>
-            </div>
-
-            {/* Right: User info */}
-            <div className="flex items-center gap-3">
-              <div className="hidden sm:block text-right">
-                <p className="text-[#eaeaea] text-sm font-medium">{user?.name}</p>
-                <p className="text-[#a0a0a0] text-xs">{user?.email}</p>
-              </div>
-              <div className="w-9 h-9 bg-[#d4af37] rounded-full flex items-center justify-center">
-                <span className="text-[#1a1a1a] font-semibold text-sm">
-                  {user?.name?.charAt(0).toUpperCase() || 'U'}
-                </span>
-              </div>
-            </div>
-          </div>
-        </div>
-      </header>
-
       {/* Main Content */}
       <main className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-8">
         {/* Page Title */}
@@ -368,7 +252,7 @@ export default function BookingPage() {
                   Select a Service
                 </h2>
               </div>
-              
+
               <ServiceSelector
                 services={profile.services}
                 selectedServiceId={selectedServiceId}

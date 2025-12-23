@@ -10,6 +10,7 @@ class BookingStatus(str, Enum):
     CONFIRMED = "CONFIRMED"
     REJECTED = "REJECTED"
     CANCELLED = "CANCELLED"
+    COMPLETED = "COMPLETED"
 
 
 class BookingCreate(BaseModel):

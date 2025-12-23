@@ -150,6 +150,131 @@ function ActionButtons({
 }
 
 /**
+ * Mobile card view for a single booking
+ */
+function BookingCard({ 
+  booking, 
+  onAction 
+}: { 
+  booking: Booking; 
+  onAction: (action: BookingAction) => void;
+}) {
+  const showApproveReject = booking.status === BookingStatus.PENDING;
+  const showCancel = booking.status === BookingStatus.PENDING || 
+                     booking.status === BookingStatus.CONFIRMED;
+
+  return (
+    <div className="bg-admin-bg-card border border-admin-border rounded-lg p-4 space-y-3 hover:bg-admin-bg-hover/50 transition-colors">
+      {/* Header: Status + Actions */}
+      <div className="flex items-start justify-between gap-4">
+        <StatusBadge status={booking.status} />
+        <div className="flex items-center gap-1.5">
+          {/* View Details */}
+          <button
+            onClick={() => onAction('view')}
+            className="p-2 rounded-md text-admin-text-muted hover:text-admin-text hover:bg-admin-bg-hover transition-colors min-w-[44px] min-h-[44px] flex items-center justify-center"
+            title="View Details"
+            aria-label="View Details"
+          >
+            <svg className="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+              <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M15 12a3 3 0 11-6 0 3 3 0 016 0z" />
+              <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M2.458 12C3.732 7.943 7.523 5 12 5c4.478 0 8.268 2.943 9.542 7-1.274 4.057-5.064 7-9.542 7-4.477 0-8.268-2.943-9.542-7z" />
+            </svg>
+          </button>
+
+          {/* Approve */}
+          {showApproveReject && (
+            <button
+              onClick={() => onAction('approve')}
+              className="p-2 rounded-md text-green-500 hover:text-green-400 hover:bg-green-500/10 transition-colors min-w-[44px] min-h-[44px] flex items-center justify-center"
+              title="Approve"
+              aria-label="Approve Booking"
+            >
+              <svg className="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M5 13l4 4L19 7" />
+              </svg>
+            </button>
+          )}
+
+          {/* Reject */}
+          {showApproveReject && (
+            <button
+              onClick={() => onAction('reject')}
+              className="p-2 rounded-md text-red-500 hover:text-red-400 hover:bg-red-500/10 transition-colors min-w-[44px] min-h-[44px] flex items-center justify-center"
+              title="Reject"
+              aria-label="Reject Booking"
+            >
+              <svg className="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M6 18L18 6M6 6l12 12" />
+              </svg>
+            </button>
+          )}
+
+          {/* Cancel */}
+          {showCancel && (
+            <button
+              onClick={() => onAction('cancel')}
+              className="p-2 rounded-md text-orange-500 hover:text-orange-400 hover:bg-orange-500/10 transition-colors min-w-[44px] min-h-[44px] flex items-center justify-center"
+              title="Cancel Booking"
+              aria-label="Cancel Booking"
+            >
+              <svg className="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M10 14l2-2m0 0l2-2m-2 2l-2-2m2 2l2 2m7-2a9 9 0 11-18 0 9 9 0 0118 0z" />
+              </svg>
+            </button>
+          )}
+        </div>
+      </div>
+
+      {/* Booking Details */}
+      <div className="space-y-2.5">
+        {/* Reference */}
+        <div className="flex items-start gap-2 text-sm">
+          <span className="text-admin-text-muted min-w-[80px] font-medium">Ref:</span>
+          <span className="font-mono text-admin-primary font-medium">{booking.booking_ref}</span>
+        </div>
+
+        {/* Customer */}
+        <div className="flex items-start gap-2 text-sm">
+          <span className="text-admin-text-muted min-w-[80px] font-medium">Customer:</span>
+          <div className="flex-1">
+            <div className="font-medium text-admin-text">{booking.user_name || 'Unknown'}</div>
+            {booking.user_email && (
+              <div className="text-admin-text-muted break-all">{booking.user_email}</div>
+            )}
+          </div>
+        </div>
+
+        {/* Service */}
+        <div className="flex items-start gap-2 text-sm">
+          <span className="text-admin-text-muted min-w-[80px] font-medium">Service:</span>
+          <div className="flex-1">
+            <div className="text-admin-text">{booking.service_name || 'N/A'}</div>
+            {booking.service_price !== undefined && (
+              <div className="text-admin-primary font-semibold">₱{booking.service_price.toFixed(2)}</div>
+            )}
+          </div>
+        </div>
+
+        {/* Date/Time */}
+        <div className="flex items-start gap-2 text-sm">
+          <span className="text-admin-text-muted min-w-[80px] font-medium">Date/Time:</span>
+          <span className="text-admin-text flex-1">
+            {formatDateTime(booking.booking_date, booking.time_slot)}
+          </span>
+        </div>
+
+        {/* Created */}
+        <div className="flex items-start gap-2 text-sm">
+          <span className="text-admin-text-muted min-w-[80px] font-medium">Created:</span>
+          <span className="text-admin-text-muted">{formatDate(booking.created_at)}</span>
+        </div>
+      </div>
+    </div>
+  );
+}
+
+/**
  * Sortable column header component
  */
 function SortableHeader({
@@ -204,28 +329,49 @@ export function BookingsTable({
   // Show loading skeleton
   if (isLoading) {
     return (
-      <div className="bg-admin-bg-card border border-admin-border rounded-lg overflow-hidden">
-        <div className="overflow-x-auto">
-          <table className="w-full">
-            <thead>
-              <tr>
-                <th className="text-left text-admin-text-muted font-medium text-sm py-3 px-4 border-b border-admin-border bg-admin-bg">Ref</th>
-                <th className="text-left text-admin-text-muted font-medium text-sm py-3 px-4 border-b border-admin-border bg-admin-bg">Customer</th>
-                <th className="text-left text-admin-text-muted font-medium text-sm py-3 px-4 border-b border-admin-border bg-admin-bg">Service</th>
-                <th className="text-left text-admin-text-muted font-medium text-sm py-3 px-4 border-b border-admin-border bg-admin-bg">Date/Time</th>
-                <th className="text-left text-admin-text-muted font-medium text-sm py-3 px-4 border-b border-admin-border bg-admin-bg">Status</th>
-                <th className="text-left text-admin-text-muted font-medium text-sm py-3 px-4 border-b border-admin-border bg-admin-bg">Created</th>
-                <th className="text-left text-admin-text-muted font-medium text-sm py-3 px-4 border-b border-admin-border bg-admin-bg">Actions</th>
-              </tr>
-            </thead>
-            <tbody>
-              {[...Array(5)].map((_, i) => (
-                <SkeletonRow key={i} />
-              ))}
-            </tbody>
-          </table>
+      <>
+        {/* Desktop Loading Skeleton - Hidden on mobile */}
+        <div className="hidden lg:block bg-admin-bg-card border border-admin-border rounded-lg overflow-hidden">
+          <div className="overflow-x-auto">
+            <table className="w-full">
+              <thead>
+                <tr>
+                  <th className="text-left text-admin-text-muted font-medium text-sm py-3 px-4 border-b border-admin-border bg-admin-bg">Ref</th>
+                  <th className="text-left text-admin-text-muted font-medium text-sm py-3 px-4 border-b border-admin-border bg-admin-bg">Customer</th>
+                  <th className="text-left text-admin-text-muted font-medium text-sm py-3 px-4 border-b border-admin-border bg-admin-bg">Service</th>
+                  <th className="text-left text-admin-text-muted font-medium text-sm py-3 px-4 border-b border-admin-border bg-admin-bg">Date/Time</th>
+                  <th className="text-left text-admin-text-muted font-medium text-sm py-3 px-4 border-b border-admin-border bg-admin-bg">Status</th>
+                  <th className="text-left text-admin-text-muted font-medium text-sm py-3 px-4 border-b border-admin-border bg-admin-bg">Created</th>
+                  <th className="text-left text-admin-text-muted font-medium text-sm py-3 px-4 border-b border-admin-border bg-admin-bg">Actions</th>
+                </tr>
+              </thead>
+              <tbody>
+                {[...Array(5)].map((_, i) => (
+                  <SkeletonRow key={i} />
+                ))}
+              </tbody>
+            </table>
+          </div>
         </div>
-      </div>
+
+        {/* Mobile Loading Skeleton - Hidden on desktop */}
+        <div className="lg:hidden space-y-4">
+          {[...Array(3)].map((_, i) => (
+            <div key={i} className="bg-admin-bg-card border border-admin-border rounded-lg p-4 animate-pulse">
+              <div className="flex items-center justify-between mb-3">
+                <div className="h-6 bg-admin-bg-hover rounded-full w-24" />
+                <div className="h-8 bg-admin-bg-hover rounded w-20" />
+              </div>
+              <div className="space-y-2">
+                <div className="h-4 bg-admin-bg-hover rounded w-full" />
+                <div className="h-4 bg-admin-bg-hover rounded w-3/4" />
+                <div className="h-4 bg-admin-bg-hover rounded w-5/6" />
+                <div className="h-4 bg-admin-bg-hover rounded w-2/3" />
+              </div>
+            </div>
+          ))}
+        </div>
+      </>
     );
   }
 
@@ -255,111 +401,125 @@ export function BookingsTable({
   }
 
   return (
-    <div className="bg-admin-bg-card border border-admin-border rounded-lg overflow-hidden">
-      <div className="overflow-x-auto">
-        <table className="w-full">
-          <thead>
-            <tr>
-              <SortableHeader
-                label="Ref"
-                field="booking_ref"
-                currentField={sortField}
-                direction={sortDirection}
-                onSort={onSort}
-              />
-              <SortableHeader
-                label="Customer"
-                field="user_name"
-                currentField={sortField}
-                direction={sortDirection}
-                onSort={onSort}
-              />
-              <SortableHeader
-                label="Service"
-                field="service_name"
-                currentField={sortField}
-                direction={sortDirection}
-                onSort={onSort}
-              />
-              <SortableHeader
-                label="Date/Time"
-                field="booking_date"
-                currentField={sortField}
-                direction={sortDirection}
-                onSort={onSort}
-              />
-              <SortableHeader
-                label="Status"
-                field="status"
-                currentField={sortField}
-                direction={sortDirection}
-                onSort={onSort}
-              />
-              <SortableHeader
-                label="Created"
-                field="created_at"
-                currentField={sortField}
-                direction={sortDirection}
-                onSort={onSort}
-              />
-              <th className="text-left text-admin-text-muted font-medium text-sm py-3 px-4 border-b border-admin-border bg-admin-bg">
-                Actions
-              </th>
-            </tr>
-          </thead>
-          <tbody>
-            {bookings.map((booking) => (
-              <tr key={booking.id} className="hover:bg-admin-bg-hover transition-colors">
-                <td className="py-4 px-4 border-b border-admin-border">
-                  <span className="font-mono text-sm text-admin-primary">
-                    {booking.booking_ref}
-                  </span>
-                </td>
-                <td className="py-4 px-4 border-b border-admin-border">
-                  <div>
-                    <div className="font-medium text-admin-text">
-                      {booking.user_name || 'Unknown'}
-                    </div>
-                    {booking.user_email && (
-                      <div className="text-sm text-admin-text-muted">
-                        {booking.user_email}
-                      </div>
-                    )}
-                  </div>
-                </td>
-                <td className="py-4 px-4 border-b border-admin-border">
-                  <div>
-                    <div className="text-admin-text">
-                      {booking.service_name || 'N/A'}
-                    </div>
-                    {booking.service_price !== undefined && (
-                      <div className="text-sm text-admin-text-muted">
-                        ₱{booking.service_price.toFixed(2)}
-                      </div>
-                    )}
-                  </div>
-                </td>
-                <td className="py-4 px-4 border-b border-admin-border text-admin-text">
-                  {formatDateTime(booking.booking_date, booking.time_slot)}
-                </td>
-                <td className="py-4 px-4 border-b border-admin-border">
-                  <StatusBadge status={booking.status} />
-                </td>
-                <td className="py-4 px-4 border-b border-admin-border text-admin-text-muted text-sm">
-                  {formatDate(booking.created_at)}
-                </td>
-                <td className="py-4 px-4 border-b border-admin-border">
-                  <ActionButtons
-                    booking={booking}
-                    onAction={(action) => onAction(booking.id, action)}
-                  />
-                </td>
+    <>
+      {/* Desktop Table - Hidden on mobile */}
+      <div className="hidden lg:block bg-admin-bg-card border border-admin-border rounded-lg overflow-hidden">
+        <div className="overflow-x-auto">
+          <table className="w-full">
+            <thead>
+              <tr>
+                <SortableHeader
+                  label="Ref"
+                  field="booking_ref"
+                  currentField={sortField}
+                  direction={sortDirection}
+                  onSort={onSort}
+                />
+                <SortableHeader
+                  label="Customer"
+                  field="user_name"
+                  currentField={sortField}
+                  direction={sortDirection}
+                  onSort={onSort}
+                />
+                <SortableHeader
+                  label="Service"
+                  field="service_name"
+                  currentField={sortField}
+                  direction={sortDirection}
+                  onSort={onSort}
+                />
+                <SortableHeader
+                  label="Date/Time"
+                  field="booking_date"
+                  currentField={sortField}
+                  direction={sortDirection}
+                  onSort={onSort}
+                />
+                <SortableHeader
+                  label="Status"
+                  field="status"
+                  currentField={sortField}
+                  direction={sortDirection}
+                  onSort={onSort}
+                />
+                <SortableHeader
+                  label="Created"
+                  field="created_at"
+                  currentField={sortField}
+                  direction={sortDirection}
+                  onSort={onSort}
+                />
+                <th className="text-left text-admin-text-muted font-medium text-sm py-3 px-4 border-b border-admin-border bg-admin-bg">
+                  Actions
+                </th>
               </tr>
-            ))}
-          </tbody>
-        </table>
+            </thead>
+            <tbody>
+              {bookings.map((booking) => (
+                <tr key={booking.id} className="hover:bg-admin-bg-hover transition-colors">
+                  <td className="py-4 px-4 border-b border-admin-border">
+                    <span className="font-mono text-sm text-admin-primary">
+                      {booking.booking_ref}
+                    </span>
+                  </td>
+                  <td className="py-4 px-4 border-b border-admin-border">
+                    <div>
+                      <div className="font-medium text-admin-text">
+                        {booking.user_name || 'Unknown'}
+                      </div>
+                      {booking.user_email && (
+                        <div className="text-sm text-admin-text-muted">
+                          {booking.user_email}
+                        </div>
+                      )}
+                    </div>
+                  </td>
+                  <td className="py-4 px-4 border-b border-admin-border">
+                    <div>
+                      <div className="text-admin-text">
+                        {booking.service_name || 'N/A'}
+                      </div>
+                      {booking.service_price !== undefined && (
+                        <div className="text-sm text-admin-text-muted">
+                          ₱{booking.service_price.toFixed(2)}
+                        </div>
+                      )}
+                    </div>
+                  </td>
+                  <td className="py-4 px-4 border-b border-admin-border text-admin-text">
+                    {formatDateTime(booking.booking_date, booking.time_slot)}
+                  </td>
+                  <td className="py-4 px-4 border-b border-admin-border">
+                    <StatusBadge status={booking.status} />
+                  </td>
+                  <td className="py-4 px-4 border-b border-admin-border text-admin-text-muted text-sm">
+                    {formatDate(booking.created_at)}
+                  </td>
+                  <td className="py-4 px-4 border-b border-admin-border">
+                    <ActionButtons
+                      booking={booking}
+                      onAction={(action) => onAction(booking.id, action)}
+                    />
+                  </td>
+                </tr>
+              ))}
+            </tbody>
+          </table>
+        </div>
       </div>
-    </div>
+
+      {/* Mobile Card View - Hidden on desktop */}
+      <div className="lg:hidden space-y-4">
+        {bookings.map((booking) => (
+          <BookingCard
+            key={booking.id}
+            booking={booking}
+            onAction={(action) => onAction(booking.id, action)}
+          />
+        ))}
+      </div>
+    </>
   );
 }
 

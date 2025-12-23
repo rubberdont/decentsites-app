@@ -29,7 +29,7 @@ export default function ProfileSettingsPage() {
 
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
-    
+
     try {
       setLoading(true);
       await authAPI.updateProfile(formData);
@@ -60,44 +60,6 @@ export default function ProfileSettingsPage() {
   return (
     <ProtectedRoute>
       <div className="min-h-screen bg-[#1a1a1a]">
-        {/* Header */}
-        <header className="border-b border-[#444444] bg-[#2a2a2a] sticky top-0 z-40">
-          <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
-            <div className="flex items-center justify-between h-16">
-              {/* Left: Back button and logo */}
-              <div className="flex items-center gap-4">
-                <button
-                  onClick={() => router.back()}
-                  className="p-2 rounded-lg hover:bg-white/10 text-[#a0a0a0] hover:text-[#eaeaea] transition-colors"
-                >
-                  <svg className="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                    <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M15 19l-7-7 7-7" />
-                  </svg>
-                </button>
-                <Link href="/" className="flex items-center gap-2">
-                  <div className="w-8 h-8 bg-[#d4af37] rounded-lg flex items-center justify-center">
-                    <svg className="w-5 h-5 text-[#1a1a1a]" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                      <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M8 7V3m8 4V3m-9 8h10M5 21h14a2 2 0 002-2V7a2 2 0 00-2-2H5a2 2 0 00-2 2v12a2 2 0 002 2z" />
-                    </svg>
-                  </div>
-                  <span className="text-[#eaeaea] font-semibold text-lg">BookPro</span>
-                </Link>
-              </div>
-              {/* Right: User info */}
-              <div className="flex items-center gap-3">
-                <div className="w-8 h-8 bg-[#d4af37] rounded-full flex items-center justify-center">
-                  <span className="text-[#1a1a1a] font-semibold text-sm">
-                    {user?.name?.charAt(0).toUpperCase() || user?.username?.charAt(0).toUpperCase() || 'U'}
-                  </span>
-                </div>
-                <span className="text-[#eaeaea] text-sm font-medium hidden sm:block">
-                  {user?.name || user?.username}
-                </span>
-              </div>
-            </div>
-          </div>
-        </header>
-
         {/* Main Content */}
         <main className="max-w-2xl mx-auto px-4 py-8">
           {/* Page Title */}

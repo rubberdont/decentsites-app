@@ -59,7 +59,7 @@ export function BookingFilters({ filters, onFilterChange, onClear }: BookingFilt
       <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-5 gap-4">
         {/* Search Input */}
         <div className="lg:col-span-2">
-          <label htmlFor="search" className="block text-sm text-admin-text-muted mb-1.5">
+          <label htmlFor="search" className="block text-sm font-medium text-admin-text-muted mb-2">
             Search
           </label>
           <div className="relative">
@@ -89,7 +89,7 @@ export function BookingFilters({ filters, onFilterChange, onClear }: BookingFilt
 
         {/* Status Dropdown */}
         <div>
-          <label htmlFor="status" className="block text-sm text-admin-text-muted mb-1.5">
+          <label htmlFor="status" className="block text-sm font-medium text-admin-text-muted mb-2">
             Status
           </label>
           <select
@@ -110,7 +110,7 @@ export function BookingFilters({ filters, onFilterChange, onClear }: BookingFilt
 
         {/* From Date */}
         <div>
-          <label htmlFor="start_date" className="block text-sm text-admin-text-muted mb-1.5">
+          <label htmlFor="start_date" className="block text-sm font-medium text-admin-text-muted mb-2">
             From Date
           </label>
           <input
@@ -124,7 +124,7 @@ export function BookingFilters({ filters, onFilterChange, onClear }: BookingFilt
 
         {/* To Date */}
         <div>
-          <label htmlFor="end_date" className="block text-sm text-admin-text-muted mb-1.5">
+          <label htmlFor="end_date" className="block text-sm font-medium text-admin-text-muted mb-2">
             To Date
           </label>
           <input

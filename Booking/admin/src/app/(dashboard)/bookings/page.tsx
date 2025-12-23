@@ -246,21 +246,21 @@ export default function BookingsPage() {
 
       {/* Pagination */}
       {!isLoading && !error && totalPages > 1 && (
-        <div className="mt-6 flex items-center justify-between">
-          <div className="text-sm text-admin-text-muted">
+        <div className="mt-6 flex flex-col sm:flex-row items-center justify-between gap-4">
+          <div className="text-sm text-admin-text-muted order-2 sm:order-1">
             Page {currentPage} of {totalPages}
           </div>
-          <div className="flex items-center gap-2">
+          <div className="flex items-center gap-2 order-1 sm:order-2">
             <button
               onClick={() => handlePageChange(currentPage - 1)}
               disabled={currentPage === 1}
-              className="px-3 py-2 text-sm font-medium text-admin-text bg-admin-bg-card border border-admin-border rounded-lg hover:bg-admin-bg-hover disabled:opacity-50 disabled:cursor-not-allowed transition-colors"
+              className="px-4 py-2.5 sm:py-2 text-sm font-medium text-admin-text bg-admin-bg-card border border-admin-border rounded-lg hover:bg-admin-bg-hover disabled:opacity-50 disabled:cursor-not-allowed transition-colors min-w-[90px]"
             >
               Previous
             </button>
             
-            {/* Page numbers */}
-            <div className="flex items-center gap-1">
+            {/* Page numbers - Hidden on small screens */}
+            <div className="hidden md:flex items-center gap-1">
               {[...Array(totalPages)].map((_, i) => {
                 const page = i + 1;
                 // Show first, last, current, and adjacent pages
@@ -301,10 +301,15 @@ export default function BookingsPage() {
               })}
             </div>
 
+            {/* Mobile: Just show current page / total */}
+            <div className="md:hidden px-3 py-2 text-sm font-medium text-admin-text bg-admin-bg-card border border-admin-border rounded-lg">
+              {currentPage} / {totalPages}
+            </div>
+
             <button
               onClick={() => handlePageChange(currentPage + 1)}
               disabled={currentPage === totalPages}
-              className="px-3 py-2 text-sm font-medium text-admin-text bg-admin-bg-card border border-admin-border rounded-lg hover:bg-admin-bg-hover disabled:opacity-50 disabled:cursor-not-allowed transition-colors"
+              className="px-4 py-2.5 sm:py-2 text-sm font-medium text-admin-text bg-admin-bg-card border border-admin-border rounded-lg hover:bg-admin-bg-hover disabled:opacity-50 disabled:cursor-not-allowed transition-colors min-w-[90px]"
             >
               Next
             </button>
