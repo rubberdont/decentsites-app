@@ -41,12 +41,12 @@ export default function WhyChooseUs() {
   ];
 
   return (
-    <section className="py-16 lg:py-24 bg-white dark:bg-gray-900">
+    <section className="py-16 lg:py-24 bg-[var(--bg-light)] dark:bg-[var(--bg-dark)]">
       <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
         {/* Section Header */}
         <div className="text-center mb-12">
-          <h2 className="text-3xl lg:text-5xl font-bold text-gray-900 dark:text-white mb-4">
-            Why <span className="text-[#14B8A6]">Choose Us</span>
+          <h2 className="text-3xl lg:text-5xl font-bold text-slate-900 dark:text-white mb-4">
+            Why <span className="text-[var(--primary)]">Choose Us</span>
           </h2>
           <p className="text-lg text-gray-600 dark:text-gray-400 max-w-2xl mx-auto">
             Experience the difference with our professional barber services
@@ -58,9 +58,9 @@ export default function WhyChooseUs() {
           {features.map((feature, index) => (
             <div
               key={index}
-              className="group bg-white dark:bg-gray-800 p-6 rounded-2xl shadow-md hover:shadow-2xl transition-all duration-300 transform hover:-translate-y-2 border border-gray-100 dark:border-gray-700"
+              className="group bg-white dark:bg-white/5 p-6 rounded-2xl shadow-md hover:shadow-2xl transition-all duration-300 transform hover:-translate-y-2 border border-white/10"
             >
-              <div className="w-16 h-16 bg-gradient-to-br from-[#14B8A6] to-[#0F9488] rounded-xl flex items-center justify-center text-white mb-4 group-hover:scale-110 transition-transform duration-300">
+              <div className="w-16 h-16 bg-gradient-to-br from-[var(--primary)] to-[var(--primary)] brightness-90 rounded-xl flex items-center justify-center text-white mb-4 group-hover:scale-110 transition-transform duration-300">
                 {feature.icon}
               </div>
               <h3 className="text-xl font-bold text-gray-900 dark:text-white mb-3">

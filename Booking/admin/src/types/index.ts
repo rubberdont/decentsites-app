@@ -492,6 +492,160 @@ export interface OwnerListResponse {
   total_pages: number;
 }
 
+// ============================================================================
+// Landing Page Configuration Types
+// ============================================================================
+
+export interface CTAButtonConfig {
+  text: string;
+  style: 'solid' | 'outline' | 'gradient';
+  size: 'default' | 'large';
+}
+
+export interface HeroConfig {
+  title: string;
+  subtitle: string;
+  background_image_url: string;
+  cta_button: CTAButtonConfig;
+  // New Customization Fields
+  height: 'small' | 'medium' | 'large' | 'full';
+  image_fit: 'cover' | 'contain';
+  text_alignment: 'left' | 'center' | 'right';
+  font_family: 'inter' | 'playfair' | 'roboto' | 'lora';
+  title_font_size: 'small' | 'medium' | 'large' | 'xl';
+  subtitle_font_size: 'small' | 'medium' | 'large';
+}
+
+export interface PortfolioItem {
+  id: string;
+  image_url: string;
+  title: string;
+  alt_text: string;
+}
+
+export interface SocialStat {
+  id: string;
+  value: string;
+  label: string;
+  platform: 'instagram' | 'facebook' | 'google' | 'twitter' | 'youtube' | 'custom';
+}
+
+export interface Testimonial {
+  id: string;
+  quote: string;
+  name: string;
+  title: string;
+}
+
+export interface SocialLinks {
+  instagram?: string;
+  facebook?: string;
+  twitter?: string;
+  youtube?: string;
+}
+
+export interface FooterConfig {
+  business_name: string;
+  address: string;
+  phone: string;
+  hours: string[];
+  social_links: SocialLinks;
+}
+
+export interface FinalCTAConfig {
+  title: string;
+  subtitle: string;
+  cta_button: CTAButtonConfig;
+  background_style: 'default' | 'accent' | 'gradient';
+}
+
+export interface SectionConfig {
+  title: string;
+  subtitle: string;
+  enabled: boolean; // Added enable toggle
+}
+
+export interface BrandingConfig {
+  primary_color: string;
+  dark_bg_color: string;
+  light_bg_color: string;
+  logo_url?: string;
+}
+
+// --- Custom Content Blocks ---
+
+export interface BaseBlock {
+  id: string;
+  type: string;
+  enabled: boolean;
+}
+
+export interface ImageTextBlock extends BaseBlock {
+  type: 'image_text';
+  layout: 'left' | 'right';
+  title: string;
+  content: string;
+  image_url: string;
+}
+
+export interface TextBlock extends BaseBlock {
+  type: 'text';
+  title?: string;
+  content: string;
+  alignment: 'left' | 'center' | 'right';
+}
+
+export interface GalleryBlock extends BaseBlock {
+  type: 'gallery';
+  title?: string;
+  layout: 'grid' | 'masonry' | 'carousel';
+  images: string[];
+}
+
+export interface FrameBlock extends BaseBlock {
+  type: 'frame';
+  url: string;
+  height: number;
+}
+
+export type ContentBlock = ImageTextBlock | TextBlock | GalleryBlock | FrameBlock;
+
+export interface LandingPageConfig {
+  id: string;
+  owner_id: string;
+  hero: HeroConfig;
+  services_section: SectionConfig;
+  portfolio_section: SectionConfig;
+  portfolio_items: PortfolioItem[];
+  stats_section: SectionConfig;
+  stats: SocialStat[];
+  testimonials_section: SectionConfig;
+  testimonials: Testimonial[];
+  final_cta: FinalCTAConfig;
+  custom_sections: ContentBlock[]; // Added custom sections
+  footer: FooterConfig;
+  branding: BrandingConfig;
+  is_published: boolean;
+  created_at?: string;
+  updated_at?: string;
+}
+
+export interface LandingPageConfigUpdate {
+  hero?: Partial<HeroConfig>;
+  services_section?: SectionConfig;
+  portfolio_section?: SectionConfig;
+  portfolio_items?: PortfolioItem[];
+  stats_section?: SectionConfig;
+  stats?: SocialStat[];
+  testimonials_section?: SectionConfig;
+  testimonials?: Testimonial[];
+  final_cta?: Partial<FinalCTAConfig>;
+  custom_sections?: ContentBlock[];
+  footer?: Partial<FooterConfig>;
+  branding?: Partial<BrandingConfig>;
+  is_published?: boolean;
+}
+
 export interface OwnerFilters {
   page?: number;
   limit?: number;

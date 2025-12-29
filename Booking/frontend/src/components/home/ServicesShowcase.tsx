@@ -3,7 +3,7 @@
 import React, { useState, useEffect } from 'react';
 import Link from 'next/link';
 import { profilesAPI } from '@/services/api';
-import type { Service } from '@/types';
+import type { Service, SectionConfig } from '@/types';
 
 // Fallback services when API fails or returns empty
 const fallbackServices = [
@@ -41,7 +41,21 @@ function formatPrice(price: number): string {
   return `₱${price.toLocaleString()}`;
 }
 
-export default function ServicesShowcase() {
+const defaultSectionConfig: SectionConfig = {
+  title: 'Signature Services',
+  subtitle: 'Experience the art of grooming with our expert services.'
+};
+
+interface ServicesShowcaseProps {
+  sectionConfig?: SectionConfig;
+}
+
+export default function ServicesShowcase({ sectionConfig }: ServicesShowcaseProps) {
+  const section = sectionConfig || defaultSectionConfig;
+
+  // If explicitly disabled, don't render
+  if (section.enabled === false) return null;
+
   const [services, setServices] = useState<Array<{
     icon: string;
     title: string;
@@ -56,7 +70,7 @@ export default function ServicesShowcase() {
         // Try to get all profiles and use the first one's services
         const response = await profilesAPI.getAll();
         const profiles = response.data;
-        
+
         if (profiles && profiles.length > 0 && profiles[0].services && profiles[0].services.length > 0) {
           const apiServices = profiles[0].services.map((service: Service) => ({
             icon: getServiceIcon(service.title),
@@ -101,7 +115,7 @@ export default function ServicesShowcase() {
   const LoadingSkeleton = () => (
     <div className="grid grid-cols-1 gap-8 md:grid-cols-2 lg:grid-cols-3">
       {[1, 2, 3].map((i) => (
-        <div 
+        <div
           key={i}
           className="flex flex-col rounded-lg border border-white/10 bg-[#f5f5f5] dark:bg-[#2a2a2a] p-8 text-center animate-pulse"
         >
@@ -121,38 +135,37 @@ export default function ServicesShowcase() {
     <section className="container mx-auto px-4 py-16 sm:py-24">
       <div className="text-center mb-12">
         <h2 className="text-3xl font-bold tracking-tight text-[#1a1a1a] dark:text-[#f5f5f5] sm:text-4xl font-display">
-          Signature Services
+          {section.title}
         </h2>
         <p className="mt-4 text-lg text-gray-600 dark:text-gray-400 font-body">
-          Experience the art of grooming with our expert services.
+          {section.subtitle}
         </p>
       </div>
 
       {isLoading ? (
         <LoadingSkeleton />
       ) : (
-        <div className={`grid grid-cols-1 gap-8 ${
-          services.length === 1 
-            ? 'md:grid-cols-1 max-w-md mx-auto' 
-            : services.length === 2 
-              ? 'md:grid-cols-2 max-w-2xl mx-auto' 
-              : 'md:grid-cols-2 lg:grid-cols-3'
-        }`}>
+        <div className={`grid grid-cols-1 gap-8 ${services.length === 1
+          ? 'md:grid-cols-1 max-w-md mx-auto'
+          : services.length === 2
+            ? 'md:grid-cols-2 max-w-2xl mx-auto'
+            : 'md:grid-cols-2 lg:grid-cols-3'
+          }`}>
           {services.map((service, index) => (
-            <div 
+            <div
               key={index}
-              className="flex flex-col rounded-lg border border-white/10 bg-[#f5f5f5] dark:bg-[#2a2a2a] p-8 text-center transition-shadow hover:shadow-xl hover:shadow-[#d4af37]/10"
+              className="flex flex-col rounded-lg border border-white/10 bg-white dark:bg-white/5 p-8 text-center transition-shadow hover:shadow-xl hover:shadow-[rgba(var(--primary-rgb),0.1)]"
             >
-              <div className="mx-auto flex h-16 w-16 items-center justify-center rounded-full bg-[#d4af37]/10 text-[#d4af37]">
+              <div className="mx-auto flex h-16 w-16 items-center justify-center rounded-full bg-[rgba(var(--primary-rgb),0.1)] text-[var(--primary)]">
                 {icons[service.icon] || icons['content_cut']}
               </div>
-              <h3 className="mt-6 text-xl font-bold font-display text-[#1a1a1a] dark:text-[#f5f5f5]">
+              <h3 className="mt-6 text-xl font-bold font-display text-slate-900 dark:text-gray-100">
                 {service.title}
               </h3>
               <p className="mt-2 text-base text-gray-600 dark:text-gray-400 font-body">
                 {service.description}
               </p>
-              <p className="mt-4 text-lg font-bold text-[#d4af37] font-display">
+              <p className="mt-4 text-lg font-bold text-[var(--primary)] font-display">
                 {service.price}
               </p>
             </div>
@@ -163,7 +176,7 @@ export default function ServicesShowcase() {
       <div className="text-center mt-12">
         <Link
           href="/book"
-          className="inline-flex items-center gap-2 text-[#d4af37] hover:text-[#c9a432] font-semibold text-lg transition-colors font-display"
+          className="inline-flex items-center gap-2 text-[var(--primary)] hover:opacity-80 font-semibold text-lg transition-colors font-display"
         >
           View All Services
           <svg className="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">

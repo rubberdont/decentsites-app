@@ -47,6 +47,8 @@ import type {
   OwnerUpdate,
   OwnerListResponse,
   OwnerFilters,
+  LandingPageConfig,
+  LandingPageConfigUpdate,
 } from '@/types';
 
 // ============================================================================
@@ -665,6 +667,13 @@ export const superadminAPI = {
    */
   resetOwnerPassword: (id: string): Promise<AxiosResponse<{ message: string }>> =>
     api.post(`/superadmin/owners/${id}/reset-password`),
+};
+
+export const landingAPI = {
+  getConfig: (): Promise<AxiosResponse<LandingPageConfig>> => api.get('/landing/config'),
+  updateConfig: (data: LandingPageConfigUpdate): Promise<AxiosResponse<LandingPageConfig>> => api.put('/landing/config', data),
+  publish: (): Promise<AxiosResponse<LandingPageConfig>> => api.post('/landing/config/publish'),
+  unpublish: (): Promise<AxiosResponse<LandingPageConfig>> => api.post('/landing/config/unpublish'),
 };
 
 // ============================================================================

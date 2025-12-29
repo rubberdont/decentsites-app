@@ -14,6 +14,7 @@ from modules.owners.routes import router as owners_router
 from modules.availability.routes import router as availability_router
 from modules.admin.routes import router as admin_router
 from modules.superadmin.routes import router as superadmin_router
+from modules.landing.routes import router as landing_router
 
 app = FastAPI(title="Booking App API", version="1.0.0")
 
@@ -37,6 +38,7 @@ app.include_router(owners_router)
 app.include_router(availability_router)
 app.include_router(admin_router)
 app.include_router(superadmin_router)
+app.include_router(landing_router)
 
 @app.get("/")
 async def root():
@@ -109,6 +111,11 @@ async def startup_db_client():
         db.booking_notes.create_index("booking_id", unique=True)
         db.booking_notes.create_index("profile_id")
         print("✓ Created booking_notes indexes")
+        
+        # Landing configs indexes
+        db.landing_configs.create_index("owner_id", unique=True)
+        db.landing_configs.create_index("is_published")
+        print("✓ Created landing_configs indexes")
         
     except Exception as e:
         print(f"✗ Failed to connect to MongoDB: {str(e)}")

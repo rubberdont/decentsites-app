@@ -21,6 +21,7 @@ import type {
   AvailabilityCreate,
   DateAvailability,
   SlotCapacityUpdate,
+  LandingPageConfig,
 } from '@/types';
 
 interface ServerTimeResponse {
@@ -221,6 +222,12 @@ export const availabilityAPI = {
 export const utilityAPI = {
   getServerTime: () =>
     api.get<ServerTimeResponse>('/server-time'),
+};
+
+// Landing API
+export const landingAPI = {
+  getPublicConfig: () => 
+    api.get<LandingPageConfig>('/landing/public'),
 };
 
 export default api;

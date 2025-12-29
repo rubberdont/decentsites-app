@@ -65,11 +65,11 @@ const navItems: NavItem[] = [
     ),
   },
   {
-    name: 'Analytics',
-    href: '/analytics',
+    name: 'Website Editor',
+    href: '/landing-editor',
     icon: (
       <svg className="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-        <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M9 19v-6a2 2 0 00-2-2H5a2 2 0 00-2 2v6a2 2 0 002 2h2a2 2 0 002-2zm0 0V9a2 2 0 012-2h2a2 2 0 012 2v10m-6 0a2 2 0 002 2h2a2 2 0 002-2m0 0V5a2 2 0 012-2h2a2 2 0 012 2v14a2 2 0 01-2 2h-2a2 2 0 01-2-2z" />
+        <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M3.055 11H5a2 2 0 012 2v1a2 2 0 002 2 2 2 0 012 2v2.945M8 3.935V5.5A2.5 2.5 0 0010.5 8h.5a2 2 0 012 2 2 2 0 104 0 2 2 0 012-2h1.064M15 20.488V18a2 2 0 012-2h3.064M21 12a9 9 0 11-18 0 9 9 0 0118 0z" />
       </svg>
     ),
   },
@@ -124,11 +124,11 @@ export function Sidebar({
   const isSuperAdmin = user?.role === UserRole.SUPERADMIN;
 
   // Build the nav items list based on role
-  const displayNavItems = isSuperAdmin 
+  const displayNavItems = isSuperAdmin
     ? [
-        ownerNavItem,
-        navItems.find(item => item.name === 'Analytics')!,
-      ]
+      ownerNavItem,
+      navItems.find(item => item.name === 'Analytics')!,
+    ]
     : navItems;
 
   /**
@@ -184,7 +184,7 @@ export function Sidebar({
               <span className="text-lg font-semibold text-admin-text">BookingAdmin</span>
             </Link>
           )}
-          
+
           {/* Collapse Toggle */}
           <button
             onClick={onToggleCollapse}
@@ -252,7 +252,7 @@ export function Sidebar({
               <div className="w-10 h-10 bg-admin-primary rounded-full flex items-center justify-center text-white font-medium flex-shrink-0">
                 {getUserInitials()}
               </div>
-              
+
               {/* User Info */}
               <div className="flex-1 min-w-0">
                 <p className="text-sm font-medium text-admin-text truncate">
@@ -262,7 +262,7 @@ export function Sidebar({
                   {user?.email || user?.username || ''}
                 </p>
               </div>
-              
+
               {/* Logout Button */}
               <button
                 onClick={logout}
@@ -280,7 +280,7 @@ export function Sidebar({
               <div className="w-10 h-10 bg-admin-primary rounded-full flex items-center justify-center text-white font-medium">
                 {getUserInitials()}
               </div>
-              
+
               {/* Collapsed Logout */}
               <button
                 onClick={logout}
