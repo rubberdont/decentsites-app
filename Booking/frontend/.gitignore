@@ -39,3 +39,11 @@ yarn-error.log*
 # typescript
 *.tsbuildinfo
 next-env.d.ts
+
+# Moat task system
+.moat/
+
+# Claude Code configuration
+.claude/
+
+.opencode/
