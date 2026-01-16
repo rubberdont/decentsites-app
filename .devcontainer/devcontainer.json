@@ -42,7 +42,7 @@
 	},
 
 	// Install dependencies after container is created
-	"postCreateCommand": "cd Booking/backend && pip install -r requirements.txt && cd ../frontend && npm install && cd ../admin && npm install",
+	"postCreateCommand": "bash .devcontainer/setup-env.sh && cd Booking/backend && pip install -r requirements.txt && cd ../frontend && npm install && cd ../admin && npm install",
 
 	// VS Code customizations
 	"customizations": {
@@ -95,7 +95,7 @@
 
 	// Environment variables
 	"remoteEnv": {
-		"MONGODB_URI": "mongodb+srv://bernatlas:bernatlas2376@cluster0.ejwbez4.mongodb.net/",
+		"MONGODB_URI": "${containerEnv:MONGODB_URI}",
 		"MONGODB_DATABASE": "booking_app"
 	},
 
