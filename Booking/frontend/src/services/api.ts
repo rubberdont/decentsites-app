@@ -33,14 +33,16 @@ interface ServerTimeResponse {
 // Client-side: use public URL (goes through Cloudflare)
 const getApiBaseUrl = () => {
   if (typeof window === 'undefined') {
-    // Server-side: use internal URL if available
-    return process.env.INTERNAL_API_URL || process.env.NEXT_PUBLIC_API_URL || 'http://localhost:1301';
+    // SSR: Direct connection to backend (server-to-server, no browser)
+    return process.env.INTERNAL_API_URL || 'http://localhost:1301';
   }
-  // Client-side: use public URL
-  return process.env.NEXT_PUBLIC_API_URL || 'http://localhost:1301';
+  // CSR: Use relative URL - proxied by Next.js to avoid Mixed Content
+  return '';
 };
 
-const API_BASE = getApiBaseUrl();
+// Use relative URL - proxied by Next.js rewrite rule
+// This ensures API calls go through the same origin (HTTPS)
+const API_BASE = '';
 
 // Create axios instance with base configuration
 const api = axios.create({
