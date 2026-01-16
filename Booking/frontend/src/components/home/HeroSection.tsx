@@ -91,18 +91,18 @@ export default function HeroSection({ config }: HeroSectionProps) {
     }
   };
 
-  const containerClasses = `flex flex-col justify-center gap-6 rounded-xl bg-no-repeat p-8 ${getHeightClass(heroConfig.height)} ${heroConfig.image_fit === 'contain' ? 'bg-contain bg-center' : 'bg-cover bg-center'} ${getAlignClass(heroConfig.text_alignment)}`;
+  const containerClasses = `flex flex-col justify-center gap-6 rounded-xl bg-no-repeat px-4 py-8 ${getHeightClass(heroConfig.height)} ${heroConfig.image_fit === 'contain' ? 'bg-contain bg-center' : 'bg-cover bg-center'} ${getAlignClass(heroConfig.text_alignment)}`;
 
   return (
     <section className="relative">
-      <div className="container mx-auto px-4 py-12 md:py-20">
+      <div className="w-full py-12 md:py-20">
         <div
           className={containerClasses}
           style={{
             backgroundImage: `linear-gradient(rgba(26, 26, 26, 0.5) 0%, rgba(26, 26, 26, 0.8) 100%), url("${heroConfig.background_image_url}")`
           }}
         >
-          <div className={`flex flex-col gap-4 max-w-3xl ${heroConfig.text_alignment === 'right' ? 'items-end' : heroConfig.text_alignment === 'left' ? 'items-start' : 'items-center'}`}>
+          <div className={`flex flex-col gap-4 max-w-3xl mx-auto ${heroConfig.text_alignment === 'right' ? 'items-end' : heroConfig.text_alignment === 'left' ? 'items-start' : 'items-center'}`}>
             <h1 className={`${getTitleSize(heroConfig.title_font_size)} font-black tracking-tighter text-white ${getFontFamily(heroConfig.font_family)}`}>
               {heroConfig.title}
             </h1>

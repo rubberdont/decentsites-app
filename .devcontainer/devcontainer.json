@@ -1,0 +1,109 @@
+// For format details, see https://aka.ms/devcontainer.json. For config options, see the
+// README at: https://github.com/devcontainers/templates/tree/main/src/typescript-node
+{
+	"name": "Booking App - Full Stack",
+	"image": "mcr.microsoft.com/devcontainers/typescript-node:1-22-bookworm",
+	
+	// Additional features for full-stack development
+	"features": {
+		"ghcr.io/devcontainers/features/python:1": {
+			"version": "3.11"
+		},
+		"ghcr.io/devcontainers/features/docker-in-docker:2": {},
+		"ghcr.io/devcontainers/features/git:1": {}
+	},
+
+	// Forward ports for all services
+	"forwardPorts": [
+		1301,  // Backend API
+		1401,  // Frontend
+		1302,  // Admin
+		27017  // MongoDB (if running locally)
+	],
+	
+	// Port attributes for better organization
+	"portsAttributes": {
+		"1301": {
+			"label": "Backend API",
+			"onAutoForward": "notify"
+		},
+		"1401": {
+			"label": "Frontend",
+			"onAutoForward": "notify"
+		},
+		"1302": {
+			"label": "Admin",
+			"onAutoForward": "notify"
+		},
+		"27017": {
+			"label": "MongoDB",
+			"onAutoForward": "ignore"
+		}
+	},
+
+	// Install dependencies after container is created
+	"postCreateCommand": "cd Booking/backend && pip install -r requirements.txt && cd ../frontend && npm install && cd ../admin && npm install",
+
+	// VS Code customizations
+	"customizations": {
+		"vscode": {
+			"settings": {
+				"terminal.integrated.defaultProfile.linux": "zsh",
+				"python.defaultInterpreterPath": "/usr/local/bin/python",
+				"python.linting.enabled": true,
+				"python.linting.pylintEnabled": true,
+				"python.formatting.provider": "black",
+				"editor.formatOnSave": true,
+				"editor.codeActionsOnSave": {
+					"source.fixAll.eslint": "explicit"
+				},
+				"typescript.tsdk": "node_modules/typescript/lib",
+				"files.exclude": {
+					"**/__pycache__": true,
+					"**/.next": true,
+					"**/node_modules": true
+				}
+			},
+			"extensions": [
+				// Python extensions
+				"ms-python.python",
+				"ms-python.vscode-pylance",
+				
+				// JavaScript/TypeScript extensions
+				"dbaeumer.vscode-eslint",
+				"esbenp.prettier-vscode",
+				
+				// Framework-specific
+				"bradlc.vscode-tailwindcss",
+				
+				// Database
+				"mongodb.mongodb-vscode",
+				
+				// Docker
+				"ms-azuretools.vscode-docker",
+				
+				// Git
+				"eamodio.gitlens",
+				
+				// Utilities
+				"christian-kohler.path-intellisense",
+				"formulahendry.auto-rename-tag",
+				"streetsidesoftware.code-spell-checker"
+			]
+		}
+	},
+
+	// Environment variables
+	"remoteEnv": {
+		"MONGODB_URI": "mongodb+srv://bernatlas:bernatlas2376@cluster0.ejwbez4.mongodb.net/",
+		"MONGODB_DATABASE": "booking_app"
+	},
+
+	// Container user (non-root for security)
+	"remoteUser": "node",
+	
+	// Mount docker socket for docker-in-docker
+	"mounts": [
+		"source=/var/run/docker.sock,target=/var/run/docker.sock,type=bind"
+	]
+}

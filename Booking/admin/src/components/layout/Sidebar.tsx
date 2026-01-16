@@ -125,10 +125,7 @@ export function Sidebar({
 
   // Build the nav items list based on role
   const displayNavItems = isSuperAdmin
-    ? [
-      ownerNavItem,
-      navItems.find(item => item.name === 'Analytics')!,
-    ]
+    ? [ownerNavItem]
     : navItems;
 
   /**
