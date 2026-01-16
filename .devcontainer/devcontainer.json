@@ -96,7 +96,8 @@
 	// Environment variables
 	"remoteEnv": {
 		"MONGODB_URI": "${containerEnv:MONGODB_URI}",
-		"MONGODB_DATABASE": "booking_app"
+		"MONGODB_DATABASE": "booking_app",
+		"DEFAULT_OWNER_ID": "${containerEnv:DEFAULT_OWNER_ID}"
 	},
 
 	// Container user (non-root for security)
