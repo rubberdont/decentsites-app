@@ -9,6 +9,8 @@ if [ -f "Booking/backend/.env.example" ]; then
   # Replace placeholders with secrets
   sed -i "s|your-mongodb-uri-here|${MONGODB_URI}|g" Booking/backend/.env
   sed -i "s|your-owner-id-here|${DEFAULT_OWNER_ID}|g" Booking/backend/.env
+  # Add CORS_ORIGINS to backend .env for Codespaces and local dev
+  echo "CORS_ORIGINS=http://localhost:1401,http://localhost:1302,*.app.github.dev,*.github.dev" >> Booking/backend/.env
   echo "✓ Backend .env created"
 fi
 

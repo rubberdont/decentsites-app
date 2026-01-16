@@ -19,7 +19,7 @@ from modules.landing.routes import router as landing_router
 app = FastAPI(title="Booking App API", version="1.0.0")
 
 # Configure CORS - get origins from environment variable
-cors_origins_str = os.getenv("CORS_ORIGINS", "http://localhost:1401,http://localhost:1302")
+cors_origins_str = os.getenv("CORS_ORIGINS", "http://localhost:1401,http://localhost:1302,*.app.github.dev,*.github.dev")
 cors_origins = [origin.strip() for origin in cors_origins_str.split(",")]
 
 app.add_middleware(
