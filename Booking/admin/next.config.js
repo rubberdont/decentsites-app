@@ -5,6 +5,14 @@ const nextConfig = {
     '*.app.github.dev',
     '*.github.dev'
   ],
+  async rewrites() {
+    return [
+      {
+        source: '/api/:path*',
+        destination: 'http://localhost:1301/:path*',
+      },
+    ];
+  },
   output: 'standalone',
   reactStrictMode: true,
   env: {
