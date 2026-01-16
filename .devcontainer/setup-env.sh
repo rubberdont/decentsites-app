@@ -10,13 +10,13 @@ if [ -f "Booking/backend/.env.example" ]; then
   sed -i "s|your-mongodb-uri-here|${MONGODB_URI}|g" Booking/backend/.env
   sed -i "s|your-owner-id-here|${DEFAULT_OWNER_ID}|g" Booking/backend/.env
   # Add CORS_ORIGINS to backend .env for Codespaces and local dev
-  echo "CORS_ORIGINS=http://localhost:1401,http://localhost:1302,*.app.github.dev,*.github.dev" >> Booking/backend/.env
+  echo "CORS_ORIGINS=http://0.0.0.0:1401,http://0.0.0.0:1302,*.app.github.dev,*.github.dev" >> Booking/backend/.env
   echo "✓ Backend .env created"
 fi
 
 # Frontend .env.local
 if [ -f "Booking/frontend/.env.example" ]; then
-  cp Booking/frontend/.env.example Booking/frontend/.env.local 2>/dev/null || echo "NEXT_PUBLIC_API_URL=http://localhost:1301" > Booking/frontend/.env.local
+  cp Booking/frontend/.env.example Booking/frontend/.env.local 2>/dev/null || echo "NEXT_PUBLIC_API_URL=http://0.0.0.0:1301" > Booking/frontend/.env.local
   echo "✓ Frontend .env.local created"
 fi
 
