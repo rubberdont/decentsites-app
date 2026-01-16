@@ -4,10 +4,8 @@ const nextConfig = {
   async rewrites() {
     return [
       {
-        // Match all backend API paths (auth, profiles, bookings, admin, etc.)
-        // Exclude Next.js internal paths (_next, static, favicon.ico)
-        source: "/((?!_next|static|favicon.ico).*)",
-        destination: "http://localhost:1301/",
+        source: "/:path*",
+        destination: "http://localhost:1301/:path*",
       },
     ];
   },
