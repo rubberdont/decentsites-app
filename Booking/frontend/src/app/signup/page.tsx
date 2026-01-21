@@ -56,7 +56,7 @@ export default function SignupPage() {
 
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
-    
+
     if (!validateForm()) {
       return;
     }
@@ -70,11 +70,11 @@ export default function SignupPage() {
         name: formData.name,
         password: formData.password,
       });
-      router.push('/profiles');
+      router.push('/login');
     } catch (error: unknown) {
       console.error('Registration failed:', error);
       setError(
-        (error as { response?: { data?: { detail?: string } } }).response?.data?.detail || 
+        (error as { response?: { data?: { detail?: string } } }).response?.data?.detail ||
         'Registration failed. Please try again.'
       );
     } finally {
