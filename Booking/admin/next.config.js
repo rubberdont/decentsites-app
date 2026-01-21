@@ -1,5 +1,6 @@
 /** @type {import('next').NextConfig} */
 const nextConfig = {
+  output: "standalone",
   allowedDevOrigins: ["localhost", "*.app.github.dev", "*.github.dev"],
   async rewrites() {
     return [
