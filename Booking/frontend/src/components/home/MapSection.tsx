@@ -1,6 +1,13 @@
 'use client';
 
 export default function MapSection() {
+    const address = "TheJay Hair Studio, Villa Remedios East, Calle Excelente, Calamba, Laguna";
+
+    const handleMapClick = () => {
+        const encodedAddress = encodeURIComponent(address);
+        window.open(`https://www.google.com/maps/search/?api=1&query=${encodedAddress}`, '_blank');
+    };
+
     return (
         <section className="bg-white dark:bg-[#1a1a1a] py-16">
             <div className="container mx-auto px-4">
@@ -13,13 +20,19 @@ export default function MapSection() {
                     </p>
                 </div>
                 <div className="w-full h-[400px] bg-gray-200 dark:bg-gray-800 rounded-xl overflow-hidden relative">
-                    <img 
-                        src="https://images.unsplash.com/photo-1526778548025-fa2f459cd5c1?auto=format&fit=crop&q=80&w=1504&h=400" 
-                        alt="Location Map"
+                    <img
+                        src="/map.png"
+                        alt="Map"
                         className="w-full h-full object-cover"
                     />
                     <div className="absolute inset-0 flex items-center justify-center bg-black/10">
-                        <div className="bg-white/90 dark:bg-gray-900/90 backdrop-blur-sm p-4 rounded-lg shadow-lg border border-white/20">
+                        <div
+                            onClick={handleMapClick}
+                            onKeyDown={(e) => e.key === 'Enter' && handleMapClick()}
+                            role="button"
+                            tabIndex={0}
+                            className="bg-white/90 dark:bg-gray-900/90 backdrop-blur-sm p-4 rounded-lg shadow-lg border border-white/20 cursor-pointer hover:scale-105 transition-transform duration-200 focus:outline-none focus:ring-2 focus:ring-[#d4af37]"
+                        >
                             <div className="flex items-center gap-3">
                                 <div className="p-2 bg-[#d4af37] rounded-full">
                                     <svg className="w-5 h-5 text-white" fill="none" stroke="currentColor" viewBox="0 0 24 24">
@@ -28,8 +41,8 @@ export default function MapSection() {
                                     </svg>
                                 </div>
                                 <div>
-                                    <h3 className="font-bold text-[#1a1a1a] dark:text-[#f5f5f5]">Our Studio</h3>
-                                    <p className="text-sm text-gray-600 dark:text-gray-400">123 Barber Street, City Center</p>
+                                    <h3 className="font-bold text-[#1a1a1a] dark:text-[#f5f5f5]">My Shop</h3>
+                                    <p className="text-sm text-gray-600 dark:text-gray-400">{address}</p>
                                 </div>
                             </div>
                         </div>
