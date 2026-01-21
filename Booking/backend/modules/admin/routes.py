@@ -14,7 +14,7 @@ from datetime import datetime
 import math
 
 from modules.auth.security import require_owner
-from modules.auth.models import UserCredentials
+from modules.auth.models import UserCredentials, UserRole
 from modules.profiles.repository import ProfileRepository
 from core.mongo_helper import mongo_db
 
@@ -107,6 +107,51 @@ def verify_booking_ownership(booking_id: str, profile_id: str) -> dict:
     return booking
 
 
+def verify_owner_can_access_booking(booking_id: str, profile_id: str, owner_user_id: str) -> dict:
+    """
+    Verify that an owner can access a booking.
+    
+    Owner can access if:
+    - Booking is for their profile, OR
+    - Booking's customer belongs to them (customer.owner_id == owner_user_id)
+    
+    Args:
+        booking_id: The booking ID
+        profile_id: The owner's profile ID
+        owner_user_id: The owner's user ID
+        
+    Returns:
+        Booking document
+        
+    Raises:
+        HTTPException: If booking not found or owner cannot access it
+    """
+    booking = AdminRepository.get_booking_with_details(booking_id)
+    
+    if not booking:
+        raise HTTPException(
+            status_code=http_status.HTTP_404_NOT_FOUND,
+            detail="Booking not found"
+        )
+    
+    # Check if booking is for owner's profile
+    if booking.get("profile_id") == profile_id:
+        return booking
+    
+    # Check if booking's customer belongs to owner
+    db = mongo_db.get_database()
+    customer = db.users.find_one({"id": booking.get("user_id")})
+    
+    if customer and customer.get("owner_id") == owner_user_id:
+        return booking
+    
+    # Owner cannot access this booking
+    raise HTTPException(
+        status_code=http_status.HTTP_403_FORBIDDEN,
+        detail="You don't have access to this booking"
+    )
+
+
 def verify_customer_has_bookings(customer_id: str, profile_id: str) -> bool:
     """
     Verify that a customer has bookings with the owner's profile.
@@ -152,11 +197,12 @@ async def list_bookings(
     """
     List all bookings with filters and pagination.
     
+    - ADMIN/SUPERADMIN: Can see ALL bookings across all profiles
+    - OWNER: Can only see bookings from their own profile
+    
     Supports filtering by status, date range, and search.
     Search matches customer name, email, username, or booking reference.
     """
-    profile_id = get_owner_profile_id(current_user.user_id)
-    
     # Validate status if provided
     if status and status not in [s.value for s in BookingStatus]:
         raise HTTPException(
@@ -164,14 +210,27 @@ async def list_bookings(
             detail=f"Invalid status. Must be one of: {[s.value for s in BookingStatus]}"
         )
     
-    # Prepare filters
+    # Prepare filters (without profile_id initially)
     filters = {
-        "profile_id": profile_id,
         "status": status,
         "search": search,
         "start_date": start_date,
         "end_date": end_date
     }
+    
+    # Role-based filtering:
+    # - ADMIN/SUPERADMIN: See all bookings (no filter)
+    # - OWNER: See bookings from their profile OR from their customers
+    if current_user.role in [UserRole.ADMIN, UserRole.SUPERADMIN]:
+        # Don't add any filter - admins see all bookings
+        pass
+    else:
+        # OWNER role - filter by profile ownership OR customer ownership
+        profile_id = get_owner_profile_id(current_user.user_id)
+        filters["owner_scope"] = {
+            "profile_id": profile_id,
+            "owner_user_id": current_user.user_id
+        }
     
     # Determine sort order
     sort_order_val = -1 if sort_order.lower() == "desc" else 1
@@ -232,10 +291,20 @@ async def get_booking(
     
     Includes customer information, service details, and admin notes.
     """
-    profile_id = get_owner_profile_id(current_user.user_id)
-    booking = verify_booking_ownership(booking_id, profile_id)
+    # Admins can view any booking
+    if current_user.role in [UserRole.ADMIN, UserRole.SUPERADMIN]:
+        booking = AdminRepository.get_booking_with_details(booking_id)
+        if not booking:
+            raise HTTPException(
+                status_code=http_status.HTTP_404_NOT_FOUND,
+                detail="Booking not found"
+            )
+    else:
+        # Owners can view bookings from their profile OR their customers
+        profile_id = get_owner_profile_id(current_user.user_id)
+        booking = verify_owner_can_access_booking(booking_id, profile_id, current_user.user_id)
     
-    # Get booking notes
+    # Get booking notes (common for both cases)
     notes = AdminRepository.get_booking_notes(booking_id)
     booking["admin_notes_list"] = notes
     

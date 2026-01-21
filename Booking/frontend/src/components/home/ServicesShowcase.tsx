@@ -2,6 +2,7 @@
 
 import React, { useState, useEffect } from 'react';
 import Link from 'next/link';
+import { motion } from 'framer-motion';
 import { profilesAPI } from '@/services/api';
 import type { Service, SectionConfig } from '@/types';
 
@@ -151,27 +152,46 @@ export default function ServicesShowcase({ sectionConfig }: ServicesShowcaseProp
         {isLoading ? (
           <LoadingSkeleton />
         ) : (
-          <div className={`grid grid-cols-1 gap-8 ${services.length === 1
+          <motion.div 
+            initial={{ opacity: 0, y: 50 }}
+            whileInView={{ opacity: 1, y: 0 }}
+            viewport={{ once: true, margin: "-100px" }}
+            transition={{ 
+              type: "spring",
+              stiffness: 100,
+              damping: 20,
+              duration: 0.8
+            }}
+            className={`grid grid-cols-1 gap-8 ${services.length === 1
             ? 'md:grid-cols-1 max-w-md mx-auto'
             : services.length === 2
               ? 'md:grid-cols-2 max-w-2xl mx-auto'
               : 'md:grid-cols-2 lg:grid-cols-3'
             }`}>
             {services.map((service, index) => (
-              <div
+              <motion.div
                 key={index}
-                className="group relative flex flex-col overflow-hidden rounded-lg border border-white/10 p-8 text-center transition-all hover:shadow-2xl"
+                initial={{ opacity: 0, scale: 0.9 }}
+                whileInView={{ opacity: 1, scale: 1 }}
+                viewport={{ once: true }}
+                transition={{ 
+                  type: "spring",
+                  stiffness: 100,
+                  damping: 15,
+                  delay: index * 0.1 
+                }}
+                className="group relative flex flex-col overflow-hidden rounded-lg border border-white/10 bg-[#f8f9fa] dark:bg-[#1a1a1a] p-8 text-center transition-all hover:shadow-2xl"
               >
                 {/* Individual Service Blurred Background */}
                 {service.image_url && (
                   <div 
-                    className="absolute inset-0 z-0 bg-cover bg-center bg-no-repeat opacity-20 dark:opacity-20 blur-sm scale-105 transition-transform duration-500 group-hover:scale-110"
+                    className="absolute inset-0 z-0 bg-cover bg-center bg-no-repeat opacity-40 dark:opacity-20 blur-sm scale-105 transition-transform duration-500 group-hover:scale-110"
                     style={{ backgroundImage: `url("${service.image_url}")` }}
                   />
                 )}
                 
                 {/* Content Overlay */}
-                <div className="relative z-10 flex flex-col h-full bg-white/40 dark:bg-black/20 backdrop-blur-[2px] -m-8 p-8">
+                <div className="relative z-10 flex flex-col h-full">
                   <div className="mx-auto flex h-16 w-16 items-center justify-center rounded-full bg-[rgba(var(--primary-rgb),0.2)] text-[var(--primary)] shadow-lg">
                     {icons[service.icon] || icons['content_cut']}
                   </div>
@@ -185,9 +205,9 @@ export default function ServicesShowcase({ sectionConfig }: ServicesShowcaseProp
                     {service.price}
                   </p>
                 </div>
-              </div>
+              </motion.div>
             ))}
-          </div>
+          </motion.div>
         )}
 
         <div className="text-center mt-12">

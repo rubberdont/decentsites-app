@@ -56,7 +56,7 @@ export default function LoginPage() {
       <div 
         className="absolute inset-0 z-0 h-full w-full bg-cover bg-center bg-no-repeat opacity-20"
         style={{
-          backgroundImage: `url('https://lh3.googleusercontent.com/aida-public/AB6AXuDekmvR-_w5cngIUbjzLqYUsL92hoQuWorKq46x4GChsKt7JSIF7fhuwicl8l1ZcpjOHdWDzwJnGh5STpzgo-Tpk92UAdzadrLT56L_4xsHgMOrCQqHwKNM3rltM_SWete1qP_zxPC0qqz2cGpWKDSUTXT40Kk0tk585hT1t6AHeanRH_kDABVw39Bow5vZW3EsRKVAzZhqhIi_tH-KvGkoHvzXiQtgzL9ugvUCh3Dxq-EcNTVjkaM8Sz1Ed1k7sYaykr4SRGtSVOk')`
+          backgroundImage: `url('https://images.unsplash.com/photo-1503951914875-452162b0f3f1?q=80&w=2070&auto=format&fit=crop')`
         }}
       />
 

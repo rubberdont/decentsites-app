@@ -46,3 +46,9 @@ logs
 
 # OS
 Thumbs.db
+
+# Moat task system
+.moat/
+
+# Claude Code configuration
+.claude/

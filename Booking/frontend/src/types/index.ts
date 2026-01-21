@@ -212,7 +212,7 @@ export interface SocialStat {
   id: string;
   value: string;
   label: string;
-  platform: 'instagram' | 'facebook' | 'google' | 'twitter' | 'youtube' | 'custom';
+  platform: 'instagram' | 'facebook' | 'tiktok';
 }
 
 export interface Testimonial {

@@ -63,8 +63,8 @@ const getApiBaseUrl = () => {
     // SSR: Direct connection to backend (server-to-server, no browser)
     return process.env.INTERNAL_API_URL || 'http://localhost:1301';
   }
-  // CSR: Use relative URL - proxied by Next.js to avoid Mixed Content
-  return '';
+  // CSR: Use /api prefix - proxied by Next.js rewrite
+  return '/api';
 };
 
 const API_BASE = getApiBaseUrl();

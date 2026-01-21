@@ -93,8 +93,8 @@ export default function ProfileSettingsPage() {
           {/* Profile Form */}
           <div className="bg-[#2a2a2a] rounded-xl border border-[#444444] p-6">
             <form onSubmit={handleSubmit} className="space-y-6">
-              {/* Username (Read-only) */}
-              <div>
+              {/* Username (Read-only) - Hidden but kept for form data if needed */}
+              <div className="hidden">
                 <label className="block text-sm font-medium text-[#a0a0a0] mb-2">
                   Username
                 </label>
@@ -133,24 +133,8 @@ export default function ProfileSettingsPage() {
                 />
               </div>
 
-              {/* Role Display */}
-              <div>
-                <label className="block text-sm font-medium text-[#a0a0a0] mb-2">
-                  Account Role
-                </label>
-                <div className="px-4 py-3 bg-[#1a1a1a] border border-[#444444] rounded-xl">
-                  <span className="text-[#eaeaea] font-medium">{user?.role || 'USER'}</span>
-                </div>
-              </div>
-
               {/* Actions */}
-              <div className="flex items-center justify-between pt-4 border-t border-[#444444]">
-                <Link
-                  href="/"
-                  className="text-[#d4af37] hover:text-[#c4a030] transition-colors font-medium"
-                >
-                  Cancel
-                </Link>
+              <div className="flex items-center justify-end pt-4 border-t border-[#444444]">
                 <Button
                   type="submit"
                   disabled={loading}

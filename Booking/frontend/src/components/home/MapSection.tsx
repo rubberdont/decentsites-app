@@ -12,13 +12,27 @@ export default function MapSection() {
                         Visit our premium location in the heart of the city.
                     </p>
                 </div>
-                <div className="w-full h-[400px] bg-gray-200 dark:bg-gray-800 rounded-xl flex items-center justify-center border-2 border-dashed border-gray-300 dark:border-gray-700">
-                    <div className="text-center">
-                        <svg className="w-12 h-12 mx-auto text-gray-400 mb-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                            <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M17.657 16.657L13.414 20.9a1.998 1.998 0 01-2.827 0l-4.244-4.243a8 8 0 1111.314 0z" />
-                            <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M15 11a3 3 0 11-6 0 3 3 0 016 0z" />
-                        </svg>
-                        <p className="text-gray-500 font-display font-medium">Map Integration Coming Soon</p>
+                <div className="w-full h-[400px] bg-gray-200 dark:bg-gray-800 rounded-xl overflow-hidden relative">
+                    <img 
+                        src="https://images.unsplash.com/photo-1526778548025-fa2f459cd5c1?auto=format&fit=crop&q=80&w=1504&h=400" 
+                        alt="Location Map"
+                        className="w-full h-full object-cover"
+                    />
+                    <div className="absolute inset-0 flex items-center justify-center bg-black/10">
+                        <div className="bg-white/90 dark:bg-gray-900/90 backdrop-blur-sm p-4 rounded-lg shadow-lg border border-white/20">
+                            <div className="flex items-center gap-3">
+                                <div className="p-2 bg-[#d4af37] rounded-full">
+                                    <svg className="w-5 h-5 text-white" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                        <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M17.657 16.657L13.414 20.9a1.998 1.998 0 01-2.827 0l-4.244-4.243a8 8 0 1111.314 0z" />
+                                        <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M15 11a3 3 0 11-6 0 3 3 0 016 0z" />
+                                    </svg>
+                                </div>
+                                <div>
+                                    <h3 className="font-bold text-[#1a1a1a] dark:text-[#f5f5f5]">Our Studio</h3>
+                                    <p className="text-sm text-gray-600 dark:text-gray-400">123 Barber Street, City Center</p>
+                                </div>
+                            </div>
+                        </div>
                     </div>
                 </div>
             </div>

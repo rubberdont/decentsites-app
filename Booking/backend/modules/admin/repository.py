@@ -54,9 +54,13 @@ class AdminRepository:
         """
         match_stage = {}
         
-        # Profile filter (required for admin to see only their profile's bookings)
+        # Profile filter (for backwards compatibility)
         if filters.get("profile_id"):
             match_stage["profile_id"] = filters["profile_id"]
+        
+        # Owner scope filter (profile OR customer ownership)
+        # This is applied AFTER joining with users collection
+        owner_scope = filters.get("owner_scope")
         
         # Status filter
         if filters.get("status"):
@@ -99,6 +103,17 @@ class AdminRepository:
             },
             {"$unwind": {"path": "$profile", "preserveNullAndEmptyArrays": True}},
         ]
+        
+        # Add owner scope filter if provided (must be after user join)
+        if owner_scope:
+            pipeline.append({
+                "$match": {
+                    "$or": [
+                        {"profile_id": owner_scope["profile_id"]},
+                        {"customer.owner_id": owner_scope["owner_user_id"]}
+                    ]
+                }
+            })
         
         # Search filter (on customer name, email, or booking_ref)
         if filters.get("search"):

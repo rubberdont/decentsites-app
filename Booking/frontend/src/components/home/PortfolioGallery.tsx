@@ -1,5 +1,6 @@
 'use client';
 
+import { motion } from 'framer-motion';
 import type { PortfolioItem, SectionConfig } from '@/types';
 
 // Default items (current hardcoded content)
@@ -55,9 +56,32 @@ export default function PortfolioGallery({ sectionConfig, items }: PortfolioGall
         </p>
       </div>
 
-      <div className="grid grid-cols-2 md:grid-cols-3 lg:grid-cols-4 gap-4">
-        {galleryItems.map((item) => (
-          <div key={item.id} className="group relative overflow-hidden rounded-lg aspect-[3/4]">
+      <motion.div 
+        initial={{ opacity: 0, y: 50 }}
+        whileInView={{ opacity: 1, y: 0 }}
+        viewport={{ once: true, margin: "-100px" }}
+        transition={{ 
+          type: "spring",
+          stiffness: 100,
+          damping: 20,
+          duration: 0.8
+        }}
+        className="grid grid-cols-2 md:grid-cols-3 lg:grid-cols-4 gap-4"
+      >
+        {galleryItems.map((item, index) => (
+          <motion.div 
+            key={item.id} 
+            initial={{ opacity: 0, scale: 0.9 }}
+            whileInView={{ opacity: 1, scale: 1 }}
+            viewport={{ once: true }}
+            transition={{ 
+              type: "spring",
+              stiffness: 100,
+              damping: 15,
+              delay: index * 0.1 
+            }}
+            className="group relative overflow-hidden rounded-lg aspect-[3/4]"
+          >
             <div 
               className="bg-cover bg-center w-full h-full transition-transform duration-300 group-hover:scale-110"
               style={{ backgroundImage: `url("${item.image_url}")` }}
@@ -67,9 +91,9 @@ export default function PortfolioGallery({ sectionConfig, items }: PortfolioGall
             <p className="absolute bottom-4 left-4 text-white text-lg font-bold font-display">
               {item.title}
             </p>
-          </div>
+          </motion.div>
         ))}
-      </div>
+      </motion.div>
     </section>
   );
 }

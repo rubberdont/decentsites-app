@@ -13,6 +13,8 @@ import Footer from '@/components/Footer';
 import { landingAPI } from '@/services/api';
 import type { LandingPageConfig } from '@/types';
 
+import HairReveal from '@/components/HairReveal';
+
 export default function Home() {
   const [config, setConfig] = useState<LandingPageConfig | null>(null);
   const [isLoading, setIsLoading] = useState(true);
@@ -49,6 +51,7 @@ export default function Home() {
 
   return (
     <div className="min-h-screen bg-[var(--bg-light)]" style={getStyle()}>
+      <HairReveal />
       <HeroSection config={config?.hero} />
       <ServicesShowcase sectionConfig={config?.services_section} />
       <PortfolioGallery

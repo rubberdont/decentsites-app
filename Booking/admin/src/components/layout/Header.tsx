@@ -76,35 +76,10 @@ export function Header({ onMenuClick, isSidebarCollapsed = false }: HeaderProps)
             <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M4 6h16M4 12h16M4 18h16" />
           </svg>
         </button>
-
-        {/* Search Input - Hidden for superadmin */}
-        {!isSuperAdmin && (
-          <div className="relative flex-1 max-w-md hidden sm:block">
-            <div className="absolute inset-y-0 left-0 pl-3 flex items-center pointer-events-none">
-              <svg className="w-5 h-5 text-admin-text-dark" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M21 21l-6-6m2-5a7 7 0 11-14 0 7 7 0 0114 0z" />
-              </svg>
-            </div>
-            <input
-              type="text"
-              placeholder="Search bookings, customers..."
-              className="w-full pl-10 pr-4 py-2 bg-admin-bg-input border border-admin-border rounded-lg text-admin-text placeholder:text-admin-text-dark focus:border-admin-primary focus:ring-1 focus:ring-admin-primary outline-none transition-colors"
-            />
-          </div>
-        )}
       </div>
 
       {/* Right Section - Notifications & User */}
       <div className="flex items-center gap-2 lg:gap-4">
-        {/* Mobile Search Button - Hidden for superadmin */}
-        {!isSuperAdmin && (
-          <button className="p-2 rounded-lg text-admin-text-muted hover:bg-admin-bg-hover hover:text-admin-text transition-colors sm:hidden">
-            <svg className="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-              <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M21 21l-6-6m2-5a7 7 0 11-14 0 7 7 0 0114 0z" />
-            </svg>
-          </button>
-        )}
-
         {/* Theme Toggle */}
         <ThemeToggle />
 
