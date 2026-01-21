@@ -23,7 +23,7 @@ const nextConfig: NextConfig = {
     return [
       {
         source: '/:path*',
-        destination: 'http://localhost:1301/:path*'
+        destination: `${process.env.INTERNAL_API_URL || 'http://localhost:1301'}/:path*`
       },
     ];
   },
