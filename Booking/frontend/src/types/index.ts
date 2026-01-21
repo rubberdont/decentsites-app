@@ -227,6 +227,7 @@ export interface SocialLinks {
   facebook?: string;
   twitter?: string;
   youtube?: string;
+  tiktok?: string;
 }
 
 export interface FooterConfig {

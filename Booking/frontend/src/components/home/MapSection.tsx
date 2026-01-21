@@ -31,18 +31,18 @@ export default function MapSection() {
                             onKeyDown={(e) => e.key === 'Enter' && handleMapClick()}
                             role="button"
                             tabIndex={0}
-                            className="bg-white/90 dark:bg-gray-900/90 backdrop-blur-sm p-4 rounded-lg shadow-lg border border-white/20 cursor-pointer hover:scale-105 transition-transform duration-200 focus:outline-none focus:ring-2 focus:ring-[#d4af37]"
+                            className="bg-white/90 dark:bg-gray-900/90 backdrop-blur-sm p-4 rounded-lg shadow-lg border border-white/20 cursor-pointer hover:scale-105 transition-transform duration-200 focus:outline-none focus:ring-2 focus:ring-[#d4af37] mx-4 max-w-[280px] sm:max-w-md"
                         >
                             <div className="flex items-center gap-3">
-                                <div className="p-2 bg-[#d4af37] rounded-full">
+                                <div className="p-2 bg-[#d4af37] rounded-full shrink-0">
                                     <svg className="w-5 h-5 text-white" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                                         <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M17.657 16.657L13.414 20.9a1.998 1.998 0 01-2.827 0l-4.244-4.243a8 8 0 1111.314 0z" />
                                         <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M15 11a3 3 0 11-6 0 3 3 0 016 0z" />
                                     </svg>
                                 </div>
                                 <div>
-                                    <h3 className="font-bold text-[#1a1a1a] dark:text-[#f5f5f5]">My Shop</h3>
-                                    <p className="text-sm text-gray-600 dark:text-gray-400">{address}</p>
+                                    <h3 className="font-bold text-[#1a1a1a] dark:text-[#f5f5f5] text-sm sm:text-base">My Shop</h3>
+                                    <p className="text-xs sm:text-sm text-gray-600 dark:text-gray-400 leading-tight">{address}</p>
                                 </div>
                             </div>
                         </div>
