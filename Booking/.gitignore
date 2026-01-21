@@ -32,3 +32,12 @@ yarn-error.log*
 *.tmp
 *.temp
 .cache/
+
+
+# Moat task system
+.moat/
+
+# Claude Code configuration
+.claude/
+
+.opencode/

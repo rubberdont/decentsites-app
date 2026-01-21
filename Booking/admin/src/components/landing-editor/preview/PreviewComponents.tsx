@@ -87,7 +87,8 @@ export function HeroPreview({ config }: { config: HeroConfig }) {
                 <div
                     className={containerClasses}
                     style={{
-                        backgroundImage: `linear-gradient(rgba(26, 26, 26, 0.5) 0%, rgba(26, 26, 26, 0.8) 100%), url("${config.background_image_url || 'https://via.placeholder.com/800x400'}")`
+                        backgroundImage: `linear-gradient(rgba(26, 26, 26, 0.5) 0%, rgba(26, 26, 26, 0.8) 100%), url("${config.background_image_url || 'https://via.placeholder.com/800x400'}")`,
+                        backgroundPosition: 'center bottom',
                     }}
                 >
                     <div className={`flex flex-col gap-4 max-w-3xl ${config.text_alignment === 'right' ? 'items-end' : config.text_alignment === 'left' ? 'items-start' : 'items-center'}`}>

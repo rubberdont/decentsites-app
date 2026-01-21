@@ -9,6 +9,7 @@ export default function Header() {
   const { user, isAuthenticated, logout } = useAuth();
   const [scrolled, setScrolled] = useState(false);
   const [mobileMenuOpen, setMobileMenuOpen] = useState(false);
+  const [profileDropdownOpen, setProfileDropdownOpen] = useState(false);
   const pathname = usePathname();
 
   // Hide header on auth pages
@@ -32,19 +33,18 @@ export default function Header() {
   }
 
   return (
-    <header 
-      className={`sticky top-0 z-50 w-full transition-all duration-300 ${
-        scrolled 
-          ? 'bg-[#f5f5f5]/80 dark:bg-[#1a1a1a]/80 backdrop-blur-sm border-b border-white/10' 
+    <header
+      className={`sticky top-0 z-50 w-full transition-all duration-300 ${scrolled
+          ? 'bg-[#f5f5f5]/80 dark:bg-[#1a1a1a]/80 backdrop-blur-sm border-b border-white/10'
           : 'bg-[#f5f5f5]/80 dark:bg-[#1a1a1a]/80 backdrop-blur-sm border-b border-white/10'
-      }`}
+        }`}
     >
       <div className="container mx-auto flex items-center justify-between whitespace-nowrap px-4 py-3">
         {/* Logo */}
         <Link href="/" className="flex items-center gap-4 text-[#1a1a1a] dark:text-[#f5f5f5]">
           <div className="size-6 text-[#d4af37]">
-            <svg fill="none" stroke="currentColor" strokeWidth="1.5" viewBox="0 0 24 24" xmlns="http://www.w3.org/2000/svg">
-              <path d="M8.25 3v1.5M4.5 8.25H19.5M18.75 3.75h-15a2.25 2.25 0 0 0-2.25 2.25v11.25c0 1.242 1.008 2.25 2.25 2.25h15a2.25 2.25 0 0 0 2.25-2.25V6a2.25 2.25 0 0 0-2.25-2.25Zm-10.5 5.25h.008v.008h-.008v-.008Zm.75 2.25h.008v.008h-.008v-.008Zm2.25.75h.008v.008h-.008v-.008Zm2.25-.75h.008v.008h-.008v-.008Zm.75 2.25h.008v.008h-.008v-.008Zm2.25.75h.008v.008h-.008v-.008Zm-8.25-7.5h.008v.008h-.008v-.008Zm.75 2.25h.008v.008h-.008v-.008Z" strokeLinecap="round" strokeLinejoin="round"></path>
+            <svg fill="none" stroke="currentColor" strokeWidth="2" viewBox="0 0 24 24" xmlns="http://www.w3.org/2000/svg">
+              <path d="M6 3.5c0 1.75 2 4.5 3.5 6m9 0c1.5-1.5 3.5-4.25 3.5-6M9.5 9.5c1 1 1 2.5 0 3.5M14.5 9.5c-1 1-1 2.5 0 3.5m-5 3.5c-1.5 1.5-3.5 1.5-5 0s-1.5-3.5 0-5 3.5-1.5 5 0m5 0c1.5-1.5 3.5-1.5 5 0s1.5 3.5 0 5-3.5 1.5-5 0" strokeLinecap="round" strokeLinejoin="round" />
             </svg>
           </div>
           <h2 className="text-xl font-bold tracking-tighter font-display">The Modern Gentleman</h2>
@@ -53,15 +53,15 @@ export default function Header() {
         {/* Desktop Navigation */}
         <div className="hidden md:flex flex-1 justify-end gap-8">
           <nav className="flex items-center gap-8">
-            <Link 
-              href="/book" 
+            <Link
+              href="/book"
               className="text-sm font-medium hover:text-[#d4af37] transition-colors font-display"
             >
               Services
             </Link>
             {isAuthenticated && (
-              <Link 
-                href="/my-bookings" 
+              <Link
+                href="/my-bookings"
                 className="text-sm font-medium hover:text-[#d4af37] transition-colors font-display"
               >
                 My Bookings
@@ -71,22 +71,63 @@ export default function Header() {
 
           {/* Auth Actions */}
           {isAuthenticated ? (
-            <div className="flex items-center gap-4">
-              <span className="hidden lg:inline text-sm text-[#1a1a1a] dark:text-[#f5f5f5] font-medium">
-                Hey, {user?.name}
-              </span>
-              <Link
-                href="/settings/profile"
-                className="text-sm font-medium hover:text-[#d4af37] transition-colors font-display"
-              >
-                Settings
-              </Link>
+            <div className="flex items-center gap-4 relative">
               <button
-                onClick={handleLogout}
-                className="flex min-w-[84px] cursor-pointer items-center justify-center overflow-hidden rounded-lg h-10 px-4 border border-[#d4af37] text-[#d4af37] text-sm font-bold tracking-wide hover:bg-[#d4af37]/10 transition-colors font-display"
+                onClick={() => setProfileDropdownOpen(!profileDropdownOpen)}
+                className="group flex flex-col items-center justify-center relative focus:outline-none"
+                aria-label="Profile Menu"
               >
-                Logout
+                <div className={`flex h-10 w-10 items-center justify-center rounded-full transition-colors ${profileDropdownOpen ? 'bg-[#d4af37]/20 border border-[#d4af37]' : 'bg-gray-100 hover:bg-gray-200 dark:bg-gray-800 dark:hover:bg-gray-700'}`}>
+                  <svg className={`size-5 transition-colors ${profileDropdownOpen ? 'text-[#d4af37]' : 'text-[#1a1a1a] dark:text-[#f5f5f5]'}`} fill="none" strokeWidth="1.5" stroke="currentColor" viewBox="0 0 24 24">
+                    <path strokeLinecap="round" strokeLinejoin="round" d="M15.75 6a3.75 3.75 0 1 1-7.5 0 3.75 3.75 0 0 1 7.5 0ZM4.501 20.118a7.5 7.5 0 0 1 14.998 0A17.933 17.933 0 0 1 12 21.75c-2.676 0-5.216-.584-7.499-1.632Z" />
+                  </svg>
+                </div>
               </button>
+
+              {profileDropdownOpen && (
+                <>
+                  <div
+                    className="fixed inset-0 z-10"
+                    onClick={() => setProfileDropdownOpen(false)}
+                  ></div>
+                  <div className="absolute right-0 top-full mt-2 w-48 rounded-lg bg-white dark:bg-[#2a2a2a] shadow-xl border border-gray-100 dark:border-white/10 py-1 z-20">
+                    <div className="px-4 py-2 border-b border-gray-100 dark:border-white/10">
+                      <p className="text-xs text-gray-500 dark:text-gray-400">Signed in as</p>
+                      <p className="text-sm font-bold text-[#1a1a1a] dark:text-[#f5f5f5] truncate">{user?.name || user?.email || 'User'}</p>
+                    </div>
+                    <Link
+                      href="/settings/profile"
+                      className="flex items-center gap-2 px-4 py-2 text-sm text-[#1a1a1a] dark:text-[#f5f5f5] hover:bg-gray-50 dark:hover:bg-gray-800 transition-colors"
+                      onClick={() => setProfileDropdownOpen(false)}
+                    >
+                      <svg className="size-4" fill="none" viewBox="0 0 24 24" strokeWidth={1.5} stroke="currentColor">
+                        <path strokeLinecap="round" strokeLinejoin="round" d="M15.75 6a3.75 3.75 0 1 1-7.5 0 3.75 3.75 0 0 1 7.5 0ZM4.501 20.118a7.5 7.5 0 0 1 14.998 0A17.933 17.933 0 0 1 12 21.75c-2.676 0-5.216-.584-7.499-1.632Z" />
+                      </svg>
+                      Profile
+                    </Link>
+                    <Link
+                      href="/settings/profile"
+                      className="flex items-center gap-2 px-4 py-2 text-sm text-[#1a1a1a] dark:text-[#f5f5f5] hover:bg-gray-50 dark:hover:bg-gray-800 transition-colors"
+                      onClick={() => setProfileDropdownOpen(false)}
+                    >
+                      <svg className="size-4" fill="none" viewBox="0 0 24 24" strokeWidth={1.5} stroke="currentColor">
+                        <path strokeLinecap="round" strokeLinejoin="round" d="M9.594 3.94c.09-.542.56-.94 1.11-.94h2.593c.55 0 1.02.398 1.11.94l.213 1.281c.063.374.313.686.645.87.074.04.147.083.22.127.324.196.72.257 1.075.124l1.217-.456a1.125 1.125 0 0 1 1.37.49l1.296 2.247a1.125 1.125 0 0 1-.26 1.431l-1.003.827c-.293.24-.438.613-.431.992a6.759 6.759 0 0 1 0 .255c-.007.378.138.75.43.99l1.005.828c.424.35.534.954.26 1.43l-1.298 2.247a1.125 1.125 0 0 1-1.369.491l-1.217-.456c-.355-.133-.75-.072-1.076.124a6.57 6.57 0 0 1-.22.128c-.331.183-.581.495-.644.869l-.213 1.28c-.09.543-.56.941-1.11.941h-2.594c-.55 0-1.02-.398-1.11-.94l-.213-1.281c-.062-.374-.312-.686-.644-.87a6.52 6.52 0 0 1-.22-.127c-.325-.196-.72-.257-1.076-.124l-1.217.456a1.125 1.125 0 0 1-1.369-.49l-1.297-2.247a1.125 1.125 0 0 1 .26-1.431l1.004-.827c.292-.24.437-.613.43-.992a6.932 6.932 0 0 1 0-.255c.007-.378-.138-.75-.43-.99l-1.004-.828a1.125 1.125 0 0 1-.26-1.43l1.297-2.247a1.125 1.125 0 0 1 1.37-.491l1.216.456c.356.133.751.072 1.076-.124.072-.044.146-.087.22-.128.332-.183.582-.495.644-.869l.214-1.281Z" />
+                        <path strokeLinecap="round" strokeLinejoin="round" d="M15 12a3 3 0 1 1-6 0 3 3 0 0 1 6 0Z" />
+                      </svg>
+                      Settings
+                    </Link>
+                    <button
+                      onClick={handleLogout}
+                      className="w-full flex items-center gap-2 px-4 py-2 text-sm text-[#d4af37] hover:bg-gray-50 dark:hover:bg-gray-800 transition-colors border-t border-gray-100 dark:border-white/10"
+                    >
+                      <svg className="size-4" fill="none" viewBox="0 0 24 24" strokeWidth={1.5} stroke="currentColor">
+                        <path strokeLinecap="round" strokeLinejoin="round" d="M15.75 9V5.25A2.25 2.25 0 0 0 13.5 3h-6a2.25 2.25 0 0 0-2.25 2.25v13.5A2.25 2.25 0 0 0 7.5 21h6a2.25 2.25 0 0 0 2.25-2.25V15m3 0 3-3m0 0-3-3m3 3H9" />
+                      </svg>
+                      Logout
+                    </button>
+                  </div>
+                </>
+              )}
             </div>
           ) : (
             <div className="flex items-center gap-4">
@@ -108,7 +149,7 @@ export default function Header() {
 
         {/* Mobile Menu Button */}
         <div className="md:hidden">
-          <button 
+          <button
             className="p-2 text-[#1a1a1a] dark:text-[#f5f5f5]"
             onClick={() => setMobileMenuOpen(!mobileMenuOpen)}
           >
@@ -127,8 +168,8 @@ export default function Header() {
       {mobileMenuOpen && (
         <div className="md:hidden bg-[#f5f5f5] dark:bg-[#1a1a1a] border-t border-white/10 px-4 py-4">
           <nav className="flex flex-col gap-4">
-            <Link 
-              href="/book" 
+            <Link
+              href="/book"
               className="text-sm font-medium hover:text-[#d4af37] transition-colors font-display"
               onClick={() => setMobileMenuOpen(false)}
             >
@@ -136,8 +177,8 @@ export default function Header() {
             </Link>
             {isAuthenticated && (
               <>
-                <Link 
-                  href="/my-bookings" 
+                <Link
+                  href="/my-bookings"
                   className="text-sm font-medium hover:text-[#d4af37] transition-colors font-display"
                   onClick={() => setMobileMenuOpen(false)}
                 >

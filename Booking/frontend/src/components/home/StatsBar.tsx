@@ -6,8 +6,7 @@ import type { SocialStat, SectionConfig } from '@/types';
 const defaultStats: SocialStat[] = [
   { id: '1', value: '15.2K', label: 'Followers', platform: 'instagram' },
   { id: '2', value: '4.9/5', label: '350+ Reviews', platform: 'facebook' },
-  { id: '3', value: '4.9', label: 'stars', platform: 'google' },
-  { id: '4', value: '1M+', label: 'Video Views', platform: 'twitter' }
+  { id: '3', value: '25K+', label: 'Community Likes', platform: 'tiktok' }
 ];
 
 const defaultSectionConfig: SectionConfig = {
@@ -25,6 +24,11 @@ const platformIcons: Record<string, React.ReactNode> = {
   facebook: (
     <svg className="h-8 w-8" fill="currentColor" viewBox="0 0 24 24">
       <path d="M22 12c0-5.523-4.477-10-10-10S2 6.477 2 12c0 4.991 3.657 9.128 8.438 9.878v-6.987h-2.54V12h2.54V9.797c0-2.506 1.492-3.89 3.777-3.89 1.094 0 2.238.195 2.238.195v2.46h-1.26c-1.243 0-1.63.771-1.63 1.562V12h2.773l-.443 2.89h-2.33v6.988C18.343 21.128 22 16.991 22 12z" />
+    </svg>
+  ),
+  tiktok: (
+    <svg className="h-8 w-8" fill="currentColor" viewBox="0 0 24 24">
+      <path d="M12.525.02c1.31-.02 2.61-.01 3.91-.02.08 1.53.63 3.09 1.75 4.17 1.12 1.11 2.7 1.62 4.24 1.79v4.03c-1.44-.05-2.89-.35-4.2-.97-.57-.26-1.1-.59-1.62-.93-.01 2.92.01 5.84-.02 8.75-.03 1.4-.54 2.79-1.35 3.94-1.31 1.92-3.58 3.17-5.91 3.21-1.43.08-2.86-.31-4.08-1.03-2.02-1.19-3.44-3.37-3.65-5.71-.02-.5-.03-1-.01-1.49.18-1.9 1.12-3.72 2.58-4.96 1.66-1.44 3.98-2.13 6.15-1.72.02 1.48-.04 2.96-.04 4.44-.9-.32-1.98-.23-2.81.33-.85.51-1.44 1.43-1.58 2.41-.16.99.13 2.02.77 2.82.63.8 1.57 1.35 2.55 1.48.98.13 2.04-.13 2.84-.74.8-.59 1.27-1.55 1.37-2.55.03-1.61.01-3.23.01-4.84V.02z" />
     </svg>
   ),
   google: (
@@ -70,11 +74,11 @@ export default function StatsBar({ sectionConfig, stats }: StatsBarProps) {
           </p>
         </div>
 
-        <div className="grid grid-cols-1 gap-8 sm:grid-cols-2 lg:grid-cols-4">
+        <div className="flex flex-wrap justify-center gap-8">
           {statsData.map((stat) => (
             <div 
               key={stat.id}
-              className="group relative flex flex-col items-center justify-center rounded-xl bg-[#f5f5f5] dark:bg-[#2a2a2a] p-8 text-center transition-all duration-300 hover:-translate-y-2 hover:shadow-2xl hover:shadow-[#d4af37]/20"
+              className="group relative flex flex-col items-center justify-center rounded-xl bg-[#f5f5f5] dark:bg-[#2a2a2a] p-8 text-center transition-all duration-300 hover:-translate-y-2 hover:shadow-2xl hover:shadow-[#d4af37]/20 min-w-[250px]"
             >
               <div className="absolute top-4 right-4 flex h-10 w-10 items-center justify-center rounded-lg text-[#1a1a1a] dark:text-[#f5f5f5] transition-transform duration-300 group-hover:scale-110">
                 {platformIcons[stat.platform] || platformIcons.custom}

@@ -2,6 +2,7 @@
 
 import { useState, useEffect } from 'react';
 import HeroSection from '@/components/home/HeroSection';
+import MapSection from '@/components/home/MapSection';
 import StatsBar from '@/components/home/StatsBar';
 import ServicesShowcase from '@/components/home/ServicesShowcase';
 import PortfolioGallery from '@/components/home/PortfolioGallery';
@@ -54,6 +55,7 @@ export default function Home() {
         sectionConfig={config?.portfolio_section}
         items={config?.portfolio_items}
       />
+      <MapSection />
       <StatsBar
         sectionConfig={config?.stats_section}
         stats={config?.stats}

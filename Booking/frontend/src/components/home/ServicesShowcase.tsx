@@ -11,19 +11,22 @@ const fallbackServices = [
     icon: 'content_cut',
     title: 'Classic Haircut',
     description: 'A timeless cut tailored to your style, complete with a shampoo, condition, and straight razor finish.',
-    price: '₱45'
+    price: '₱45',
+    image_url: 'https://images.unsplash.com/photo-1585747860715-2ba37e788b70?q=80&w=2074&auto=format&fit=crop'
   },
   {
     icon: 'swords',
     title: 'Hot Towel Shave',
     description: 'A luxurious straight-razor shave experience with hot towels, rich lather, and soothing after-shave balm.',
-    price: '₱50'
+    price: '₱50',
+    image_url: 'https://images.unsplash.com/photo-1512690118294-704331cc53ee?q=80&w=2070&auto=format&fit=crop'
   },
   {
     icon: 'brush',
     title: 'Beard Trim & Shape',
     description: 'Expert shaping, trimming, and detailing of your beard and mustache, finished with premium beard oil.',
-    price: '₱30'
+    price: '₱30',
+    image_url: 'https://images.unsplash.com/photo-1621605815971-fbc98d665033?q=80&w=2070&auto=format&fit=crop'
   }
 ];
 
@@ -61,6 +64,7 @@ export default function ServicesShowcase({ sectionConfig }: ServicesShowcaseProp
     title: string;
     description: string;
     price: string;
+    image_url?: string;
   }>>(fallbackServices);
   const [isLoading, setIsLoading] = useState(true);
 
@@ -76,7 +80,8 @@ export default function ServicesShowcase({ sectionConfig }: ServicesShowcaseProp
             icon: getServiceIcon(service.title),
             title: service.title,
             description: service.description || 'Professional grooming service tailored to your needs.',
-            price: formatPrice(service.price)
+            price: formatPrice(service.price),
+            image_url: service.image_url
           }));
           setServices(apiServices);
         }
@@ -132,57 +137,70 @@ export default function ServicesShowcase({ sectionConfig }: ServicesShowcaseProp
   );
 
   return (
-    <section className="container mx-auto px-4 py-16 sm:py-24">
-      <div className="text-center mb-12">
-        <h2 className="text-3xl font-bold tracking-tight text-[#1a1a1a] dark:text-[#f5f5f5] sm:text-4xl font-display">
-          {section.title}
-        </h2>
-        <p className="mt-4 text-lg text-gray-600 dark:text-gray-400 font-body">
-          {section.subtitle}
-        </p>
-      </div>
-
-      {isLoading ? (
-        <LoadingSkeleton />
-      ) : (
-        <div className={`grid grid-cols-1 gap-8 ${services.length === 1
-          ? 'md:grid-cols-1 max-w-md mx-auto'
-          : services.length === 2
-            ? 'md:grid-cols-2 max-w-2xl mx-auto'
-            : 'md:grid-cols-2 lg:grid-cols-3'
-          }`}>
-          {services.map((service, index) => (
-            <div
-              key={index}
-              className="flex flex-col rounded-lg border border-white/10 bg-white dark:bg-white/5 p-8 text-center transition-shadow hover:shadow-xl hover:shadow-[rgba(var(--primary-rgb),0.1)]"
-            >
-              <div className="mx-auto flex h-16 w-16 items-center justify-center rounded-full bg-[rgba(var(--primary-rgb),0.1)] text-[var(--primary)]">
-                {icons[service.icon] || icons['content_cut']}
-              </div>
-              <h3 className="mt-6 text-xl font-bold font-display text-slate-900 dark:text-gray-100">
-                {service.title}
-              </h3>
-              <p className="mt-2 text-base text-gray-600 dark:text-gray-400 font-body">
-                {service.description}
-              </p>
-              <p className="mt-4 text-lg font-bold text-[var(--primary)] font-display">
-                {service.price}
-              </p>
-            </div>
-          ))}
+    <section className="relative overflow-hidden py-16 sm:py-24">
+      <div className="container relative z-10 mx-auto px-4">
+        <div className="text-center mb-12">
+          <h2 className="text-3xl font-bold tracking-tight text-[#1a1a1a] dark:text-[#f5f5f5] sm:text-4xl font-display">
+            {section.title}
+          </h2>
+          <p className="mt-4 text-lg text-gray-600 dark:text-gray-400 font-body">
+            {section.subtitle}
+          </p>
         </div>
-      )}
 
-      <div className="text-center mt-12">
-        <Link
-          href="/book"
-          className="inline-flex items-center gap-2 text-[var(--primary)] hover:opacity-80 font-semibold text-lg transition-colors font-display"
-        >
-          View All Services
-          <svg className="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-            <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M13 7l5 5m0 0l-5 5m5-5H6" />
-          </svg>
-        </Link>
+        {isLoading ? (
+          <LoadingSkeleton />
+        ) : (
+          <div className={`grid grid-cols-1 gap-8 ${services.length === 1
+            ? 'md:grid-cols-1 max-w-md mx-auto'
+            : services.length === 2
+              ? 'md:grid-cols-2 max-w-2xl mx-auto'
+              : 'md:grid-cols-2 lg:grid-cols-3'
+            }`}>
+            {services.map((service, index) => (
+              <div
+                key={index}
+                className="group relative flex flex-col overflow-hidden rounded-lg border border-white/10 p-8 text-center transition-all hover:shadow-2xl"
+              >
+                {/* Individual Service Blurred Background */}
+                {service.image_url && (
+                  <div 
+                    className="absolute inset-0 z-0 bg-cover bg-center bg-no-repeat opacity-20 dark:opacity-20 blur-sm scale-105 transition-transform duration-500 group-hover:scale-110"
+                    style={{ backgroundImage: `url("${service.image_url}")` }}
+                  />
+                )}
+                
+                {/* Content Overlay */}
+                <div className="relative z-10 flex flex-col h-full bg-white/40 dark:bg-black/20 backdrop-blur-[2px] -m-8 p-8">
+                  <div className="mx-auto flex h-16 w-16 items-center justify-center rounded-full bg-[rgba(var(--primary-rgb),0.2)] text-[var(--primary)] shadow-lg">
+                    {icons[service.icon] || icons['content_cut']}
+                  </div>
+                  <h3 className="mt-6 text-xl font-bold font-display text-slate-900 dark:text-gray-100">
+                    {service.title}
+                  </h3>
+                  <p className="mt-2 text-base text-gray-600 dark:text-gray-400 font-body flex-grow">
+                    {service.description}
+                  </p>
+                  <p className="mt-4 text-lg font-bold text-[var(--primary)] font-display">
+                    {service.price}
+                  </p>
+                </div>
+              </div>
+            ))}
+          </div>
+        )}
+
+        <div className="text-center mt-12">
+          <Link
+            href="/book"
+            className="inline-flex items-center gap-2 text-[var(--primary)] hover:opacity-80 font-semibold text-lg transition-colors font-display"
+          >
+            View All Services
+            <svg className="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+              <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M13 7l5 5m0 0l-5 5m5-5H6" />
+            </svg>
+          </Link>
+        </div>
       </div>
     </section>
   );
