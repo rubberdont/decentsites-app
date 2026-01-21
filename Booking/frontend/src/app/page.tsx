@@ -51,7 +51,7 @@ export default function Home() {
 
   return (
     <div className="min-h-screen bg-[var(--bg-light)]" style={getStyle()}>
-      <HairReveal />
+      {/* <HairReveal /> */}
       <HeroSection config={config?.hero} />
       <ServicesShowcase sectionConfig={config?.services_section} />
       <PortfolioGallery

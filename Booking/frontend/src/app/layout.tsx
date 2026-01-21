@@ -26,6 +26,9 @@ const inter = Inter({
 export const metadata: Metadata = {
   title: "The Modern Gentleman - Premium Barber Services",
   description: "The Premier Grooming Experience for the Modern Gentleman. Book premium barber services with expert barbers.",
+  icons: {
+    icon: '/barchair.svg',
+  },
 };
 
 export default function RootLayout({

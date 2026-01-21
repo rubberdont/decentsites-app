@@ -56,6 +56,7 @@ export default function SignupPage() {
 
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
+    e.stopPropagation();
 
     if (!validateForm()) {
       return;
@@ -70,6 +71,7 @@ export default function SignupPage() {
         name: formData.name,
         password: formData.password,
       });
+      // Registration successful, AuthContext shows success toast
       router.push('/login');
     } catch (error: unknown) {
       console.error('Registration failed:', error);
@@ -87,10 +89,8 @@ export default function SignupPage() {
       <div className="flex h-full w-full max-w-md flex-col items-center justify-center p-6 sm:p-8">
         {/* Header */}
         <div className="w-full text-center mb-8">
-          <div className="inline-flex h-16 w-16 items-center justify-center rounded-full bg-[#1258e2]/10 mb-4">
-            <svg className="w-8 h-8 text-[#1258e2]" fill="none" stroke="currentColor" strokeWidth={1.5} viewBox="0 0 24 24">
-              <path strokeLinecap="round" strokeLinejoin="round" d="M7.848 8.25l1.536.887M7.848 8.25a3 3 0 11-5.196-3 3 3 0 015.196 3zm1.536.887a2.165 2.165 0 011.083 1.838c.052.394.05.742.05 1.025v.075M7.848 15.75l1.536-.887m-1.536.887a3 3 0 11-5.196 3 3 3 0 015.196-3zm1.536-.887a2.165 2.165 0 001.083-1.838c.052-.394.05-.742.05-1.025v-.075m0 0l1.5.863m0 0l4.5 2.598m-4.5-2.598l4.5-2.598" />
-            </svg>
+          <div className="mb-8 flex items-center justify-center">
+            <img src="/barchair.svg" alt="Logo" className="w-48 h-48 object-contain" />
           </div>
           <h1 className="text-3xl font-black tracking-tighter text-black dark:text-white">Create Your Account</h1>
           <p className="mt-2 text-base text-gray-600 dark:text-gray-400">Join us to book your next haircut.</p>

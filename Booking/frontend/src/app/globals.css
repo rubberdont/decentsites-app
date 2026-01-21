@@ -3,7 +3,7 @@
 :root {
   --background: #ffffff;
   --foreground: #171717;
-  
+
   /* New Design System Colors - Landing Page */
   --primary: #d4af37;
   --primary-hover: #c9a432;
@@ -12,12 +12,12 @@
   --surface-dark: #2a2a2a;
   --text-light: #1a1a1a;
   --text-dark: #f5f5f5;
-  
+
   /* Auth Pages Colors */
   --primary-blue: #1258e2;
   --auth-bg-light: #f6f6f8;
   --auth-bg-dark: #101622;
-  
+
   /* Legacy colors (keep for compatibility) */
   --cream-bg: #F5F3EF;
   --teal-primary: #14B8A6;
@@ -68,7 +68,14 @@ body {
 }
 
 /* Headings use display font */
-h1, h2, h3, h4, h5, h6, button, nav a {
+h1,
+h2,
+h3,
+h4,
+h5,
+h6,
+button,
+nav a {
   font-family: var(--font-montserrat), system-ui, sans-serif;
 }
 
@@ -113,6 +120,12 @@ h1, h2, h3, h4, h5, h6, button, nav a {
   @apply flex w-full min-w-0 flex-1 resize-none overflow-hidden rounded-lg border border-gray-300 bg-white px-4 py-3.5 text-base font-normal leading-normal text-black placeholder:text-gray-400 focus:border-[#1258e2] focus:outline-0 focus:ring-2 focus:ring-[#1258e2]/20 dark:border-gray-700 dark:bg-gray-800 dark:text-white dark:placeholder:text-gray-500 dark:focus:border-[#1258e2];
 }
 
+/* Hide native password reveal button in Edge/IE */
+input::-ms-reveal,
+input::-ms-clear {
+  display: none;
+}
+
 /* Status colors */
 .text-success {
   color: var(--success-color);
@@ -145,18 +158,24 @@ h1, h2, h3, h4, h5, h6, button, nav a {
 
 /* Custom animations */
 @keyframes float {
-  0%, 100% {
+
+  0%,
+  100% {
     transform: translateY(0px);
   }
+
   50% {
     transform: translateY(-20px);
   }
 }
 
 @keyframes float-delayed {
-  0%, 100% {
+
+  0%,
+  100% {
     transform: translateY(0px);
   }
+
   50% {
     transform: translateY(-15px);
   }

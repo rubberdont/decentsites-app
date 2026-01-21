@@ -1,6 +1,7 @@
 'use client';
 
 import Link from 'next/link';
+import Image from 'next/image';
 import { useAuth } from '@/context/AuthContext';
 import { useEffect, useState } from 'react';
 import { usePathname } from 'next/navigation';
@@ -35,17 +36,20 @@ export default function Header() {
   return (
     <header
       className={`sticky top-0 z-50 w-full transition-all duration-300 ${scrolled
-          ? 'bg-[#f5f5f5]/80 dark:bg-[#1a1a1a]/80 backdrop-blur-sm border-b border-white/10'
-          : 'bg-[#f5f5f5]/80 dark:bg-[#1a1a1a]/80 backdrop-blur-sm border-b border-white/10'
+        ? 'bg-[#f5f5f5]/80 dark:bg-[#1a1a1a]/80 backdrop-blur-sm border-b border-white/10'
+        : 'bg-[#f5f5f5]/80 dark:bg-[#1a1a1a]/80 backdrop-blur-sm border-b border-white/10'
         }`}
     >
       <div className="container mx-auto flex items-center justify-between whitespace-nowrap px-4 py-3">
         {/* Logo */}
         <Link href="/" className="flex items-center gap-4 text-[#1a1a1a] dark:text-[#f5f5f5]">
-          <div className="size-6 text-[#d4af37]">
-            <svg fill="none" stroke="currentColor" strokeWidth="2" viewBox="0 0 24 24" xmlns="http://www.w3.org/2000/svg">
-              <path d="M6 3.5c0 1.75 2 4.5 3.5 6m9 0c1.5-1.5 3.5-4.25 3.5-6M9.5 9.5c1 1 1 2.5 0 3.5M14.5 9.5c-1 1-1 2.5 0 3.5m-5 3.5c-1.5 1.5-3.5 1.5-5 0s-1.5-3.5 0-5 3.5-1.5 5 0m5 0c1.5-1.5 3.5-1.5 5 0s1.5 3.5 0 5-3.5 1.5-5 0" strokeLinecap="round" strokeLinejoin="round" />
-            </svg>
+          <div className="relative size-12">
+            <Image
+              src="/barchair.svg"
+              alt="Logo"
+              fill
+              className="object-contain"
+            />
           </div>
           <h2 className="text-xl font-bold tracking-tighter font-display">The Modern Gentleman</h2>
         </Link>

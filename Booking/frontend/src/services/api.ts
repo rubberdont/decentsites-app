@@ -110,8 +110,14 @@ api.interceptors.response.use(
     // Preserve existing 401 handling
     if (error.response?.status === 401) {
       removeToken();
-      // Redirect to login page if we're in browser environment
-      if (typeof window !== 'undefined') {
+
+      // Determine if we should redirect
+      // Don't redirect if we are already on the login page or if it's a login request failure
+      const isLoginRequest = url.includes('/auth/login');
+      const isLoginPage = typeof window !== 'undefined' && window.location.pathname === '/login';
+
+      // Redirect to login page if we're in browser environment and not already there/trying to log in
+      if (typeof window !== 'undefined' && !isLoginRequest && !isLoginPage) {
         window.location.href = '/login';
       }
     }

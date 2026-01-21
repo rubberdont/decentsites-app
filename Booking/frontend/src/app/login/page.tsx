@@ -31,8 +31,26 @@ export default function LoginPage() {
     if (error) setError('');
   };
 
+  const validateForm = () => {
+    if (formData.username.length === 0) {
+      setError('Please enter your username');
+      return false;
+    }
+    if (formData.password.length === 0) {
+      setError('Please enter your password');
+      return false;
+    }
+    return true;
+  };
+
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
+    e.stopPropagation();
+
+    if (!validateForm()) {
+      return;
+    }
+
     setIsLoading(true);
     setError('');
 
@@ -41,10 +59,21 @@ export default function LoginPage() {
       router.push('/profiles');
     } catch (error: unknown) {
       console.error('Login failed:', error);
-      setError(
-        (error as { response?: { data?: { detail?: string } } }).response?.data?.detail || 
-        'Login failed. Please check your credentials and try again.'
-      );
+
+      let errorMessage = 'Login failed. Please check your credentials and try again.';
+
+      // Safe error parsing
+      if (error && typeof error === 'object') {
+        const apiError = error as { response?: { data?: { detail?: string | string[] } } };
+        if (apiError.response?.data?.detail) {
+          const detail = apiError.response.data.detail;
+          errorMessage = Array.isArray(detail)
+            ? detail.map((d: any) => d.msg || d).join(', ')
+            : detail;
+        }
+      }
+
+      setError(errorMessage);
     } finally {
       setIsLoading(false);
     }
@@ -53,7 +82,7 @@ export default function LoginPage() {
   return (
     <div className="relative flex min-h-screen w-full flex-col items-center justify-center overflow-x-hidden p-4 sm:p-6 bg-[#f6f6f8] dark:bg-[#101622] font-auth">
       {/* Background image with opacity */}
-      <div 
+      <div
         className="absolute inset-0 z-0 h-full w-full bg-cover bg-center bg-no-repeat opacity-20"
         style={{
           backgroundImage: `url('https://images.unsplash.com/photo-1503951914875-452162b0f3f1?q=80&w=2070&auto=format&fit=crop')`
@@ -62,10 +91,8 @@ export default function LoginPage() {
 
       <div className="relative z-10 flex w-full max-w-md flex-col items-center">
         {/* Logo Icon */}
-        <div className="mb-8 flex h-16 w-16 items-center justify-center rounded-full bg-[#f6f6f8]/80 dark:bg-[#101622]/80 backdrop-blur-sm">
-          <svg className="w-8 h-8 text-black dark:text-white" fill="none" stroke="currentColor" strokeWidth={1.5} viewBox="0 0 24 24">
-            <path strokeLinecap="round" strokeLinejoin="round" d="M7.848 8.25l1.536.887M7.848 8.25a3 3 0 11-5.196-3 3 3 0 015.196 3zm1.536.887a2.165 2.165 0 011.083 1.838c.052.394.05.742.05 1.025v.075M7.848 15.75l1.536-.887m-1.536.887a3 3 0 11-5.196 3 3 3 0 015.196-3zm1.536-.887a2.165 2.165 0 001.083-1.838c.052-.394.05-.742.05-1.025v-.075m0 0l1.5.863m0 0l4.5 2.598m-4.5-2.598l4.5-2.598" />
-          </svg>
+        <div className="mb-8 flex items-center justify-center">
+          <img src="/barchair.svg" alt="Logo" className="w-48 h-48 object-contain" />
         </div>
 
         {/* Header */}
@@ -104,7 +131,7 @@ export default function LoginPage() {
           {/* Password */}
           <label className="flex flex-col w-full">
             <p className="pb-2 text-sm font-medium leading-normal text-black dark:text-white">Password</p>
-            <div className="flex w-full flex-1 items-stretch">
+            <div className="relative flex w-full flex-1 items-stretch">
               <input
                 type={showPassword ? 'text' : 'password'}
                 name="password"
@@ -112,13 +139,13 @@ export default function LoginPage() {
                 onChange={handleChange}
                 required
                 disabled={isLoading}
-                className="flex h-12 w-full min-w-0 flex-1 resize-none overflow-hidden rounded-l-lg border border-r-0 border-slate-300 dark:border-slate-700 bg-[#f6f6f8]/80 dark:bg-[#101622]/80 p-3 pr-2 text-base font-normal leading-normal text-black dark:text-white placeholder:text-slate-500 dark:placeholder:text-slate-400 backdrop-blur-sm focus:border-[#1258e2] focus:outline-0 focus:ring-2 focus:ring-[#1258e2]/40 disabled:opacity-50"
+                className="flex h-12 w-full min-w-0 flex-1 resize-none overflow-hidden rounded-lg border border-slate-300 dark:border-slate-700 bg-[#f6f6f8]/80 dark:bg-[#101622]/80 p-3 pr-12 text-base font-normal leading-normal text-black dark:text-white placeholder:text-slate-500 dark:placeholder:text-slate-400 backdrop-blur-sm focus:border-[#1258e2] focus:outline-0 focus:ring-2 focus:ring-[#1258e2]/40 disabled:opacity-50"
                 placeholder="Enter your password"
               />
               <button
                 type="button"
                 onClick={() => setShowPassword(!showPassword)}
-                className="flex items-center justify-center rounded-r-lg border border-l-0 border-slate-300 dark:border-slate-700 bg-[#f6f6f8]/80 dark:bg-[#101622]/80 pr-3 text-slate-500 dark:text-slate-400 backdrop-blur-sm"
+                className="absolute inset-y-0 right-0 flex cursor-pointer items-center pr-3 text-slate-500 dark:text-slate-400"
               >
                 {showPassword ? (
                   <svg className="w-6 h-6" fill="none" stroke="currentColor" strokeWidth={1.5} viewBox="0 0 24 24">
@@ -145,7 +172,7 @@ export default function LoginPage() {
           <button
             type="submit"
             disabled={isLoading}
-            className="flex h-12 w-full items-center justify-center rounded-lg bg-[#d4af37] px-6 text-base font-semibold text-black shadow-sm transition-colors hover:bg-[#d4af37]/90 focus:outline-none focus:ring-2 focus:ring-[#d4af37]/50 focus:ring-offset-2 focus:ring-offset-[#f6f6f8] dark:focus:ring-offset-[#101622] mt-4 disabled:opacity-50 disabled:cursor-not-allowed"
+            className="flex h-12 w-full items-center justify-center rounded-lg bg-[#d4af37] px-6 text-base font-semibold text-black shadow-sm transition-all hover:bg-[#d4af37]/90 focus:outline-none focus:ring-2 focus:ring-[#d4af37]/50 focus:ring-offset-2 focus:ring-offset-[#f6f6f8] dark:focus:ring-offset-[#101622] mt-4 disabled:opacity-50 disabled:cursor-not-allowed active:scale-[0.98]"
           >
             {isLoading ? (
               <span className="flex items-center gap-2">
@@ -173,8 +200,8 @@ export default function LoginPage() {
 
         {/* Back to Home */}
         <div className="mt-4 text-center">
-          <Link 
-            href="/" 
+          <Link
+            href="/"
             className="text-sm text-slate-500 dark:text-slate-400 hover:text-slate-700 dark:hover:text-slate-200 transition-colors"
           >
             ← Back to home
