@@ -37,6 +37,7 @@ services:
       dockerfile: ../../BookingDocker/frontend.Dockerfile
       args:
         - NEXT_PUBLIC_API_URL=${NEXT_PUBLIC_API_URL:-https://booking-api.decentsites.cloud}
+        - INTERNAL_API_URL=http://booking-api:1301
     container_name: booking-frontend
     restart: unless-stopped
     environment:
@@ -61,6 +62,7 @@ services:
       args:
         - NEXT_PUBLIC_API_URL=${NEXT_PUBLIC_API_URL:-https://booking-api.decentsites.cloud}
         - NEXT_PUBLIC_APP_NAME=${NEXT_PUBLIC_APP_NAME:-Booking Admin}
+        - INTERNAL_API_URL=http://booking-api:1301
     container_name: booking-admin
     restart: unless-stopped
     environment:
