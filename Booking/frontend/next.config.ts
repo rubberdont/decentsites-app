@@ -36,7 +36,7 @@ const nextConfig: NextConfig = {
   async rewrites() {
     return [
       {
-        source: '/:path*',
+        source: '/api/:path*',
         destination: `${process.env.INTERNAL_API_URL || 'http://localhost:1301'}/:path*`
       },
     ];
