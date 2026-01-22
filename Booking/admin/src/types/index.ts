@@ -379,6 +379,7 @@ export interface Customer {
   booking_count: number;
   total_spent: number;
   last_visit?: string;
+  auto_accept?: boolean;
   is_blocked: boolean;
   notes?: string;
 }

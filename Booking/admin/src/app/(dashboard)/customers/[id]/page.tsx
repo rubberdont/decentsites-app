@@ -39,6 +39,9 @@ export default function CustomerDetailPage() {
   const [blockReason, setBlockReason] = useState('');
   const [isBlocking, setIsBlocking] = useState(false);
 
+  // Auto-accept state
+  const [isUpdatingAutoAccept, setIsUpdatingAutoAccept] = useState(false);
+
   /**
    * Fetch customer data
    */
@@ -182,6 +185,25 @@ export default function CustomerDetailPage() {
       alert(err.response?.data?.detail || 'Failed to block customer');
     } finally {
       setIsBlocking(false);
+    }
+  };
+
+  /**
+   * Handle toggle auto-accept
+   */
+  const handleToggleAutoAccept = async () => {
+    if (!customer) return;
+
+    setIsUpdatingAutoAccept(true);
+    try {
+      await customersAPI.setAutoAccept(customerId, !customer.auto_accept);
+      // Refresh customer data
+      await fetchCustomer();
+    } catch (err: any) {
+      console.error('Error updating auto-accept:', err);
+      alert(err.response?.data?.detail || 'Failed to update auto-accept setting');
+    } finally {
+      setIsUpdatingAutoAccept(false);
     }
   };
 
@@ -367,6 +389,39 @@ export default function CustomerDetailPage() {
                   {customer.last_visit ? formatDate(customer.last_visit) : '-'}
                 </p>
                 <p className="text-sm text-admin-text-muted">Last Visit</p>
+              </div>
+            </div>
+          </div>
+
+          {/* Auto-Accept Card */}
+          <div className="bg-admin-bg-card border border-admin-border rounded-lg p-6">
+            <div className="flex items-center justify-between mb-4">
+              <h2 className="text-lg font-semibold text-admin-text">Auto-Accept</h2>
+              <button
+                onClick={handleToggleAutoAccept}
+                disabled={isUpdatingAutoAccept}
+                className={`relative inline-flex h-6 w-11 items-center rounded-full transition-colors focus:outline-none disabled:opacity-50 ${
+                  customer.auto_accept ? 'bg-admin-primary' : 'bg-admin-border'
+                }`}
+              >
+                <span
+                  className={`inline-block h-4 w-4 transform rounded-full bg-white transition-transform ${
+                    customer.auto_accept ? 'translate-x-6' : 'translate-x-1'
+                  }`}
+                />
+              </button>
+            </div>
+            <p className="text-sm text-admin-text-muted leading-relaxed">
+              When enabled, all future bookings from this customer will be automatically approved without requiring manual intervention.
+            </p>
+            <div className="mt-4 p-3 bg-admin-primary/10 border border-admin-primary/20 rounded-lg">
+              <div className="flex items-start gap-2 text-xs text-admin-primary">
+                <svg className="w-4 h-4 mt-0.5 shrink-0" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                  <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M13 16h-1v-4h-1m1-4h.01M21 12a9 9 0 11-18 0 9 9 0 0118 0z" />
+                </svg>
+                <p>
+                  Use this for trusted customers to streamline your workflow.
+                </p>
               </div>
             </div>
           </div>

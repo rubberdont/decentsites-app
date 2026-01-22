@@ -30,6 +30,7 @@ from .models import (
     CustomerResponse,
     CustomerFilters,
     CustomerBlockRequest,
+    CustomerAutoAcceptRequest,
     CustomerNoteCreate,
     CustomerNote,
     DashboardStats,
@@ -841,6 +842,54 @@ async def get_customer_notes(
     notes = AdminRepository.get_customer_notes(customer_id, profile_id)
     
     return {"notes": notes}
+
+
+@router.put("/customers/{customer_id}/auto-accept")
+async def set_customer_auto_accept(
+    customer_id: str,
+    data: CustomerAutoAcceptRequest,
+    current_user: UserCredentials = Depends(require_owner)
+):
+    """
+    Set customer's auto-accept flag.
+    
+    When enabled, bookings from this customer will be automatically approved.
+    Only available for OWNER/ADMIN roles.
+    
+    Args:
+        customer_id: The customer's user ID
+        data: Auto-accept status
+        current_user: Authenticated user (must be OWNER/ADMIN)
+        
+    Returns:
+        Success message
+    """
+    profile_id = get_owner_profile_id(current_user.user_id)
+    verify_customer_has_bookings(customer_id, profile_id)
+    
+    # Update auto-accept flag
+    AdminRepository.update_customer_auto_accept(customer_id, data.auto_accept)
+    
+    # Get customer info for logging
+    customer = AdminRepository.get_customer_with_stats(customer_id, profile_id)
+    
+    # Log activity
+    AdminRepository.log_activity(
+        user_id=current_user.user_id,
+        action="customer_auto_accept_updated",
+        entity_type="customer",
+        entity_id=customer_id,
+        details={
+            "customer_name": customer.get("name") if customer else "Unknown",
+            "auto_accept": data.auto_accept
+        },
+        profile_id=profile_id
+    )
+    
+    return {
+        "message": f"Customer auto-accept {'enabled' if data.auto_accept else 'disabled'} successfully",
+        "auto_accept": data.auto_accept
+    }
 
 
 # ===========================

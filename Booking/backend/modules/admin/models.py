@@ -88,6 +88,7 @@ class CustomerResponse(BaseModel):
     total_spent: float = 0.0
     first_booking: Optional[datetime] = None
     last_booking: Optional[datetime] = None
+    auto_accept: bool = False
     is_blocked: bool = False
     blocked_reason: Optional[str] = None
     created_at: datetime
@@ -105,6 +106,10 @@ class CustomerBlockRequest(BaseModel):
 
 class CustomerNoteCreate(BaseModel):
     note: str
+
+
+class CustomerAutoAcceptRequest(BaseModel):
+    auto_accept: bool
 
 
 class CustomerNote(BaseModel):

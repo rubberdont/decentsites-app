@@ -156,26 +156,26 @@ export function AuthProvider({ children }: AuthProviderProps) {
       setIsLoading(true);
       try {
         // Call superadmin login endpoint
-        const response = await fetch(`${process.env.NEXT_PUBLIC_API_URL || 'http://localhost:8000'}/auth/superadmin/login`, {
+        const response = await fetch(`${process.env.NEXT_PUBLIC_API_URL || 'http://localhost:1301'}/auth/superadmin/login`, {
           method: 'POST',
           headers: { 'Content-Type': 'application/json' },
           body: JSON.stringify({ username, password }),
         });
-        
+
         if (!response.ok) {
           const error = await response.json();
           throw new Error(error.detail || 'Invalid superadmin credentials');
         }
-        
+
         const tokenData = await response.json();
         setToken(tokenData.access_token);
-        
+
         // Fetch user data
         const currentUser = await fetchCurrentUser();
         if (!currentUser) {
           throw new Error('Failed to fetch user after login');
         }
-        
+
         setUser(currentUser);
       } catch (error) {
         removeToken();

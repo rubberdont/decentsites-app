@@ -606,6 +606,7 @@ class AdminRepository:
                     "no_shows": 1,
                     "first_booking": 1,
                     "last_booking": 1,
+                    "auto_accept": {"$ifNull": ["$auto_accept", False]},
                     "is_blocked": {"$gt": [{"$size": "$block_info"}, 0]},
                     "blocked_reason": {"$arrayElemAt": ["$block_info.reason", 0]},
                     "total_spent": 1,
@@ -762,6 +763,7 @@ class AdminRepository:
             "total_spent": stats.get("total_spent", 0),
             "first_booking": stats.get("first_booking"),
             "last_booking": stats.get("last_booking"),
+            "auto_accept": user.get("auto_accept", False),
             "is_blocked": block_info is not None,
             "blocked_reason": block_info.get("reason") if block_info else None,
             "blocked_at": block_info.get("created_at") if block_info else None,
@@ -976,6 +978,27 @@ class AdminRepository:
             query,
             projection={"_id": 0},
             sort=[("created_at", -1)]
+        )
+
+    @staticmethod
+    def update_customer_auto_accept(user_id: str, auto_accept: bool) -> int:
+        """
+        Update customer's auto-accept flag.
+        
+        Args:
+            user_id: The customer's user ID
+            auto_accept: New auto-accept status
+            
+        Returns:
+            Number of modified documents
+        """
+        return mongo_db.update_one(
+            AdminRepository.USERS,
+            {"id": user_id},
+            {"$set": {
+                "auto_accept": auto_accept,
+                "updated_at": datetime.utcnow()
+            }}
         )
     
     # ===========================

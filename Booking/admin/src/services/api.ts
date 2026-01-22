@@ -430,6 +430,12 @@ export const customersAPI = {
     api.get(`/admin/customers/${id}/notes`),
 
   /**
+   * Set customer's auto-accept status
+   */
+  setAutoAccept: (customerId: string, autoAccept: boolean): Promise<AxiosResponse<{ message: string; auto_accept: boolean }>> =>
+    api.put(`/admin/customers/${customerId}/auto-accept`, { auto_accept: autoAccept }),
+
+  /**
    * Delete a customer note
    */
   deleteNote: (customerId: string, noteId: string): Promise<AxiosResponse<void>> =>

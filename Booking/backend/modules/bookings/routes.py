@@ -14,7 +14,9 @@ from modules.auth.security import get_current_user
 from modules.auth.models import UserCredentials
 from modules.profiles.repository import ProfileRepository
 from modules.availability.repository import AvailabilityRepository
-from core.mongo_helper import mongo_db  # NEW
+from core.mongo_helper import mongo_db
+from modules.notifications.email_service import EmailService
+from fastapi import BackgroundTasks
 
 
 router = APIRouter(prefix="/bookings", tags=["bookings"])
@@ -23,6 +25,7 @@ router = APIRouter(prefix="/bookings", tags=["bookings"])
 @router.post("", response_model=BookingRefResponse)
 async def create_booking(
     booking_data: BookingCreate,
+    background_tasks: BackgroundTasks,
     current_user: UserCredentials = Depends(get_current_user),
 ):
     """
@@ -131,7 +134,38 @@ async def create_booking(
         time_slot=booking_data.time_slot,  # NEW
         notes=booking_data.notes
     )
-    
+
+    # Check if customer has auto-accept enabled
+    user_doc = mongo_db.find_one("users", {"id": current_user.user_id})
+    if user_doc and user_doc.get("auto_accept", False):
+        # Auto-approve the booking
+        BookingRepository.update_booking_status(booking_doc["id"], BookingStatus.CONFIRMED)
+        
+        # Add system note about auto-approval
+        from modules.admin.repository import AdminRepository
+        AdminRepository.add_booking_note(
+            booking_doc["id"],
+            "Auto-approved (customer has auto-accept enabled)",
+            current_user.user_id
+        )
+        
+        # Update booking_doc status for response
+        booking_doc["status"] = BookingStatus.CONFIRMED.value
+
+    # Notify owner about the new booking
+    owner_user = mongo_db.find_one("users", {"id": profile.get("owner_id")})
+    if owner_user and owner_user.get("email"):
+        # Determine if booking was auto-accepted for the notification subject/context
+        is_auto_accepted = user_doc.get("auto_accept", False) if user_doc else False
+        
+        background_tasks.add_task(
+            EmailService.send_owner_new_booking,
+            owner_email=owner_user["email"],
+            booking_ref=booking_doc["booking_ref"],
+            customer_name=current_user.name,
+            profile_name=profile.get("name", "Unknown")
+        )
+
     return BookingRefResponse(
         booking_ref=booking_doc["booking_ref"],
         booking_id=booking_doc["id"]

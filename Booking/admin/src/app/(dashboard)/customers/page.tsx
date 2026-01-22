@@ -16,6 +16,7 @@ export default function CustomersPage() {
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState<string | null>(null);
   const [actionLoading, setActionLoading] = useState<string | null>(null);
+  const [autoAcceptLoading, setAutoAcceptLoading] = useState<string | null>(null);
   const [totalCustomers, setTotalCustomers] = useState(0);
   const [totalPages, setTotalPages] = useState(1);
   const [filters, setFilters] = useState<CustomerFilters>({
@@ -137,6 +138,23 @@ export default function CustomersPage() {
       setError('Failed to unblock customer. Please try again.');
     } finally {
       setActionLoading(null);
+    }
+  };
+
+  /**
+   * Handle toggle auto-accept
+   */
+  const handleToggleAutoAccept = async (customer: Customer) => {
+    setAutoAcceptLoading(customer.id);
+    try {
+      await customersAPI.setAutoAccept(customer.id, !customer.auto_accept);
+      // Refresh customer list
+      await fetchCustomers();
+    } catch (err) {
+      console.error('Error toggling auto-accept:', err);
+      setError('Failed to update auto-accept setting. Please try again.');
+    } finally {
+      setAutoAcceptLoading(null);
     }
   };
 
@@ -265,6 +283,7 @@ export default function CustomersPage() {
                     <th>Bookings</th>
                     <th>Total Spent</th>
                     <th>Last Visit</th>
+                    <th>Auto-Accept</th>
                     <th>Status</th>
                     <th className="text-right">Actions</th>
                   </tr>
@@ -312,6 +331,36 @@ export default function CustomersPage() {
                         <span className="text-admin-text-muted">
                           {customer.last_visit ? formatDate(customer.last_visit) : '-'}
                         </span>
+                      </td>
+                      <td>
+                        <button
+                          onClick={() => handleToggleAutoAccept(customer)}
+                          disabled={autoAcceptLoading === customer.id}
+                          className={`inline-flex items-center gap-1.5 px-2.5 py-1 rounded-full text-xs font-medium transition-colors disabled:opacity-50 ${
+                            customer.auto_accept
+                              ? 'bg-green-500/20 text-green-400 hover:bg-green-500/30'
+                              : 'bg-gray-500/20 text-gray-400 hover:bg-gray-500/30'
+                          }`}
+                          title={customer.auto_accept ? 'Auto-accept enabled - click to disable' : 'Auto-accept disabled - click to enable'}
+                        >
+                          {autoAcceptLoading === customer.id ? (
+                            <LoadingSpinner size="sm" />
+                          ) : customer.auto_accept ? (
+                            <>
+                              <svg className="w-3 h-3" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M5 13l4 4L19 7" />
+                              </svg>
+                              Enabled
+                            </>
+                          ) : (
+                            <>
+                              <svg className="w-3 h-3" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M6 18L18 6M6 6l12 12" />
+                              </svg>
+                              Disabled
+                            </>
+                          )}
+                        </button>
                       </td>
                       <td>
                         {customer.is_blocked ? (
