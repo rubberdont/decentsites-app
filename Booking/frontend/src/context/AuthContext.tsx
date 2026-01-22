@@ -112,7 +112,6 @@ export function AuthProvider({ children }: AuthProviderProps) {
   const register = async (data: RegisterRequest) => {
     try {
       await authAPI.register(data);
-      await authAPI.register(data);
       // After successful registration, user needs to login
       showSuccess('Registration successful! Please log in.');
     } catch (error: unknown) {
