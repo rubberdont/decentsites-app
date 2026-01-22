@@ -122,7 +122,11 @@ api.interceptors.response.use(
       // Handle 401 Unauthorized - redirect to login
       if (status === 401) {
         removeToken();
-        if (typeof window !== 'undefined') {
+
+        const isLoginRequest = url.includes('/auth/login');
+        const isLoginPage = typeof window !== 'undefined' && window.location.pathname === '/login';
+
+        if (!isLoginRequest && !isLoginPage) {
           window.location.href = '/login';
         }
       }
