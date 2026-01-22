@@ -1,16 +1,16 @@
 @import "tailwindcss";
 
 :root {
-  --background: #ffffff;
-  --foreground: #171717;
+  --background: #1a1a1a;
+  --foreground: #f5f5f5;
 
   /* New Design System Colors - Landing Page */
   --primary: #d4af37;
   --primary-hover: #c9a432;
-  --background-light: #f5f5f5;
+  --background-light: #1a1a1a;
   --background-dark: #1a1a1a;
   --surface-dark: #2a2a2a;
-  --text-light: #1a1a1a;
+  --text-light: #f5f5f5;
   --text-dark: #f5f5f5;
 
   /* Auth Pages Colors */
@@ -39,12 +39,7 @@
   --font-auth: var(--font-inter);
 }
 
-@media (prefers-color-scheme: dark) {
-  :root {
-    --background: #1a1a1a;
-    --foreground: #f5f5f5;
-  }
-}
+
 
 /* Base styles */
 body {
