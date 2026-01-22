@@ -80,7 +80,7 @@ export default function LoginPage() {
   };
 
   return (
-    <div className="relative flex min-h-screen w-full flex-col items-center justify-center overflow-x-hidden p-4 sm:p-6 bg-[#f6f6f8] dark:bg-[#101622] font-auth">
+    <div className="relative flex min-h-screen w-full flex-col items-center justify-center overflow-x-hidden p-4 sm:p-6 bg-[#101622] dark:bg-[#101622] font-auth">
       {/* Background image with opacity */}
       <div
         className="absolute inset-0 z-0 h-full w-full bg-cover bg-center bg-no-repeat opacity-20"
@@ -97,10 +97,10 @@ export default function LoginPage() {
 
         {/* Header */}
         <div className="mb-4 w-full text-center">
-          <h1 className="text-3xl font-black leading-tight tracking-tighter text-black dark:text-white sm:text-4xl">
+          <h1 className="text-3xl font-black leading-tight tracking-tighter text-white dark:text-white sm:text-4xl">
             Welcome Back
           </h1>
-          <p className="mt-2 text-base font-normal leading-normal text-slate-600 dark:text-slate-400">
+          <p className="mt-2 text-base font-normal leading-normal text-slate-400 dark:text-slate-400">
             Log in to book your next appointment.
           </p>
         </div>
@@ -108,7 +108,7 @@ export default function LoginPage() {
         {/* Form */}
         <form onSubmit={handleSubmit} className="w-full space-y-4 px-4 py-3">
           {error && (
-            <div className="bg-red-50 dark:bg-red-900/20 border border-red-200 dark:border-red-800 rounded-lg p-4">
+            <div className="bg-red-50 dark:bg-red-900/20 border border-red-800 dark:border-red-800 rounded-lg p-4">
               <p className="text-red-800 dark:text-red-200 text-sm">{error}</p>
             </div>
           )}

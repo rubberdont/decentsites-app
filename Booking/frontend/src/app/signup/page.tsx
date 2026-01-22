@@ -85,28 +85,28 @@ export default function SignupPage() {
   };
 
   return (
-    <div className="relative flex min-h-screen w-full flex-col items-center bg-[#f6f6f8] dark:bg-[#101622] font-auth">
+    <div className="relative flex min-h-screen w-full flex-col items-center bg-[#101622] dark:bg-[#101622] font-auth">
       <div className="flex h-full w-full max-w-md flex-col items-center justify-center p-6 sm:p-8">
         {/* Header */}
         <div className="w-full text-center mb-8">
           <div className="mb-8 flex items-center justify-center">
             <img src="/barchair.svg" alt="Logo" className="w-48 h-48 object-contain" />
           </div>
-          <h1 className="text-3xl font-black tracking-tighter text-black dark:text-white">Create Your Account</h1>
-          <p className="mt-2 text-base text-gray-600 dark:text-gray-400">Join us to book your next haircut.</p>
+          <h1 className="text-3xl font-black tracking-tighter text-white dark:text-white">Create Your Account</h1>
+          <p className="mt-2 text-base text-slate-400 dark:text-slate-400">Join us to book your next haircut.</p>
         </div>
 
         {/* Form */}
         <form onSubmit={handleSubmit} className="w-full flex flex-col gap-4">
           {error && (
-            <div className="bg-red-50 dark:bg-red-900/20 border border-red-200 dark:border-red-800 rounded-lg p-4">
-              <p className="text-red-800 dark:text-red-200 text-sm">{error}</p>
+            <div className="bg-red-900/20 dark:bg-red-900/20 border border-red-800 dark:border-red-800 rounded-lg p-4">
+              <p className="text-red-200 dark:text-red-200 text-sm">{error}</p>
             </div>
           )}
 
           {/* Nickname */}
           <label className="flex flex-col w-full">
-            <p className="text-sm font-medium leading-normal pb-2 text-black dark:text-white">Nickname</p>
+            <p className="text-sm font-medium leading-normal pb-2 text-white dark:text-white">Nickname</p>
             <input
               type="text"
               name="name"
@@ -114,14 +114,14 @@ export default function SignupPage() {
               onChange={handleChange}
               required
               disabled={isLoading}
-              className="flex w-full min-w-0 flex-1 resize-none overflow-hidden rounded-lg border border-gray-300 bg-white px-4 py-3.5 text-base font-normal leading-normal text-black placeholder:text-gray-400 focus:border-[#1258e2] focus:outline-0 focus:ring-2 focus:ring-[#1258e2]/20 dark:border-gray-700 dark:bg-gray-800 dark:text-white dark:placeholder:text-gray-500 dark:focus:border-[#1258e2] disabled:opacity-50"
+              className="flex w-full min-w-0 flex-1 resize-none overflow-hidden rounded-lg border border-slate-700 bg-[#101622]/80 px-4 py-3.5 text-base font-normal leading-normal text-white placeholder:text-slate-400 focus:border-[#1258e2] focus:outline-0 focus:ring-2 focus:ring-[#1258e2]/20 dark:border-gray-700 dark:bg-gray-800 dark:text-white dark:placeholder:text-gray-500 dark:focus:border-[#1258e2] disabled:opacity-50"
               placeholder="What should we call you?"
             />
           </label>
 
           {/* Username */}
           <label className="flex flex-col w-full">
-            <p className="text-sm font-medium leading-normal pb-2 text-black dark:text-white">Username</p>
+            <p className="text-sm font-medium leading-normal pb-2 text-white dark:text-white">Username</p>
             <input
               type="text"
               name="username"
@@ -129,14 +129,14 @@ export default function SignupPage() {
               onChange={handleChange}
               required
               disabled={isLoading}
-              className="flex w-full min-w-0 flex-1 resize-none overflow-hidden rounded-lg border border-gray-300 bg-white px-4 py-3.5 text-base font-normal leading-normal text-black placeholder:text-gray-400 focus:border-[#1258e2] focus:outline-0 focus:ring-2 focus:ring-[#1258e2]/20 dark:border-gray-700 dark:bg-gray-800 dark:text-white dark:placeholder:text-gray-500 dark:focus:border-[#1258e2] disabled:opacity-50"
+              className="flex w-full min-w-0 flex-1 resize-none overflow-hidden rounded-lg border border-slate-700 bg-[#101622]/80 px-4 py-3.5 text-base font-normal leading-normal text-white placeholder:text-slate-400 focus:border-[#1258e2] focus:outline-0 focus:ring-2 focus:ring-[#1258e2]/20 dark:border-gray-700 dark:bg-gray-800 dark:text-white dark:placeholder:text-gray-500 dark:focus:border-[#1258e2] disabled:opacity-50"
               placeholder="your.username"
             />
           </label>
 
           {/* Password */}
           <label className="flex flex-col w-full">
-            <p className="text-sm font-medium leading-normal pb-2 text-black dark:text-white">Password</p>
+            <p className="text-sm font-medium leading-normal pb-2 text-white dark:text-white">Password</p>
             <div className="relative flex w-full flex-1 items-stretch">
               <input
                 type={showPassword ? 'text' : 'password'}
@@ -145,13 +145,13 @@ export default function SignupPage() {
                 onChange={handleChange}
                 required
                 disabled={isLoading}
-                className="flex w-full min-w-0 flex-1 resize-none overflow-hidden rounded-lg border border-gray-300 bg-white px-4 py-3.5 pr-12 text-base font-normal leading-normal text-black placeholder:text-gray-400 focus:border-[#1258e2] focus:outline-0 focus:ring-2 focus:ring-[#1258e2]/20 dark:border-gray-700 dark:bg-gray-800 dark:text-white dark:placeholder:text-gray-500 dark:focus:border-[#1258e2] disabled:opacity-50"
+                className="flex w-full min-w-0 flex-1 resize-none overflow-hidden rounded-lg border border-slate-700 bg-[#101622]/80 px-4 py-3.5 pr-12 text-base font-normal leading-normal text-white placeholder:text-slate-400 focus:border-[#1258e2] focus:outline-0 focus:ring-2 focus:ring-[#1258e2]/20 dark:border-gray-700 dark:bg-gray-800 dark:text-white dark:placeholder:text-gray-500 dark:focus:border-[#1258e2] disabled:opacity-50"
                 placeholder="Enter your password"
               />
               <button
                 type="button"
                 onClick={() => setShowPassword(!showPassword)}
-                className="absolute inset-y-0 right-0 flex cursor-pointer items-center pr-4 text-gray-400 dark:text-gray-500"
+                className="absolute inset-y-0 right-0 flex cursor-pointer items-center pr-4 text-slate-400 dark:text-gray-500"
               >
                 {showPassword ? (
                   <svg className="w-5 h-5" fill="none" stroke="currentColor" strokeWidth={1.5} viewBox="0 0 24 24">
@@ -169,7 +169,7 @@ export default function SignupPage() {
 
           {/* Confirm Password */}
           <label className="flex flex-col w-full">
-            <p className="text-sm font-medium leading-normal pb-2 text-black dark:text-white">Confirm Password</p>
+            <p className="text-sm font-medium leading-normal pb-2 text-white dark:text-white">Confirm Password</p>
             <div className="relative flex w-full flex-1 items-stretch">
               <input
                 type={showConfirmPassword ? 'text' : 'password'}
@@ -178,13 +178,13 @@ export default function SignupPage() {
                 onChange={handleChange}
                 required
                 disabled={isLoading}
-                className="flex w-full min-w-0 flex-1 resize-none overflow-hidden rounded-lg border border-gray-300 bg-white px-4 py-3.5 pr-12 text-base font-normal leading-normal text-black placeholder:text-gray-400 focus:border-[#1258e2] focus:outline-0 focus:ring-2 focus:ring-[#1258e2]/20 dark:border-gray-700 dark:bg-gray-800 dark:text-white dark:placeholder:text-gray-500 dark:focus:border-[#1258e2] disabled:opacity-50"
+                className="flex w-full min-w-0 flex-1 resize-none overflow-hidden rounded-lg border border-slate-700 bg-[#101622]/80 px-4 py-3.5 pr-12 text-base font-normal leading-normal text-white placeholder:text-slate-400 focus:border-[#1258e2] focus:outline-0 focus:ring-2 focus:ring-[#1258e2]/20 dark:border-gray-700 dark:bg-gray-800 dark:text-white dark:placeholder:text-gray-500 dark:focus:border-[#1258e2] disabled:opacity-50"
                 placeholder="Re-enter your password"
               />
               <button
                 type="button"
                 onClick={() => setShowConfirmPassword(!showConfirmPassword)}
-                className="absolute inset-y-0 right-0 flex cursor-pointer items-center pr-4 text-gray-400 dark:text-gray-500"
+                className="absolute inset-y-0 right-0 flex cursor-pointer items-center pr-4 text-slate-400 dark:text-gray-500"
               >
                 {showConfirmPassword ? (
                   <svg className="w-5 h-5" fill="none" stroke="currentColor" strokeWidth={1.5} viewBox="0 0 24 24">
@@ -221,13 +221,13 @@ export default function SignupPage() {
         </form>
 
         {/* Login Link */}
-        <p className="mt-6 text-center text-sm text-gray-600 dark:text-gray-400">
+        <p className="mt-6 text-center text-sm text-slate-400 dark:text-slate-400">
           Already have an account?{' '}
           <Link href="/login" className="font-semibold text-[#1258e2] hover:underline">Log In</Link>
         </p>
 
         {/* Terms */}
-        <div className="mt-12 w-full border-t border-gray-200 pt-6 dark:border-gray-800">
+        <div className="mt-12 w-full border-t border-gray-800 pt-6 dark:border-gray-800">
           <p className="text-center text-xs text-gray-500 dark:text-gray-500">
             By signing up, you agree to our{' '}
             <a className="underline hover:text-[#1258e2]" href="#">Terms of Service</a>

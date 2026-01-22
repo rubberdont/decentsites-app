@@ -141,7 +141,7 @@ export default function ServicesShowcase({ sectionConfig }: ServicesShowcaseProp
     <section className="relative overflow-hidden py-16 sm:py-24">
       <div className="container relative z-10 mx-auto px-4">
         <div className="text-center mb-12">
-          <h2 className="text-3xl font-bold tracking-tight text-[#1a1a1a] dark:text-[#f5f5f5] sm:text-4xl font-display">
+          <h2 className="text-3xl font-bold tracking-tight text-[#f5f5f5] dark:text-[#f5f5f5] sm:text-4xl font-display">
             {section.title}
           </h2>
           <p className="mt-4 text-lg text-gray-400 dark:text-gray-400 font-body">
@@ -152,44 +152,44 @@ export default function ServicesShowcase({ sectionConfig }: ServicesShowcaseProp
         {isLoading ? (
           <LoadingSkeleton />
         ) : (
-          <motion.div 
+          <motion.div
             initial={{ opacity: 0, y: 50 }}
             whileInView={{ opacity: 1, y: 0 }}
             viewport={{ once: true, margin: "-100px" }}
-            transition={{ 
+            transition={{
               type: "spring",
               stiffness: 100,
               damping: 20,
               duration: 0.8
             }}
             className={`grid grid-cols-1 gap-8 ${services.length === 1
-            ? 'md:grid-cols-1 max-w-md mx-auto'
-            : services.length === 2
-              ? 'md:grid-cols-2 max-w-2xl mx-auto'
-              : 'md:grid-cols-2 lg:grid-cols-3'
-            }`}>
+              ? 'md:grid-cols-1 max-w-md mx-auto'
+              : services.length === 2
+                ? 'md:grid-cols-2 max-w-2xl mx-auto'
+                : 'md:grid-cols-2 lg:grid-cols-3'
+              }`}>
             {services.map((service, index) => (
               <motion.div
                 key={index}
                 initial={{ opacity: 0, scale: 0.9 }}
                 whileInView={{ opacity: 1, scale: 1 }}
                 viewport={{ once: true }}
-                transition={{ 
+                transition={{
                   type: "spring",
                   stiffness: 100,
                   damping: 15,
-                  delay: index * 0.1 
+                  delay: index * 0.1
                 }}
-                className="group relative flex flex-col overflow-hidden rounded-lg border border-white/10 bg-[#f8f9fa] dark:bg-[#1a1a1a] p-8 text-center transition-all hover:shadow-2xl"
+                className="group relative flex flex-col overflow-hidden rounded-lg border border-white/10 bg-[#1a1a1a] dark:bg-[#1a1a1a] p-8 text-center transition-all hover:shadow-2xl"
               >
                 {/* Individual Service Blurred Background */}
                 {service.image_url && (
-                  <div 
+                  <div
                     className="absolute inset-0 z-0 bg-cover bg-center bg-no-repeat opacity-20 dark:opacity-20 blur-sm scale-105 transition-transform duration-500 group-hover:scale-110"
                     style={{ backgroundImage: `url("${service.image_url}")` }}
                   />
                 )}
-                
+
                 {/* Content Overlay */}
                 <div className="relative z-10 flex flex-col h-full">
                   <div className="mx-auto flex h-16 w-16 items-center justify-center rounded-full bg-[rgba(var(--primary-rgb),0.2)] text-[var(--primary)] shadow-lg">

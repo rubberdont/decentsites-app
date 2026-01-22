@@ -48,13 +48,13 @@ export default function StatsBar({ sectionConfig, stats }: StatsBarProps) {
   const statsData = stats && stats.length > 0 ? stats : defaultStats;
 
   return (
-    <section className="bg-[#f5f5f5] dark:bg-[#1a1a1a] py-16 sm:py-24">
+    <section className="bg-[#1a1a1a] dark:bg-[#1a1a1a] py-16 sm:py-24">
       <div className="container mx-auto px-4">
         <div className="text-center mb-12">
-          <h2 className="text-3xl font-bold tracking-tight text-[#1a1a1a] dark:text-[#f5f5f5] sm:text-4xl font-display">
+          <h2 className="text-3xl font-bold tracking-tight text-[#f5f5f5] dark:text-[#f5f5f5] sm:text-4xl font-display">
             {section.title}
           </h2>
-          <p className="mt-4 text-lg text-gray-600 dark:text-gray-400 font-body">
+          <p className="mt-4 text-lg text-gray-400 dark:text-gray-400 font-body">
             {section.subtitle}
           </p>
         </div>
@@ -63,9 +63,9 @@ export default function StatsBar({ sectionConfig, stats }: StatsBarProps) {
           {statsData.map((stat) => (
             <div
               key={stat.id}
-              className="group relative flex flex-col items-center justify-center rounded-xl bg-[#f5f5f5] dark:bg-[#2a2a2a] p-8 text-center transition-all duration-300 hover:-translate-y-2 hover:shadow-2xl hover:shadow-[#d4af37]/20 min-w-[250px]"
+              className="group relative flex flex-col items-center justify-center rounded-xl bg-[#2a2a2a] dark:bg-[#2a2a2a] p-8 text-center transition-all duration-300 hover:-translate-y-2 hover:shadow-2xl hover:shadow-[#d4af37]/20 min-w-[250px]"
             >
-              <div className="absolute top-4 right-4 flex h-10 w-10 items-center justify-center rounded-lg text-[#1a1a1a] dark:text-[#f5f5f5] transition-transform duration-300 group-hover:scale-110">
+              <div className="absolute top-4 right-4 flex h-10 w-10 items-center justify-center rounded-lg text-[#f5f5f5] dark:text-[#f5f5f5] transition-transform duration-300 group-hover:scale-110">
                 {platformIcons[stat.platform] || platformIcons.custom}
               </div>
               <p className="font-display text-5xl font-black text-[#d4af37]">{stat.value}</p>
@@ -87,7 +87,7 @@ export default function StatsBar({ sectionConfig, stats }: StatsBarProps) {
                   </svg>
                 </div>
               ) : (
-                <p className="mt-2 font-body text-gray-500 dark:text-gray-400">{stat.label}</p>
+                <p className="mt-2 font-body text-gray-400 dark:text-gray-400">{stat.label}</p>
               )}
             </div>
           ))}
