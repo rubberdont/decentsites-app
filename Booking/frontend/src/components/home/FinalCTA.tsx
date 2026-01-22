@@ -60,10 +60,10 @@ export default function FinalCTA({ config }: FinalCTAProps) {
   return (
     <section className="container mx-auto px-4 py-16 sm:py-24">
       <div className={`rounded-lg ${getBackgroundClasses()} p-8 text-center md:p-16`}>
-        <h2 className="text-3xl font-bold tracking-tight text-[#1a1a1a] dark:text-[#f5f5f5] sm:text-4xl font-display">
+        <h2 className="text-3xl font-bold tracking-tight text-[#f5f5f5] dark:text-[#f5f5f5] sm:text-4xl font-display">
           {ctaConfig.title}
         </h2>
-        <p className="mt-4 text-lg text-gray-600 dark:text-gray-400 font-body">
+        <p className="mt-4 text-lg text-gray-400 dark:text-gray-400 font-body">
           {ctaConfig.subtitle}
         </p>
         {/* CTA Button - ALWAYS links to /book (hardcoded) */}

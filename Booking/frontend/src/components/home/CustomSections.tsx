@@ -38,7 +38,7 @@ function ImageTextSection({ block }: { block: ImageTextBlock }) {
     const isRight = block.layout === 'right';
 
     return (
-        <section className="py-16 md:py-24 bg-white dark:bg-white/5">
+        <section className="py-16 md:py-24 bg-white/5 dark:bg-white/5/5">
             <div className="container mx-auto px-4">
                 <div className={`flex flex-col md:flex-row gap-12 items-center ${isRight ? 'md:flex-row-reverse' : ''}`}>
                     {/* Image */}
@@ -53,10 +53,10 @@ function ImageTextSection({ block }: { block: ImageTextBlock }) {
                     </div>
                     {/* Content */}
                     <div className="w-full md:w-1/2 flex flex-col gap-6">
-                        <h2 className="text-3xl md:text-4xl font-bold font-display text-slate-900 dark:text-white">
+                        <h2 className="text-3xl md:text-4xl font-bold font-display text-white dark:text-white">
                             {block.title}
                         </h2>
-                        <div className="prose dark:prose-invert text-lg text-gray-600 dark:text-gray-300 font-body">
+                        <div className="prose dark:prose-invert dark:prose dark:prose-invert-invert text-lg text-gray-300 dark:text-gray-300 font-body">
                             {block.content.split('\n').map((line, i) => (
                                 <p key={i}>{line}</p>
                             ))}
@@ -76,15 +76,15 @@ function TextSection({ block }: { block: TextBlock }) {
     }[block.alignment || 'left'];
 
     return (
-        <section className="py-16 md:py-24 bg-[var(--bg-light)] dark:bg-[var(--bg-dark)]">
+        <section className="py-16 md:py-24 bg-[var(--bg-dark)] dark:bg-[var(--bg-dark)]">
             <div className="container mx-auto px-4">
                 <div className={`max-w-4xl mx-auto flex flex-col gap-6 ${alignClass}`}>
                     {block.title && (
-                        <h2 className="text-3xl md:text-4xl font-bold font-display text-slate-900 dark:text-white">
+                        <h2 className="text-3xl md:text-4xl font-bold font-display text-white dark:text-white">
                             {block.title}
                         </h2>
                     )}
-                    <div className={`prose dark:prose-invert text-lg text-gray-600 dark:text-gray-300 font-body max-w-none w-full`}>
+                    <div className={`prose dark:prose-invert dark:prose dark:prose-invert-invert text-lg text-gray-300 dark:text-gray-300 font-body max-w-none w-full`}>
                         {block.content.split('\n').map((line, i) => (
                             <p key={i}>{line}</p>
                         ))}
@@ -97,7 +97,7 @@ function TextSection({ block }: { block: TextBlock }) {
 
 function GallerySection({ block }: { block: GalleryBlock }) {
     return (
-        <section className="py-16 md:py-24 bg-white dark:bg-white/5">
+        <section className="py-16 md:py-24 bg-white/5 dark:bg-white/5/5">
             <div className="container mx-auto px-4 text-center">
                 <h2 className="text-3xl font-bold mb-8 dark:text-white">{block.title || 'Gallery'}</h2>
                 <p className="text-gray-500 italic">Gallery display coming soon...</p>
@@ -108,12 +108,12 @@ function GallerySection({ block }: { block: GalleryBlock }) {
 
 function FrameSection({ block }: { block: FrameBlock }) {
     return (
-        <section className="py-8 md:py-12 bg-white dark:bg-white/5">
+        <section className="py-8 md:py-12 bg-white/5 dark:bg-white/5/5">
             <div className="container mx-auto px-4">
                 <iframe
                     src={block.url}
                     style={{ height: `${block.height}px` }}
-                    className="w-full rounded-xl border border-gray-200 dark:border-gray-800 shadow-sm"
+                    className="w-full rounded-xl border border-gray-800 dark:border-gray-800 shadow-sm"
                     title="Embedded Content"
                 />
             </div>

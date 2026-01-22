@@ -48,10 +48,10 @@ export default function PortfolioGallery({ sectionConfig, items }: PortfolioGall
   return (
     <section className="container mx-auto px-4 py-16 sm:py-24">
       <div className="text-center mb-12">
-        <h2 className="text-3xl font-bold tracking-tight text-[#1a1a1a] dark:text-[#f5f5f5] sm:text-4xl font-display">
+        <h2 className="text-3xl font-bold tracking-tight text-[#f5f5f5] dark:text-[#f5f5f5] sm:text-4xl font-display">
           {section.title}
         </h2>
-        <p className="mt-4 text-lg text-gray-600 dark:text-gray-400 font-body">
+        <p className="mt-4 text-lg text-gray-400 dark:text-gray-400 font-body">
           {section.subtitle}
         </p>
       </div>

@@ -36,13 +36,13 @@ export default function Header() {
   return (
     <header
       className={`sticky top-0 z-50 w-full transition-all duration-300 ${scrolled
-        ? 'bg-[#f5f5f5]/80 dark:bg-[#1a1a1a]/80 backdrop-blur-sm border-b border-white/10'
-        : 'bg-[#f5f5f5]/80 dark:bg-[#1a1a1a]/80 backdrop-blur-sm border-b border-white/10'
+        ? 'bg-[#1a1a1a]/80 dark:bg-[#1a1a1a]/80 backdrop-blur-sm border-b border-white/10'
+        : 'bg-[#1a1a1a]/80 dark:bg-[#1a1a1a]/80 backdrop-blur-sm border-b border-white/10'
         }`}
     >
       <div className="container mx-auto flex items-center justify-between whitespace-nowrap px-4 py-3">
         {/* Logo */}
-        <Link href="/" className="flex items-center gap-4 text-[#1a1a1a] dark:text-[#f5f5f5]">
+        <Link href="/" className="flex items-center gap-4 text-[#f5f5f5] dark:text-[#f5f5f5]">
           <div className="relative size-12">
             <Image
               src="/barchair.svg"
@@ -81,8 +81,8 @@ export default function Header() {
                 className="group flex flex-col items-center justify-center relative focus:outline-none"
                 aria-label="Profile Menu"
               >
-                <div className={`flex h-10 w-10 items-center justify-center rounded-full transition-colors ${profileDropdownOpen ? 'bg-[#d4af37]/20 border border-[#d4af37]' : 'bg-gray-100 hover:bg-gray-200 dark:bg-gray-800 dark:hover:bg-gray-700'}`}>
-                  <svg className={`size-5 transition-colors ${profileDropdownOpen ? 'text-[#d4af37]' : 'text-[#1a1a1a] dark:text-[#f5f5f5]'}`} fill="none" strokeWidth="1.5" stroke="currentColor" viewBox="0 0 24 24">
+                <div className={`flex h-10 w-10 items-center justify-center rounded-full transition-colors ${profileDropdownOpen ? 'bg-[#d4af37]/20 border border-[#d4af37]' : 'bg-gray-800 hover:bg-gray-700 dark:bg-gray-800 dark:hover:bg-gray-700'}`}>
+                  <svg className={`size-5 transition-colors ${profileDropdownOpen ? 'text-[#d4af37]' : 'text-[#f5f5f5] dark:text-[#f5f5f5]'}`} fill="none" strokeWidth="1.5" stroke="currentColor" viewBox="0 0 24 24">
                     <path strokeLinecap="round" strokeLinejoin="round" d="M15.75 6a3.75 3.75 0 1 1-7.5 0 3.75 3.75 0 0 1 7.5 0ZM4.501 20.118a7.5 7.5 0 0 1 14.998 0A17.933 17.933 0 0 1 12 21.75c-2.676 0-5.216-.584-7.499-1.632Z" />
                   </svg>
                 </div>
@@ -94,14 +94,14 @@ export default function Header() {
                     className="fixed inset-0 z-10"
                     onClick={() => setProfileDropdownOpen(false)}
                   ></div>
-                  <div className="absolute right-0 top-full mt-2 w-48 rounded-lg bg-white dark:bg-[#2a2a2a] shadow-xl border border-gray-100 dark:border-white/10 py-1 z-20">
-                    <div className="px-4 py-2 border-b border-gray-100 dark:border-white/10">
-                      <p className="text-xs text-gray-500 dark:text-gray-400">Signed in as</p>
-                      <p className="text-sm font-bold text-[#1a1a1a] dark:text-[#f5f5f5] truncate">{user?.name || user?.email || 'User'}</p>
+                  <div className="absolute right-0 top-full mt-2 w-48 rounded-lg bg-[#2a2a2a] dark:bg-[#2a2a2a] shadow-xl border border-white/10 dark:border-white/10 py-1 z-20">
+                    <div className="px-4 py-2 border-b border-white/10 dark:border-white/10">
+                      <p className="text-xs text-gray-400 dark:text-gray-400">Signed in as</p>
+                      <p className="text-sm font-bold text-[#f5f5f5] dark:text-[#f5f5f5] truncate">{user?.name || user?.email || 'User'}</p>
                     </div>
                     <Link
                       href="/settings/profile"
-                      className="flex items-center gap-2 px-4 py-2 text-sm text-[#1a1a1a] dark:text-[#f5f5f5] hover:bg-gray-50 dark:hover:bg-gray-800 transition-colors"
+                      className="flex items-center gap-2 px-4 py-2 text-sm text-[#f5f5f5] dark:text-[#f5f5f5] hover:bg-gray-800 dark:hover:bg-gray-800 transition-colors"
                       onClick={() => setProfileDropdownOpen(false)}
                     >
                       <svg className="size-4" fill="none" viewBox="0 0 24 24" strokeWidth={1.5} stroke="currentColor">
@@ -111,7 +111,7 @@ export default function Header() {
                     </Link>
                     <Link
                       href="/settings/profile"
-                      className="flex items-center gap-2 px-4 py-2 text-sm text-[#1a1a1a] dark:text-[#f5f5f5] hover:bg-gray-50 dark:hover:bg-gray-800 transition-colors"
+                      className="flex items-center gap-2 px-4 py-2 text-sm text-[#f5f5f5] dark:text-[#f5f5f5] hover:bg-gray-800 dark:hover:bg-gray-800 transition-colors"
                       onClick={() => setProfileDropdownOpen(false)}
                     >
                       <svg className="size-4" fill="none" viewBox="0 0 24 24" strokeWidth={1.5} stroke="currentColor">
@@ -154,7 +154,7 @@ export default function Header() {
         {/* Mobile Menu Button */}
         <div className="md:hidden">
           <button
-            className="p-2 text-[#1a1a1a] dark:text-[#f5f5f5]"
+            className="p-2 text-[#f5f5f5] dark:text-[#f5f5f5]"
             onClick={() => setMobileMenuOpen(!mobileMenuOpen)}
           >
             <svg className="w-6 h-6" fill="none" stroke="currentColor" viewBox="0 0 24 24">
@@ -170,7 +170,7 @@ export default function Header() {
 
       {/* Mobile Menu */}
       {mobileMenuOpen && (
-        <div className="md:hidden bg-[#f5f5f5] dark:bg-[#1a1a1a] border-t border-white/10 px-4 py-4">
+        <div className="md:hidden bg-[#1a1a1a] dark:bg-[#1a1a1a] border-t border-white/10 px-4 py-4">
           <nav className="flex flex-col gap-4">
             <Link
               href="/book"

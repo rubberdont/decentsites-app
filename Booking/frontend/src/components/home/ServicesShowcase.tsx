@@ -144,7 +144,7 @@ export default function ServicesShowcase({ sectionConfig }: ServicesShowcaseProp
           <h2 className="text-3xl font-bold tracking-tight text-[#1a1a1a] dark:text-[#f5f5f5] sm:text-4xl font-display">
             {section.title}
           </h2>
-          <p className="mt-4 text-lg text-gray-600 dark:text-gray-400 font-body">
+          <p className="mt-4 text-lg text-gray-400 dark:text-gray-400 font-body">
             {section.subtitle}
           </p>
         </div>
@@ -185,7 +185,7 @@ export default function ServicesShowcase({ sectionConfig }: ServicesShowcaseProp
                 {/* Individual Service Blurred Background */}
                 {service.image_url && (
                   <div 
-                    className="absolute inset-0 z-0 bg-cover bg-center bg-no-repeat opacity-40 dark:opacity-20 blur-sm scale-105 transition-transform duration-500 group-hover:scale-110"
+                    className="absolute inset-0 z-0 bg-cover bg-center bg-no-repeat opacity-20 dark:opacity-20 blur-sm scale-105 transition-transform duration-500 group-hover:scale-110"
                     style={{ backgroundImage: `url("${service.image_url}")` }}
                   />
                 )}
@@ -195,10 +195,10 @@ export default function ServicesShowcase({ sectionConfig }: ServicesShowcaseProp
                   <div className="mx-auto flex h-16 w-16 items-center justify-center rounded-full bg-[rgba(var(--primary-rgb),0.2)] text-[var(--primary)] shadow-lg">
                     {icons[service.icon] || icons['content_cut']}
                   </div>
-                  <h3 className="mt-6 text-xl font-bold font-display text-slate-900 dark:text-gray-100">
+                  <h3 className="mt-6 text-xl font-bold font-display text-gray-100 dark:text-gray-100">
                     {service.title}
                   </h3>
-                  <p className="mt-2 text-base text-gray-600 dark:text-gray-400 font-body flex-grow">
+                  <p className="mt-2 text-base text-gray-400 dark:text-gray-400 font-body flex-grow">
                     {service.description}
                   </p>
                   <p className="mt-4 text-lg font-bold text-[var(--primary)] font-display">

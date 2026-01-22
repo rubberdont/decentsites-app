@@ -9,17 +9,17 @@ export default function MapSection() {
     };
 
     return (
-        <section className="bg-white dark:bg-[#1a1a1a] py-16">
+        <section className="bg-[#1a1a1a] dark:bg-[#1a1a1a] py-16">
             <div className="container mx-auto px-4">
                 <div className="text-center mb-12">
-                    <h2 className="text-3xl font-bold tracking-tight text-[#1a1a1a] dark:text-[#f5f5f5] sm:text-4xl font-display">
+                    <h2 className="text-3xl font-bold tracking-tight text-[#f5f5f5] dark:text-[#f5f5f5] sm:text-4xl font-display">
                         Find Us
                     </h2>
-                    <p className="mt-4 text-lg text-gray-600 dark:text-gray-400 font-body">
+                    <p className="mt-4 text-lg text-gray-400 dark:text-gray-400 font-body">
                         Visit our premium location in the heart of the city.
                     </p>
                 </div>
-                <div className="w-full h-[400px] bg-gray-200 dark:bg-gray-800 rounded-xl overflow-hidden relative">
+                <div className="w-full h-[400px] bg-gray-800 dark:bg-gray-800 rounded-xl overflow-hidden relative">
                     <img
                         src="/map.png"
                         alt="Map"
@@ -31,7 +31,7 @@ export default function MapSection() {
                             onKeyDown={(e) => e.key === 'Enter' && handleMapClick()}
                             role="button"
                             tabIndex={0}
-                            className="bg-white/90 dark:bg-gray-900/90 backdrop-blur-sm p-4 rounded-lg shadow-lg border border-white/20 cursor-pointer hover:scale-105 transition-transform duration-200 focus:outline-none focus:ring-2 focus:ring-[#d4af37] mx-4 max-w-[280px] sm:max-w-md"
+                            className="bg-[#1a1a1a]/90 dark:bg-gray-900/90 backdrop-blur-sm p-4 rounded-lg shadow-lg border border-white/20 cursor-pointer hover:scale-105 transition-transform duration-200 focus:outline-none focus:ring-2 focus:ring-[#d4af37] mx-4 max-w-[280px] sm:max-w-md"
                         >
                             <div className="flex items-center gap-3">
                                 <div className="p-2 bg-[#d4af37] rounded-full shrink-0">
@@ -41,8 +41,8 @@ export default function MapSection() {
                                     </svg>
                                 </div>
                                 <div>
-                                    <h3 className="font-bold text-[#1a1a1a] dark:text-[#f5f5f5] text-sm sm:text-base">My Shop</h3>
-                                    <p className="text-xs sm:text-sm text-gray-600 dark:text-gray-400 leading-tight">{address}</p>
+                                    <h3 className="font-bold text-[#f5f5f5] dark:text-[#f5f5f5] text-sm sm:text-base">My Shop</h3>
+                                    <p className="text-xs sm:text-sm text-gray-400 dark:text-gray-400 leading-tight">{address}</p>
                                 </div>
                             </div>
                         </div>

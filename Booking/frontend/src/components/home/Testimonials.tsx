@@ -42,13 +42,13 @@ export default function Testimonials({ sectionConfig, testimonials }: Testimonia
   const testimonialsData = testimonials && testimonials.length > 0 ? testimonials : defaultTestimonials;
 
   return (
-    <section className="bg-[var(--bg-light)] dark:bg-[var(--bg-dark)] py-16 sm:py-24">
+    <section className="bg-[var(--bg-dark)] dark:bg-[var(--bg-dark)] py-16 sm:py-24">
       <div className="container mx-auto px-4">
         <div className="text-center mb-12">
-          <h2 className="text-3xl font-bold tracking-tight text-slate-900 dark:text-gray-100 sm:text-4xl font-display">
+          <h2 className="text-3xl font-bold tracking-tight text-gray-100 dark:text-gray-100 sm:text-4xl font-display">
             {section.title}
           </h2>
-          <p className="mt-4 text-lg text-gray-600 dark:text-gray-400 font-body">
+          <p className="mt-4 text-lg text-gray-400 dark:text-gray-400 font-body">
             {section.subtitle}
           </p>
         </div>
@@ -57,13 +57,13 @@ export default function Testimonials({ sectionConfig, testimonials }: Testimonia
           {testimonialsData.map((testimonial) => (
             <div
               key={testimonial.id}
-              className="flex flex-col rounded-lg border border-white/10 bg-white dark:bg-white/5 p-6"
+              className="flex flex-col rounded-lg border border-white/10 bg-white/5 dark:bg-white/5/5 p-6"
             >
-              <p className="flex-grow text-base italic text-gray-700 dark:text-gray-300 font-body">
+              <p className="flex-grow text-base italic text-gray-300 dark:text-gray-300 font-body">
                 &ldquo;{testimonial.quote}&rdquo;
               </p>
               <div className="mt-4 pt-4 border-t border-white/10">
-                <p className="text-sm font-bold text-slate-900 dark:text-gray-100 font-display">
+                <p className="text-sm font-bold text-gray-100 dark:text-gray-100 font-display">
                   {testimonial.name}
                 </p>
                 <p className="text-sm text-gray-500">{testimonial.title}</p>

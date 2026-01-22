@@ -82,7 +82,7 @@ export default function Footer({ config }: FooterProps) {
         </div>
 
         {/* Copyright */}
-        <div className="mt-8 border-t border-white/10 pt-8 text-center text-sm text-gray-500 dark:text-gray-400">
+        <div className="mt-8 border-t border-white/10 pt-8 text-center text-sm text-gray-400 dark:text-gray-400">
           <p>&copy; {new Date().getFullYear()} {footerConfig.business_name}. All rights reserved.</p>
         </div>
       </div>
