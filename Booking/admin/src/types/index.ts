@@ -183,8 +183,9 @@ export interface BookingFilters {
 }
 
 export interface RescheduleRequest {
-  booking_date: string;
-  time_slot?: string;
+  new_date: string;
+  new_time_slot?: string;
+  notes?: string;
 }
 
 // ============================================================================
