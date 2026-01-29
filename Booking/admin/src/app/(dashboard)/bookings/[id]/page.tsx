@@ -6,7 +6,7 @@ import { formatTime12Hour, isToday, isTimeSlotPast, isPastDateTime, getMinDate }
 import { useState, useEffect, useMemo } from 'react';
 import Link from 'next/link';
 import { useParams } from 'next/navigation';
-import { Booking, BookingStatus } from '@/types';
+import { Booking, BookingStatus, AvailabilitySlot } from '@/types';
 import { StatusBadge, BookingDetailCard, BookingTimeline, BookingActions } from '@/components/bookings';
 import { Modal, LoadingSpinner } from '@/components/ui';
 import { BookingActionType } from '@/components/bookings/BookingActions';
