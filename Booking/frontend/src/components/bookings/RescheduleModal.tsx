@@ -39,11 +39,11 @@ export default function RescheduleModal({
   // Filter out past time slots when today is selected
   const displaySlots = useMemo(() => {
     if (!selectedDate || !availableSlots.length) return [];
-    
+
     if (isToday(selectedDate)) {
       return availableSlots.filter(slot => !isTimeSlotPast(slot.time_slot));
     }
-    
+
     return availableSlots;
   }, [selectedDate, availableSlots]);
   // Initialize with current booking date
@@ -66,14 +66,14 @@ export default function RescheduleModal({
     try {
       const date = new Date(selectedDate);
       const dateStr = format(date, 'yyyy-MM-dd');
-      
+
       // Use the dedicated single-date endpoint
       const dateAvailability = await availabilityAPI.getSlotsForDate(
         booking.profile_id,
         dateStr
       );
-      
-      setAvailableSlots(dateAvailability?.slots || []);
+
+      setAvailableSlots(dateAvailability?.data.slots || []);
     } catch (error) {
       console.error('Failed to load slots:', error);
       setAvailableSlots([]);
@@ -101,7 +101,7 @@ export default function RescheduleModal({
     try {
       // Format date as ISO string
       const isoDate = `${selectedDate}T00:00:00.000Z`;
-      
+
       await onConfirm(isoDate, selectedSlot);
     } finally {
       setLoading(false);
@@ -169,7 +169,7 @@ export default function RescheduleModal({
               <label className="block text-sm font-medium text-gray-700 mb-2">
                 Select New Time Slot
               </label>
-              
+
               {loadingSlots ? (
                 <div className="text-center py-8">
                   <div className="inline-block animate-spin rounded-full h-8 w-8 border-b-2 border-gray-900"></div>
@@ -184,7 +184,7 @@ export default function RescheduleModal({
                   {displaySlots.map((slot) => {
                     const available = isSlotAvailable(slot);
                     const isSelected = selectedSlot === slot.time_slot;
-                    
+
                     return (
                       <button
                         key={slot.id}
@@ -195,8 +195,8 @@ export default function RescheduleModal({
                           ${isSelected
                             ? 'border-blue-500 bg-blue-50 text-blue-700'
                             : available
-                            ? 'border-gray-200 bg-white text-gray-700 hover:border-blue-300 hover:bg-blue-50'
-                            : 'border-gray-200 bg-gray-100 text-gray-400 cursor-not-allowed'
+                              ? 'border-gray-200 bg-white text-gray-700 hover:border-blue-300 hover:bg-blue-50'
+                              : 'border-gray-200 bg-gray-100 text-gray-400 cursor-not-allowed'
                           }
                         `}
                       >
