@@ -65,13 +65,15 @@ export default function RescheduleModal({
     setLoadingSlots(true);
     try {
       const date = new Date(selectedDate);
-      const slots = await availabilityAPI.getAvailability(
+      const dateStr = format(date, 'yyyy-MM-dd');
+      
+      // Use the dedicated single-date endpoint
+      const dateAvailability = await availabilityAPI.getSlotsForDate(
         booking.profile_id,
-        date.getFullYear(),
-        date.getMonth() + 1,
-        date.getDate()
+        dateStr
       );
-      setAvailableSlots(slots || []);
+      
+      setAvailableSlots(dateAvailability?.slots || []);
     } catch (error) {
       console.error('Failed to load slots:', error);
       setAvailableSlots([]);
