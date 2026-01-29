@@ -1,6 +1,6 @@
 from fastapi import APIRouter, HTTPException, status, Depends
 from typing import List
-from datetime import datetime
+from datetime import datetime, timezone
 import uuid
 
 from modules.auth.security import get_current_user
@@ -90,7 +90,7 @@ async def get_availability_for_date_range(
     
     # Get all slots for date range
     db = __import__('core.mongo_helper', fromlist=['mongo_db']).mongo_db
-    start_normalized = start_date.replace(hour=0, minute=0, second=0, microsecond=0)
+    start_normalized = start_date.replace(hour=0, minute=0, second=0, microsecond=0, tzinfo=timezone.utc)
     end_normalized = end_date.replace(hour=23, minute=59, second=59, microsecond=999999)
     
     slots = db.find_many(
@@ -158,7 +158,7 @@ async def get_slots_for_date(
     available_count = len([s for s in slots if s.is_available])
     
     return DateAvailability(
-        date=date.replace(hour=0, minute=0, second=0, microsecond=0),
+        date=date.replace(hour=0, minute=0, second=0, microsecond=0, tzinfo=timezone.utc),
         total_slots=len(slots),
         available_slots=available_count,
         slots=slots
@@ -483,7 +483,7 @@ async def apply_template_to_date(
         )
     
     # Normalize date to midnight
-    date_normalized = request.date.replace(hour=0, minute=0, second=0, microsecond=0)
+    date_normalized = request.date.replace(hour=0, minute=0, second=0, microsecond=0, tzinfo=timezone.utc)
     
     # Create slots from template
     created_slots = []
@@ -570,7 +570,7 @@ async def bulk_apply_template(
     for date in request.dates:
         try:
             # Normalize date to midnight
-            date_normalized = date.replace(hour=0, minute=0, second=0, microsecond=0)
+            date_normalized = date.replace(hour=0, minute=0, second=0, microsecond=0, tzinfo=timezone.utc)
             
             # Delete existing slots for this date first (optional: could make this configurable)
             AvailabilityRepository.delete_slots_for_date(profile_id, date_normalized)

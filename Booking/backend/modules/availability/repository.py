@@ -1,6 +1,6 @@
 import uuid
 from typing import List, Dict, Any, Optional
-from datetime import datetime, timedelta
+from datetime import datetime, timedelta, timezone
 from core.mongo_helper import mongo_db
 from .models import TimeSlotConfig, AvailabilitySlot, DateAvailability
 
@@ -28,7 +28,7 @@ class AvailabilityRepository:
             List of created slot documents
         """
         # Normalize date to midnight
-        date_normalized = date.replace(hour=0, minute=0, second=0, microsecond=0)
+        date_normalized = date.replace(hour=0, minute=0, second=0, microsecond=0, tzinfo=timezone.utc)
         
         # Parse times
         start_parts = config.start_time.split(":")
@@ -90,13 +90,49 @@ class AvailabilityRepository:
         Returns:
             List of AvailabilitySlot
         """
-        date_normalized = date.replace(hour=0, minute=0, second=0, microsecond=0)
+        date_normalized = date.replace(hour=0, minute=0, second=0, microsecond=0, tzinfo=timezone.utc)
         
+        query = {
+            "profile_id": profile_id,
+            "date": date_normalized
+        }
+
+        print(query)
         slots = mongo_db.find_many(
+            AvailabilityRepository.COLLECTION,
+            query,
+            sort=[("time_slot", 1)]
+        )
+
+        print(slots)
+        
+        return [AvailabilitySlot(**s) for s in slots]
+    
+    @staticmethod
+    def check_slot_availability(
+        profile_id: str,
+        date: datetime,
+        time_slot: str
+    ) -> bool:
+        """
+        Check if a specific slot is available.
+        
+        Args:
+            profile_id: Profile ID
+            date: Date to check
+            time_slot: Time slot string
+            
+        Returns:
+            True if slot has capacity, False otherwise
+        """
+        date_normalized = date.replace(hour=0, minute=0, second=0, microsecond=0, tzinfo=timezone.utc)
+        
+        slot = mongo_db.find_one(
             AvailabilityRepository.COLLECTION,
             {
                 "profile_id": profile_id,
-                "date": date_normalized
+                "date": date_normalized,
+                "time_slot": time_slot
             },
             sort=[("time_slot", 1)]
         )
@@ -120,7 +156,7 @@ class AvailabilityRepository:
         Returns:
             True if slot has capacity, False otherwise
         """
-        date_normalized = date.replace(hour=0, minute=0, second=0, microsecond=0)
+        date_normalized = date.replace(hour=0, minute=0, second=0, microsecond=0, tzinfo=timezone.utc)
         
         slot = mongo_db.find_one(
             AvailabilityRepository.COLLECTION,
@@ -263,7 +299,7 @@ class AvailabilityRepository:
         ]
         
         for date in dates:
-            date_normalized = date.replace(hour=0, minute=0, second=0, microsecond=0)
+            date_normalized = date.replace(hour=0, minute=0, second=0, microsecond=0, tzinfo=timezone.utc)
             date_end = date_normalized.replace(hour=23, minute=59, second=59, microsecond=999999)
             
             # Check the BOOKINGS collection for active bookings on this date
@@ -294,7 +330,7 @@ class AvailabilityRepository:
         Returns:
             Number of deleted slots
         """
-        date_normalized = date.replace(hour=0, minute=0, second=0, microsecond=0)
+        date_normalized = date.replace(hour=0, minute=0, second=0, microsecond=0, tzinfo=timezone.utc)
         date_end = date_normalized.replace(hour=23, minute=59, second=59, microsecond=999999)
         
         result = mongo_db.delete_many(
@@ -326,7 +362,7 @@ class AvailabilityRepository:
         failed_dates = []
         
         for date in dates:
-            date_str = date.replace(hour=0, minute=0, second=0, microsecond=0).strftime("%Y-%m-%d")
+            date_str = date.replace(hour=0, minute=0, second=0, microsecond=0, tzinfo=timezone.utc).strftime("%Y-%m-%d")
             
             # Skip protected dates
             if date_str in protected_dates:

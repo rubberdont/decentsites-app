@@ -19,6 +19,8 @@ export default function MyBookingsPage() {
   const [cancellingId, setCancellingId] = useState<string | null>(null);
   const [activeTab, setActiveTab] = useState<'upcoming' | 'past'>('upcoming');
   const [bookingToCancel, setBookingToCancel] = useState<string | null>(null);
+  const [rescheduleModalOpen, setRescheduleModalOpen] = useState(false);
+  const [bookingToReschedule, setBookingToReschedule] = useState<Booking | null>(null);
   const { showToast, ToastComponent } = useToast();
 
   useEffect(() => {
@@ -70,23 +72,55 @@ export default function MyBookingsPage() {
     setBookingToCancel(null);
   };
 
-  const handleConfirmCancel = async () => {
-    if (!bookingToCancel) return;
+  const handleCancelBooking = (bookingId: string) => {
+  openCancelModal(bookingId);
+};
 
-    try {
-      setCancellingId(bookingToCancel);
-      await bookingsAPI.cancel(bookingToCancel);
-      closeCancelModal();
-      showToast('Booking cancelled successfully', 'success');
-      // Refresh bookings list
-      await loadBookings();
-    } catch (err) {
-      console.error('Failed to cancel booking:', err);
-      showToast('Failed to cancel booking. Please try again.', 'error');
-    } finally {
-      setCancellingId(null);
-    }
-  };
+const handleRescheduleClick = (booking: Booking) => {
+  setBookingToReschedule(booking);
+  setRescheduleModalOpen(true);
+};
+
+const handleRescheduleConfirm = async (newDate: string, newTimeSlot: string) => {
+  if (!bookingToReschedule) return;
+  
+  try {
+    await bookingsAPI.reschedule(bookingToReschedule.id, {
+      new_date: newDate,
+      new_time_slot: newTimeSlot,
+    });
+    
+    showToast('Booking rescheduled successfully!', 'success');
+    setRescheduleModalOpen(false);
+    setBookingToReschedule(null);
+    
+    // Refresh bookings
+    loadBookings();
+  } catch (error: any) {
+    showToast(
+      error.response?.data?.detail || 'Failed to reschedule booking',
+      'error'
+    );
+  }
+};
+
+const handleConfirmCancel = async () => {
+  if (!bookingToCancel) return;
+
+  try {
+    setCancellingId(bookingToCancel);
+    await bookingsAPI.cancel(bookingToCancel);
+    closeCancelModal();
+    showToast('Booking cancelled successfully', 'success');
+    // Refresh bookings list
+    await loadBookings();
+  } catch (err) {
+    console.error('Failed to cancel booking:', err);
+    showToast('Failed to cancel booking. Please try again.', 'error');
+  } finally {
+    setCancellingId(null);
+  }
+};
 
   // Check if a booking date is upcoming
   const isUpcoming = (dateString: string): boolean => {
@@ -314,22 +348,44 @@ export default function MyBookingsPage() {
                             </button>
                           </Link>
                           {(booking.status === 'PENDING' || booking.status === 'CONFIRMED') && (
-                            <button
-                              onClick={() => openCancelModal(booking.id)}
-                              disabled={cancellingId === booking.id}
-                              className="flex min-w-[84px] cursor-pointer items-center justify-center overflow-hidden rounded-lg h-9 px-4 bg-red-500/20 hover:bg-red-500/30 text-red-400 text-sm font-medium leading-normal transition-colors disabled:opacity-50 disabled:cursor-not-allowed"
-                            >
-                              <span className="truncate">
-                                {cancellingId === booking.id ? 'Cancelling...' : 'Cancel'}
-                              </span>
-                            </button>
-                          )}
+                            {booking.status === 'PENDING' && (
+                              <div className="flex gap-2">
+                                <Button
+                                  variant="outline"
+                                  size="sm"
+                                  onClick={() => handleRescheduleClick(booking)}
+                                >
+                                  Reschedule
+                                </Button>
+                                <Button
+                                  variant="outline"
+                                  size="sm"
+                                  onClick={() => handleCancelBooking(booking.id)}
+                                >
+                                  Cancel
+                                </Button>
+                              </div>
+                            )}
+                            {booking.status === 'CONFIRMED' && (
+                              <div className="flex flex-col gap-2">
+                                <Button
+                                  variant="outline"
+                                  size="sm"
+                                  onClick={() => handleCancelBooking(booking.id)}
+                                >
+                                  Cancel Booking
+                                </Button>
+                                <p className="text-xs text-gray-500">
+                                  To reschedule, please contact the service provider
+                                </p>
+                              </div>
+                            )}
+                          </div>
                         </div>
                       </div>
-                    </div>
-                  );
-                })}
-              </div>
+                    );
+                  })}
+                </div>
             )}
 
             {/* Empty State */}
@@ -376,8 +432,23 @@ export default function MyBookingsPage() {
         isLoading={cancellingId !== null}
       />
 
+      {rescheduleModalOpen && bookingToReschedule && (
+        <RescheduleModal
+          booking={bookingToReschedule}
+          isOpen={rescheduleModalOpen}
+          onClose={() => {
+            setRescheduleModalOpen(false);
+            setBookingToReschedule(null);
+          }}
+          onConfirm={handleRescheduleConfirm}
+          showToast={showToast}
+        />
+      )}
+
       {/* Toast Notifications */}
       {ToastComponent}
     </ProtectedRoute>
   );
 }
+
+import RescheduleModal from '@/components/bookings/RescheduleModal';

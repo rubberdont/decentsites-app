@@ -27,6 +27,13 @@ class BookingStatusUpdate(BaseModel):
     status: BookingStatus = Field(..., description="New status for booking")
 
 
+class BookingRescheduleRequest(BaseModel):
+    """Request model for user rescheduling a booking."""
+    new_date: datetime = Field(..., description="New booking date")
+    new_time_slot: str = Field(..., description="New time slot (e.g., '09:00-10:00')")
+    notes: Optional[str] = Field(None, description="Optional notes about the reschedule")
+
+
 class BookingResponse(BaseModel):
     """Booking response model."""
     id: str

@@ -1,7 +1,7 @@
 import uuid
 import secrets
 from typing import Optional, Dict, Any, List
-from datetime import datetime
+from datetime import datetime, timezone
 from core.mongo_helper import mongo_db
 from .models import BookingStatus
 
@@ -152,7 +152,7 @@ class BookingRepository:
         """Count bookings for profile on specific date (excluding cancelled)."""
         # Create date range for the day
         from datetime import timedelta
-        date_start = date.replace(hour=0, minute=0, second=0, microsecond=0)
+        date_start = date.replace(hour=0, minute=0, second=0, microsecond=0, tzinfo=timezone.utc)
         date_end = date_start + timedelta(days=1)
         
         return mongo_db.count_documents(
@@ -163,3 +163,114 @@ class BookingRepository:
                 "status": {"$ne": BookingStatus.CANCELLED.value}
             }
         )
+    
+    @staticmethod
+    def count_confirmed_bookings_for_slot(profile_id: str, booking_date: datetime, time_slot: str) -> int:
+        """
+        Count CONFIRMED bookings for a specific time slot.
+        
+        Args:
+            profile_id: Profile ID
+            booking_date: Booking date (normalized to midnight)
+            time_slot: Time slot string (e.g., "09:00-10:00")
+            
+        Returns:
+            Count of confirmed bookings
+        """
+        # Normalize date to midnight for consistent querying
+        date_normalized = booking_date.replace(hour=0, minute=0, second=0, microsecond=0, tzinfo=timezone.utc)
+        
+        count = mongo_db.count_documents(
+            "bookings",
+            {
+                "profile_id": profile_id,
+                "booking_date": date_normalized,
+                "time_slot": time_slot,
+                "status": "CONFIRMED"
+            }
+        )
+        
+        return count
+    
+    @staticmethod
+    def user_has_active_booking_for_slot(user_id: str, profile_id: str, booking_date: datetime, time_slot: str) -> bool:
+        """
+        Check if user already has an active booking for a specific time slot.
+        Active means: PENDING or CONFIRMED status (not CANCELLED or REJECTED).
+        
+        Args:
+            user_id: User ID
+            profile_id: Profile ID
+            booking_date: Booking date (normalized to midnight)
+            time_slot: Time slot string (e.g., "09:00-10:00")
+            
+        Returns:
+            True if user has active booking, False otherwise
+        """
+        # Normalize date to midnight for consistent querying
+        date_normalized = booking_date.replace(hour=0, minute=0, second=0, microsecond=0, tzinfo=timezone.utc)
+        
+        # Check for existing booking with PENDING or CONFIRMED status
+        existing = mongo_db.find_one(
+            "bookings",
+            {
+                "user_id": user_id,
+                "profile_id": profile_id,
+                "booking_date": date_normalized,
+                "time_slot": time_slot,
+                "status": {"$in": ["PENDING", "CONFIRMED"]}
+            }
+        )
+        
+        return existing is not None
+
+    @staticmethod
+    def reschedule_booking(
+        booking_id: str,
+        new_date: datetime,
+        new_time_slot: str,
+        notes: Optional[str] = None
+    ) -> dict:
+        """
+        Reschedule a booking to a new date/time.
+        
+        Args:
+            booking_id: Booking ID
+            new_date: New booking date
+            new_time_slot: New time slot
+            notes: Optional notes about the reschedule
+            
+        Returns:
+            Updated booking document
+            
+        Raises:
+            ValueError if booking not found
+        """
+        booking = mongo_db.find_one("bookings", {"id": booking_id})
+        if not booking:
+            raise ValueError(f"Booking {booking_id} not found")
+        
+        # Store original date/time for logging
+        old_date = booking.get("booking_date")
+        old_slot = booking.get("time_slot")
+        
+        # Normalize new date to midnight
+        new_date_normalized = new_date.replace(hour=0, minute=0, second=0, microsecond=0, tzinfo=timezone.utc)
+        
+        # Update booking
+        update_data = {
+            "booking_date": new_date_normalized,
+            "time_slot": new_time_slot,
+            "updated_at": datetime.utcnow()
+        }
+        
+        mongo_db.update_one(
+            "bookings",
+            {"id": booking_id},
+            {"$set": update_data}
+        )
+        
+        # Get updated booking
+        updated_booking = mongo_db.find_one("bookings", {"id": booking_id})
+        
+        return updated_booking

@@ -1,6 +1,6 @@
 from fastapi import APIRouter, HTTPException, status, Depends
 from typing import List
-from datetime import datetime
+from datetime import datetime, timezone
 
 from .models import (
     BookingCreate,
@@ -8,6 +8,7 @@ from .models import (
     BookingRefResponse,
     BookingStatus,
     BookingStatusUpdate,
+    BookingRescheduleRequest,
 )
 from .repository import BookingRepository
 from modules.auth.security import get_current_user
@@ -97,7 +98,7 @@ async def create_booking(
     slot_id = None
     if booking_data.time_slot:
         # Find the slot
-        date_normalized = booking_data.booking_date.replace(hour=0, minute=0, second=0, microsecond=0)
+        date_normalized = booking_data.booking_date.replace(hour=0, minute=0, second=0, microsecond=0, tzinfo=timezone.utc)
         slot_doc = mongo_db.find_one(
             "availability_slots",
             {
@@ -115,15 +116,30 @@ async def create_booking(
         
         slot_id = slot_doc["id"]
         
-        # Check availability (capacity)
-        if slot_doc["booked_count"] >= slot_doc["max_capacity"]:
+        # NEW: Check if user already has an active booking for this slot
+        if BookingRepository.user_has_active_booking_for_slot(
+            user_id=current_user.user_id,
+            profile_id=booking_data.profile_id,
+            booking_date=date_normalized,
+            time_slot=booking_data.time_slot
+        ):
             raise HTTPException(
-                status_code=status.HTTP_400_BAD_REQUEST,
-                detail=f"Time slot {booking_data.time_slot} is fully booked"
+                status_code=status.HTTP_409_CONFLICT,
+                detail="You already have a booking for this time slot"
             )
         
-        # Increment booked count
-        AvailabilityRepository.increment_booked_count(slot_id)
+        # Check availability (capacity) - only count CONFIRMED bookings
+        confirmed_count = BookingRepository.count_confirmed_bookings_for_slot(
+            profile_id=booking_data.profile_id,
+            booking_date=date_normalized,
+            time_slot=booking_data.time_slot
+        )
+
+        if confirmed_count >= slot_doc["max_capacity"]:
+            raise HTTPException(
+                status_code=status.HTTP_400_BAD_REQUEST,
+                detail="This time slot is fully booked"
+            )
     
     # Create booking
     booking_doc = BookingRepository.create_booking(
@@ -151,6 +167,10 @@ async def create_booking(
         
         # Update booking_doc status for response
         booking_doc["status"] = BookingStatus.CONFIRMED.value
+        
+        # Increment booked count since booking is now CONFIRMED
+        if slot_id:
+            AvailabilityRepository.increment_booked_count(slot_id)
 
     # Notify owner about the new booking
     owner_user = mongo_db.find_one("users", {"id": profile.get("owner_id")})
@@ -301,6 +321,27 @@ async def update_booking_status(
     
     BookingRepository.update_booking_status(booking_id, status_update.status)
     
+    # Update slot booked count based on status change
+    booking = BookingRepository.get_booking_by_id(booking_id)
+    if booking.get("time_slot"):
+        date_normalized = booking["booking_date"].replace(hour=0, minute=0, second=0, microsecond=0)
+        slot_doc = mongo_db.find_one(
+            "availability_slots",
+            {
+                "profile_id": booking["profile_id"],
+                "date": date_normalized,
+                "time_slot": booking["time_slot"]
+            }
+        )
+        
+        if slot_doc:
+            # Increment count if CONFIRMED, decrement if REJECTED
+            if status_update.status == BookingStatus.CONFIRMED:
+                AvailabilityRepository.increment_booked_count(slot_doc["id"])
+            elif status_update.status == BookingStatus.REJECTED:
+                # No count change needed - PENDING bookings don't count
+                pass
+    
     updated_booking = BookingRepository.get_booking_by_id(booking_id)
     return BookingResponse(**updated_booking)
 
@@ -349,8 +390,8 @@ async def cancel_booking(
             detail=f"Cannot cancel booking with status {booking['status']}"
         )
     
-    # NEW: Decrement time slot booked count if there's a time slot
-    if booking.get("time_slot"):
+    # Decrement time slot booked count only if booking was CONFIRMED
+    if booking.get("time_slot") and booking["status"] == BookingStatus.CONFIRMED.value:
         date_normalized = booking["booking_date"].replace(hour=0, minute=0, second=0, microsecond=0)
         slot_doc = mongo_db.find_one(
             "availability_slots",
@@ -367,6 +408,162 @@ async def cancel_booking(
     BookingRepository.cancel_booking(booking_id)
     
     updated_booking = BookingRepository.get_booking_by_id(booking_id)
+    return BookingResponse(**updated_booking)
+
+
+@router.put("/{booking_id}/reschedule", response_model=BookingResponse)
+async def reschedule_booking(
+    booking_id: str,
+    reschedule_data: BookingRescheduleRequest,
+    background_tasks: BackgroundTasks,
+    current_user: UserCredentials = Depends(get_current_user),
+):
+    """
+    Reschedule a booking (user can reschedule PENDING bookings only).
+    
+    Args:
+        booking_id: Booking ID
+        reschedule_data: New date and time slot
+        current_user: Authenticated user
+        
+    Returns:
+        Updated BookingResponse
+        
+    Raises:
+        HTTPException: If booking not found, not authorized, or validation fails
+    """
+    booking = BookingRepository.get_booking_by_id(booking_id)
+    
+    if not booking:
+        raise HTTPException(
+            status_code=status.HTTP_404_NOT_FOUND,
+            detail="Booking not found"
+        )
+    
+    # Users can only reschedule their own bookings
+    if booking["user_id"] != current_user.user_id:
+        raise HTTPException(
+            status_code=status.HTTP_403_FORBIDDEN,
+            detail="Not authorized to reschedule this booking"
+        )
+    
+    # Users can only reschedule PENDING bookings
+    if booking["status"] != BookingStatus.PENDING.value:
+        raise HTTPException(
+            status_code=status.HTTP_400_BAD_REQUEST,
+            detail="Only pending bookings can be rescheduled. Please contact the service provider for confirmed bookings."
+        )
+    
+    # Validate new date is not in the past
+    now = datetime.utcnow()
+    new_date_only = reschedule_data.new_date.date()
+    today = now.date()
+    
+    if new_date_only < today:
+        raise HTTPException(
+            status_code=status.HTTP_400_BAD_REQUEST,
+            detail="Cannot reschedule to a past date"
+        )
+    
+    # For today's bookings, validate the slot hasn't passed
+    if new_date_only == today:
+        try:
+            start_time_str = reschedule_data.new_time_slot.split('-')[0].strip()
+            slot_hour, slot_minute = map(int, start_time_str.split(':'))
+        except (ValueError, IndexError):
+            raise HTTPException(
+                status_code=status.HTTP_400_BAD_REQUEST,
+                detail="Invalid time slot format"
+            )
+        
+        slot_datetime = datetime.combine(today, datetime.min.time().replace(hour=slot_hour, minute=slot_minute))
+        
+        if now > slot_datetime:
+            raise HTTPException(
+                status_code=status.HTTP_400_BAD_REQUEST,
+                detail="This time slot has already passed"
+            )
+    
+    # Check if same date/time (no change)
+    date_normalized = reschedule_data.new_date.replace(hour=0, minute=0, second=0, microsecond=0, tzinfo=timezone.utc)
+    current_date = booking["booking_date"].replace(hour=0, minute=0, second=0, microsecond=0)
+    
+    if date_normalized == current_date and reschedule_data.new_time_slot == booking.get("time_slot"):
+        raise HTTPException(
+            status_code=status.HTTP_400_BAD_REQUEST,
+            detail="Please select a different date or time slot"
+        )
+    
+    # Verify new time slot exists
+    slot_doc = mongo_db.find_one(
+        "availability_slots",
+        {
+            "profile_id": booking["profile_id"],
+            "date": date_normalized,
+            "time_slot": reschedule_data.new_time_slot
+        }
+    )
+    
+    if not slot_doc:
+        raise HTTPException(
+            status_code=status.HTTP_404_NOT_FOUND,
+            detail=f"Time slot {reschedule_data.new_time_slot} is not available"
+        )
+    
+    # Check if user already has an active booking for the new slot
+    if BookingRepository.user_has_active_booking_for_slot(
+        user_id=current_user.user_id,
+        profile_id=booking["profile_id"],
+        booking_date=date_normalized,
+        time_slot=reschedule_data.new_time_slot
+    ):
+        raise HTTPException(
+            status_code=status.HTTP_409_CONFLICT,
+            detail="You already have a booking for this time slot"
+        )
+    
+    # Check new slot capacity
+    confirmed_count = BookingRepository.count_confirmed_bookings_for_slot(
+        profile_id=booking["profile_id"],
+        booking_date=date_normalized,
+        time_slot=reschedule_data.new_time_slot
+    )
+    
+    if confirmed_count >= slot_doc["max_capacity"]:
+        raise HTTPException(
+            status_code=status.HTTP_400_BAD_REQUEST,
+            detail="This time slot is fully booked"
+        )
+    
+    # Store original date/time for notification
+    old_date = booking["booking_date"]
+    old_slot = booking.get("time_slot", "N/A")
+    
+    # Reschedule the booking
+    updated_booking = BookingRepository.reschedule_booking(
+        booking_id=booking_id,
+        new_date=reschedule_data.new_date,
+        new_time_slot=reschedule_data.new_time_slot,
+        notes=reschedule_data.notes
+    )
+    
+    # Notify owner about the reschedule
+    profile = ProfileRepository.get_profile(booking["profile_id"])
+    if profile:
+        owner_user = mongo_db.find_one("users", {"id": profile.get("owner_id")})
+        if owner_user and owner_user.get("email"):
+            background_tasks.add_task(
+                EmailService.send_owner_booking_rescheduled,
+                owner_email=owner_user["email"],
+                booking_ref=booking["booking_ref"],
+                customer_name=current_user.name,
+                profile_name=profile.get("name", "Unknown"),
+                old_date=old_date.strftime("%Y-%m-%d"),
+                old_time=old_slot,
+                new_date=date_normalized.strftime("%Y-%m-%d"),
+                new_time=reschedule_data.new_time_slot
+            )
+    
     return BookingResponse(**updated_booking)
 
 

@@ -178,20 +178,13 @@ export const profilesAPI = {
 
 // Bookings API
 export const bookingsAPI = {
-  create: (data: BookingCreate) =>
-    api.post<BookingRefResponse>('/bookings', data),
-
-  getUserBookings: () =>
-    api.get<Booking[]>('/bookings'),
-
-  getById: (id: string) =>
-    api.get<Booking>(`/bookings/${id}`),
-
-  getByRef: (ref: string) =>
-    api.get<Booking>(`/bookings/ref/${ref}`),
-
-  cancel: (id: string) =>
-    api.put<Booking>(`/bookings/${id}/cancel`),
+  create: (data: BookingCreate) => api.post<BookingRefResponse>('/bookings', data),
+  getByRef: (ref: string) => api.get<Booking>(`/bookings/ref/${ref}`),
+  getById: (id: string) => api.get<Booking>(`/bookings/${id}`),
+  listMine: () => api.get<Booking[]>('/bookings'),
+  cancel: (id: string) => api.put<Booking>(`/bookings/${id}/cancel`, {}),
+  reschedule: (id: string, data: { new_date: string; new_time_slot: string; notes?: string }) => 
+    api.put<Booking>(`/bookings/${id}/reschedule`, data),
 };
 
 // Owner API

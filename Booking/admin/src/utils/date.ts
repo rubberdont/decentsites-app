@@ -57,6 +57,15 @@ export function formatTimeSlot(slot: string): string {
 }
 
 /**
+ * Convert a time slot range to 12-hour format (alias for formatTimeSlot)
+ * @param slot - Time slot in "HH:mm-HH:mm" format (e.g., "14:00-15:00")
+ * @returns Time slot in "2:00 PM - 3:00 PM" format
+ */
+export function formatTime12Hour(slot: string): string {
+  return formatTimeSlot(slot);
+}
+
+/**
  * Check if a date is today
  * @param date - ISO date string or Date object
  */
@@ -168,4 +177,52 @@ export function formatDuration(minutes: number): string {
   }
   
   return `${hours}h ${remainingMinutes}m`;
+}
+
+/**
+ * Check if a time slot has passed (for today only)
+ * @param timeSlot Format: "14:00-14:45"
+ */
+export function isTimeSlotPast(timeSlot: string): boolean {
+  const now = new Date();
+  const [startTime] = timeSlot.split('-');
+  const [hours, minutes] = startTime.split(':').map(Number);
+  
+  const slotTime = new Date();
+  slotTime.setHours(hours, minutes, 0, 0);
+  
+  return slotTime < now;
+}
+
+/**
+ * Check if a date/time combination is in the past
+ */
+export function isPastDateTime(dateStr: string, timeSlot: string): boolean {
+  const date = new Date(dateStr);
+  const today = new Date();
+  today.setHours(0, 0, 0, 0);
+  
+  const selectedDate = new Date(dateStr);
+  selectedDate.setHours(0, 0, 0, 0);
+  
+  // Past date
+  if (selectedDate < today) {
+    return true;
+  }
+  
+  // Today - check time
+  if (isToday(dateStr)) {
+    return isTimeSlotPast(timeSlot);
+  }
+  
+  // Future date
+  return false;
+}
+
+/**
+ * Get minimum date for date picker (today in YYYY-MM-DD format)
+ */
+export function getMinDate(): string {
+  const today = new Date();
+  return today.toISOString().split('T')[0];
 }

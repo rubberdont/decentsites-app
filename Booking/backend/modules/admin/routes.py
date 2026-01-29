@@ -8,7 +8,7 @@ Provides endpoints for:
 - Activity logging
 """
 
-from fastapi import APIRouter, Depends, HTTPException, status as http_status, Query
+from fastapi import APIRouter, Depends, HTTPException, status as http_status, Query, BackgroundTasks
 from typing import Optional, List
 from datetime import datetime
 import math
@@ -70,7 +70,7 @@ def get_owner_profile_id(user_id: str) -> str:
     
     if not profile:
         raise HTTPException(
-            status_code=http_status.HTTP_404_NOT_FOUND,
+            status_code=http_http_status.HTTP_404_NOT_FOUND,
             detail="No profile found for this owner"
         )
     
@@ -95,13 +95,13 @@ def verify_booking_ownership(booking_id: str, profile_id: str) -> dict:
     
     if not booking:
         raise HTTPException(
-            status_code=http_status.HTTP_404_NOT_FOUND,
+            status_code=http_http_status.HTTP_404_NOT_FOUND,
             detail="Booking not found"
         )
     
     if booking.get("profile_id") != profile_id:
         raise HTTPException(
-            status_code=http_status.HTTP_403_FORBIDDEN,
+            status_code=http_http_status.HTTP_403_FORBIDDEN,
             detail="You don't have access to this booking"
         )
     
@@ -131,7 +131,7 @@ def verify_owner_can_access_booking(booking_id: str, profile_id: str, owner_user
     
     if not booking:
         raise HTTPException(
-            status_code=http_status.HTTP_404_NOT_FOUND,
+            status_code=http_http_status.HTTP_404_NOT_FOUND,
             detail="Booking not found"
         )
     
@@ -148,7 +148,7 @@ def verify_owner_can_access_booking(booking_id: str, profile_id: str, owner_user
     
     # Owner cannot access this booking
     raise HTTPException(
-        status_code=http_status.HTTP_403_FORBIDDEN,
+        status_code=http_http_status.HTTP_403_FORBIDDEN,
         detail="You don't have access to this booking"
     )
 
@@ -172,7 +172,7 @@ def verify_customer_has_bookings(customer_id: str, profile_id: str) -> bool:
     
     if not booking:
         raise HTTPException(
-            status_code=http_status.HTTP_404_NOT_FOUND,
+            status_code=http_http_status.HTTP_404_NOT_FOUND,
             detail="Customer not found or has no bookings with your profile"
         )
     
@@ -207,7 +207,7 @@ async def list_bookings(
     # Validate status if provided
     if status and status not in [s.value for s in BookingStatus]:
         raise HTTPException(
-            status_code=http_status.HTTP_400_BAD_REQUEST,
+            status_code=http_http_status.HTTP_400_BAD_REQUEST,
             detail=f"Invalid status. Must be one of: {[s.value for s in BookingStatus]}"
         )
     
@@ -297,7 +297,7 @@ async def get_booking(
         booking = AdminRepository.get_booking_with_details(booking_id)
         if not booking:
             raise HTTPException(
-                status_code=http_status.HTTP_404_NOT_FOUND,
+                status_code=http_http_status.HTTP_404_NOT_FOUND,
                 detail="Booking not found"
             )
     else:
@@ -330,7 +330,7 @@ async def approve_booking(
     # Validate current status
     if booking.get("status") != BookingStatus.PENDING.value:
         raise HTTPException(
-            status_code=http_status.HTTP_400_BAD_REQUEST,
+            status_code=http_http_status.HTTP_400_BAD_REQUEST,
             detail="Only pending bookings can be approved"
         )
     
@@ -375,7 +375,7 @@ async def reject_booking(
     # Validate current status
     if booking.get("status") != BookingStatus.PENDING.value:
         raise HTTPException(
-            status_code=http_status.HTTP_400_BAD_REQUEST,
+            status_code=http_http_status.HTTP_400_BAD_REQUEST,
             detail="Only pending bookings can be rejected"
         )
     
@@ -424,7 +424,7 @@ async def cancel_booking(
     allowed_statuses = [BookingStatus.PENDING.value, BookingStatus.CONFIRMED.value]
     if booking.get("status") not in allowed_statuses:
         raise HTTPException(
-            status_code=http_status.HTTP_400_BAD_REQUEST,
+            status_code=http_http_status.HTTP_400_BAD_REQUEST,
             detail="Only pending or confirmed bookings can be cancelled"
         )
     
@@ -463,7 +463,7 @@ async def complete_booking(
     # Validate current status
     if booking.get("status") != BookingStatus.CONFIRMED.value:
         raise HTTPException(
-            status_code=http_status.HTTP_400_BAD_REQUEST,
+            status_code=http_http_status.HTTP_400_BAD_REQUEST,
             detail="Only confirmed bookings can be marked as completed"
         )
     
@@ -502,7 +502,7 @@ async def mark_no_show(
     # Validate current status
     if booking.get("status") != BookingStatus.CONFIRMED.value:
         raise HTTPException(
-            status_code=http_status.HTTP_400_BAD_REQUEST,
+            status_code=http_http_status.HTTP_400_BAD_REQUEST,
             detail="Only confirmed bookings can be marked as no-show"
         )
     
@@ -528,9 +528,228 @@ async def mark_no_show(
 @router.put("/bookings/{booking_id}/reschedule")
 async def reschedule_booking(
     booking_id: str,
-    data: BookingRescheduleRequest,
-    current_user: UserCredentials = Depends(require_owner)
+    reschedule_data: BookingRescheduleRequest,
+    background_tasks: BackgroundTasks,
+    current_user: UserCredentials = Depends(require_owner),
 ):
+    """
+    Reschedule a booking (admin can reschedule PENDING or CONFIRMED bookings).
+    Includes validation, slot count management, and customer notification.
+    
+    Args:
+        booking_id: Booking ID
+        reschedule_data: New date and time slot with optional notes
+        current_user: Authenticated admin user
+        
+    Returns:
+        Success message with updated details
+        
+    Raises:
+        HTTPException: If validation fails or booking not found
+    """
+    from modules.bookings.repository import BookingRepository
+    from modules.profiles.repository import ProfileRepository
+    from modules.availability.repository import AvailabilityRepository
+    from modules.notifications.email_service import EmailService
+    from core.mongo_helper import mongo_db
+    
+    # Get booking
+    booking = AdminRepository.get_booking_by_id(booking_id)
+    if not booking:
+        raise HTTPException(
+            status_code=http_status.HTTP_404_NOT_FOUND,
+            detail="Booking not found"
+        )
+    
+    # Verify admin owns the profile
+    profile = ProfileRepository.get_profile(booking["profile_id"])
+    if not profile or profile.get("owner_id") != current_user.user_id:
+        raise HTTPException(
+            status_code=http_status.HTTP_403_FORBIDDEN,
+            detail="Not authorized to reschedule this booking"
+        )
+    
+    # Admin can reschedule PENDING or CONFIRMED bookings
+    if booking["status"] not in ["PENDING", "CONFIRMED"]:
+        raise HTTPException(
+            status_code=http_status.HTTP_400_BAD_REQUEST,
+            detail=f"Cannot reschedule booking with status {booking['status']}"
+        )
+    
+    # Validate new date is not in the past
+    now = datetime.utcnow()
+    new_date_only = reschedule_data.new_date.date()
+    today = now.date()
+    
+    if new_date_only < today:
+        raise HTTPException(
+            status_code=http_status.HTTP_400_BAD_REQUEST,
+            detail="Cannot reschedule to a past date"
+        )
+    
+    # For today's bookings, validate the slot hasn't passed
+    if reschedule_data.new_time_slot and new_date_only == today:
+        try:
+            start_time_str = reschedule_data.new_time_slot.split('-')[0].strip()
+            slot_hour, slot_minute = map(int, start_time_str.split(':'))
+        except (ValueError, IndexError):
+            raise HTTPException(
+                status_code=http_status.HTTP_400_BAD_REQUEST,
+                detail="Invalid time slot format"
+            )
+        
+        slot_datetime = datetime.combine(today, datetime.min.time().replace(hour=slot_hour, minute=slot_minute))
+        
+        if now > slot_datetime:
+            raise HTTPException(
+                status_code=http_status.HTTP_400_BAD_REQUEST,
+                detail="This time slot has already passed"
+            )
+    
+    # Normalize dates
+    date_normalized = reschedule_data.new_date.replace(hour=0, minute=0, second=0, microsecond=0)
+    current_date = booking["booking_date"].replace(hour=0, minute=0, second=0, microsecond=0)
+    
+    # Check if same date/time (no change)
+    if date_normalized == current_date and reschedule_data.new_time_slot == booking.get("time_slot"):
+        raise HTTPException(
+            status_code=http_status.HTTP_400_BAD_REQUEST,
+            detail="Please select a different date or time slot"
+        )
+    
+    # Verify new time slot exists
+    if reschedule_data.new_time_slot:
+        slot_doc = mongo_db.find_one(
+            "availability_slots",
+            {
+                "profile_id": booking["profile_id"],
+                "date": date_normalized,
+                "time_slot": reschedule_data.new_time_slot
+            }
+        )
+        
+        if not slot_doc:
+            raise HTTPException(
+                status_code=http_status.HTTP_404_NOT_FOUND,
+                detail=f"Time slot {reschedule_data.new_time_slot} is not available"
+            )
+        
+        # Check new slot capacity (only count CONFIRMED bookings)
+        confirmed_count = BookingRepository.count_confirmed_bookings_for_slot(
+            profile_id=booking["profile_id"],
+            booking_date=date_normalized,
+            time_slot=reschedule_data.new_time_slot
+        )
+        
+        # If this booking is CONFIRMED, we need to exclude it from the count
+        # (since we're moving it, not adding a new one)
+        if booking["status"] == "CONFIRMED":
+            # Check if we're moving from the same slot (shouldn't happen due to check above, but be safe)
+            if not (date_normalized == current_date and reschedule_data.new_time_slot == booking.get("time_slot")):
+                # We're moving to a different slot, so capacity check is straightforward
+                if confirmed_count >= slot_doc["max_capacity"]:
+                    raise HTTPException(
+                        status_code=http_status.HTTP_400_BAD_REQUEST,
+                        detail="This time slot is fully booked"
+                    )
+        else:
+            # PENDING booking - just check capacity normally
+            if confirmed_count >= slot_doc["max_capacity"]:
+                raise HTTPException(
+                    status_code=http_status.HTTP_400_BAD_REQUEST,
+                    detail="This time slot is fully booked"
+                )
+    
+    # Store original date/time for notification and notes
+    old_date = booking["booking_date"]
+    old_slot = booking.get("time_slot", "N/A")
+    
+    # Update slot counts if booking is CONFIRMED
+    if booking["status"] == "CONFIRMED" and booking.get("time_slot") and reschedule_data.new_time_slot:
+        # Decrement old slot count
+        old_slot_doc = mongo_db.find_one(
+            "availability_slots",
+            {
+                "profile_id": booking["profile_id"],
+                "date": current_date,
+                "time_slot": booking["time_slot"]
+            }
+        )
+        
+        if old_slot_doc:
+            AvailabilityRepository.decrement_booked_count(old_slot_doc["id"])
+        
+        # Increment new slot count
+        new_slot_doc = mongo_db.find_one(
+            "availability_slots",
+            {
+                "profile_id": booking["profile_id"],
+                "date": date_normalized,
+                "time_slot": reschedule_data.new_time_slot
+            }
+        )
+        
+        if new_slot_doc:
+            AvailabilityRepository.increment_booked_count(new_slot_doc["id"])
+    
+    # Reschedule the booking
+    AdminRepository.reschedule_booking(
+        booking_id=booking_id,
+        new_date=reschedule_data.new_date,
+        new_time_slot=reschedule_data.new_time_slot
+    )
+    
+    # Add admin note
+    note_text = f"Rescheduled from {old_date.strftime('%Y-%m-%d')} {old_slot} to {date_normalized.strftime('%Y-%m-%d')} {reschedule_data.new_time_slot}"
+    if reschedule_data.notes:
+        note_text += f" - {reschedule_data.notes}"
+    
+        AdminRepository.add_booking_note(
+        booking_id=booking_id,
+        note=note_text,
+        user_id=current_user.user_id
+    )
+    
+    # Log activity
+    AdminRepository.log_activity(
+        user_id=current_user.user_id,
+        action="reschedule_booking",
+        entity_type="booking",
+        entity_id=booking_id,
+        details={
+            "booking_id": booking_id,
+            "booking_ref": booking.get("booking_ref"),
+            "old_date": old_date.isoformat(),
+            "old_slot": old_slot,
+            "new_date": date_normalized.isoformat(),
+            "new_slot": reschedule_data.new_time_slot
+        },
+        profile_id=booking["profile_id"]
+    )
+    
+    # Notify customer if booking is CONFIRMED
+    if booking["status"] == "CONFIRMED":
+        customer = mongo_db.find_one("users", {"id": booking["user_id"]})
+        if customer and customer.get("email"):
+            background_tasks.add_task(
+                EmailService.send_customer_booking_rescheduled,
+                customer_email=customer["email"],
+                booking_ref=booking["booking_ref"],
+                profile_name=profile.get("name", "Unknown"),
+                old_date=old_date.strftime("%Y-%m-%d"),
+                old_time=old_slot,
+                new_date=date_normalized.strftime("%Y-%m-%d"),
+                new_time=reschedule_data.new_time_slot
+            )
+    
+    return {
+        "message": "Booking rescheduled successfully",
+        "booking_id": booking_id,
+        "old_date": old_date.strftime("%Y-%m-%d"),
+        "old_time": old_slot,
+        "new_date": date_normalized.strftime("%Y-%m-%d"),
+        "new_time": reschedule_data.new_time_slot
+    }
     """
     Reschedule a booking to a new date/time.
     
@@ -543,14 +762,14 @@ async def reschedule_booking(
     allowed_statuses = [BookingStatus.PENDING.value, BookingStatus.CONFIRMED.value]
     if booking.get("status") not in allowed_statuses:
         raise HTTPException(
-            status_code=http_status.HTTP_400_BAD_REQUEST,
+            status_code=http_http_status.HTTP_400_BAD_REQUEST,
             detail="Only pending or confirmed bookings can be rescheduled"
         )
     
     # Validate new date is in the future
     if data.new_date < datetime.utcnow():
         raise HTTPException(
-            status_code=http_status.HTTP_400_BAD_REQUEST,
+            status_code=http_http_status.HTTP_400_BAD_REQUEST,
             detail="New booking date must be in the future"
         )
     
@@ -671,7 +890,7 @@ async def get_customer(
     
     if not customer:
         raise HTTPException(
-            status_code=http_status.HTTP_404_NOT_FOUND,
+            status_code=http_http_status.HTTP_404_NOT_FOUND,
             detail="Customer not found"
         )
     
@@ -729,7 +948,7 @@ async def block_customer(
     # Check if already blocked
     if AdminRepository.is_customer_blocked(customer_id, profile_id):
         raise HTTPException(
-            status_code=http_status.HTTP_400_BAD_REQUEST,
+            status_code=http_http_status.HTTP_400_BAD_REQUEST,
             detail="Customer is already blocked"
         )
     
@@ -776,7 +995,7 @@ async def unblock_customer(
     # Check if actually blocked
     if not AdminRepository.is_customer_blocked(customer_id, profile_id):
         raise HTTPException(
-            status_code=http_status.HTTP_400_BAD_REQUEST,
+            status_code=http_http_status.HTTP_400_BAD_REQUEST,
             detail="Customer is not blocked"
         )
     
@@ -936,7 +1155,7 @@ async def get_analytics_overview(
     # Validate date range
     if start_date > end_date:
         raise HTTPException(
-            status_code=http_status.HTTP_400_BAD_REQUEST,
+            status_code=http_http_status.HTTP_400_BAD_REQUEST,
             detail="start_date must be before end_date"
         )
     
@@ -972,7 +1191,7 @@ async def get_booking_trends_by_range(
     # Validate date range
     if start_date > end_date:
         raise HTTPException(
-            status_code=http_status.HTTP_400_BAD_REQUEST,
+            status_code=http_http_status.HTTP_400_BAD_REQUEST,
             detail="start_date must be before end_date"
         )
     
@@ -1040,7 +1259,7 @@ async def get_peak_hours(
         # Validate date range
         if start_date > end_date:
             raise HTTPException(
-                status_code=http_status.HTTP_400_BAD_REQUEST,
+                status_code=http_http_status.HTTP_400_BAD_REQUEST,
                 detail="start_date must be before end_date"
             )
         

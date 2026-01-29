@@ -175,3 +175,65 @@ class EmailService:
         owner_sent = await EmailService.send_email(owner_email, owner_subject, owner_body, html)
         
         return customer_sent and owner_sent
+
+    @staticmethod
+    async def send_owner_booking_rescheduled(
+        owner_email: str,
+        booking_ref: str,
+        customer_name: str,
+        profile_name: str,
+        old_date: str,
+        old_time: str,
+        new_date: str,
+        new_time: str
+    ):
+        """Send email to owner when customer reschedules a booking."""
+        subject = f"Booking Rescheduled - {booking_ref}"
+        
+        html_content = f"""
+        <h2>Booking Rescheduled</h2>
+        <p>A customer has rescheduled their booking for <strong>{profile_name}</strong>.</p>
+        
+        <h3>Booking Details:</h3>
+        <ul>
+            <li><strong>Reference:</strong> {booking_ref}</li>
+            <li><strong>Customer:</strong> {customer_name}</li>
+            <li><strong>Original Date:</strong> {old_date} at {old_time}</li>
+            <li><strong>New Date:</strong> {new_date} at {new_time}</li>
+        </ul>
+        
+        <p>Please review the updated booking in your admin panel.</p>
+        """
+        
+        await EmailService.send_email(owner_email, subject, html_content, html_content)
+
+    @staticmethod
+    async def send_customer_booking_rescheduled(
+        customer_email: str,
+        booking_ref: str,
+        profile_name: str,
+        old_date: str,
+        old_time: str,
+        new_date: str,
+        new_time: str
+    ):
+        """Send email to customer when admin reschedules their booking."""
+        subject = f"Your Booking Has Been Rescheduled - {booking_ref}"
+        
+        html_content = f"""
+        <h2>Your Booking Has Been Rescheduled</h2>
+        <p>The service provider has rescheduled your booking for <strong>{profile_name}</strong>.</p>
+        
+        <h3>Updated Booking Details:</h3>
+        <ul>
+            <li><strong>Reference:</strong> {booking_ref}</li>
+            <li><strong>Original Date:</strong> {old_date} at {old_time}</li>
+            <li><strong>New Date:</strong> {new_date} at {new_time}</li>
+        </ul>
+        
+        <p>If you have any questions or concerns, please contact the service provider.</p>
+        
+        <p>Thank you for your understanding!</p>
+        """
+        
+        await EmailService.send_email(customer_email, subject, html_content, html_content)

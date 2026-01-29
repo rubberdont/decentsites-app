@@ -1,6 +1,9 @@
 'use client';
 
-import { useState, useEffect } from 'react';
+import { availabilityAPI } from '@/services/api';
+import { formatTime12Hour, isToday, isTimeSlotPast, isPastDateTime, getMinDate } from '@/utils/date';
+
+import { useState, useEffect, useMemo } from 'react';
 import Link from 'next/link';
 import { useParams } from 'next/navigation';
 import { Booking, BookingStatus } from '@/types';
@@ -9,6 +12,7 @@ import { Modal, LoadingSpinner } from '@/components/ui';
 import { BookingActionType } from '@/components/bookings/BookingActions';
 import { TimelineEvent } from '@/components/bookings/BookingTimeline';
 import { bookingsAPI } from '@/services/api';
+import { toast } from 'react-hot-toast';
 
 /**
  * Admin note structure from backend
@@ -145,6 +149,23 @@ export default function BookingDetailPage() {
   const [rescheduleDate, setRescheduleDate] = useState('');
   const [rescheduleTime, setRescheduleTime] = useState('');
 
+  const [availableSlots, setAvailableSlots] = useState<AvailabilitySlot[]>([]);
+  const [loadingSlots, setLoadingSlots] = useState(false);
+  const [selectedSlotId, setSelectedSlotId] = useState('');
+
+  // Filter slots to hide past time slots for today
+  const displaySlots = useMemo(() => {
+    if (!rescheduleDate || !availableSlots.length) return [];
+    
+    // If date is today, filter out past time slots
+    if (isToday(rescheduleDate)) {
+      return availableSlots.filter(slot => !isTimeSlotPast(slot.time_slot));
+    }
+    
+    // For future dates, show all slots
+    return availableSlots;
+  }, [rescheduleDate, availableSlots]);
+
   /**
    * Fetch booking data from API
    */
@@ -154,7 +175,7 @@ export default function BookingDetailPage() {
       setError(null);
       const response = await bookingsAPI.getById(bookingId);
       const bookingData = response.data as BookingWithNotes;
-      
+
       // Map backend field names to frontend field names if needed
       const normalizedBooking: BookingWithNotes = {
         ...bookingData,
@@ -162,7 +183,7 @@ export default function BookingDetailPage() {
         user_email: bookingData.customer_email || bookingData.user_email,
         service_name: bookingData.service_title || bookingData.service_name,
       };
-      
+
       setBooking(normalizedBooking);
       setTimelineEvents(buildTimelineEvents(normalizedBooking));
     } catch (err) {
@@ -189,6 +210,47 @@ export default function BookingDetailPage() {
     setNoteText('');
     setRescheduleDate('');
     setRescheduleTime('');
+  };
+
+  /**
+   * Handle action confirmation
+   */
+  // Load available slots when reschedule date changes
+  useEffect(() => {
+    if (rescheduleDate && booking?.profile_id) {
+      loadAvailableSlots();
+    } else {
+      setAvailableSlots([]);
+      setSelectedSlotId('');
+    }
+  }, [rescheduleDate, booking?.profile_id]);
+
+  const loadAvailableSlots = async () => {
+    if (!rescheduleDate || !booking?.profile_id) return;
+
+    setLoadingSlots(true);
+    setAvailableSlots([]);
+    setSelectedSlotId('');
+
+    try {
+      const date = new Date(rescheduleDate);
+      // Format date as ISO string (backend expects full ISO date)
+      const isoDate = `${rescheduleDate}T00:00:00.000Z`;
+
+      const slots = await availabilityAPI.getSlotsForDate(
+        booking.profile_id,
+        isoDate
+      );
+
+      console.log(slots.data.slots);
+
+      setAvailableSlots(slots.data.slots || []);
+    } catch (error) {
+      console.error('Failed to load availability slots:', error);
+      setAvailableSlots([]);
+    } finally {
+      setLoadingSlots(false);
+    }
   };
 
   /**
@@ -226,27 +288,53 @@ export default function BookingDetailPage() {
           await bookingsAPI.addNote(bookingId, noteText);
           break;
         case 'reschedule':
-          if (!rescheduleDate || !rescheduleTime) {
-            setActionError('Please select both date and time');
+          if (!rescheduleDate || !selectedSlotId) {
+            setActionError('Please select both date and time slot');
             setIsLoading(false);
             return;
           }
-          await bookingsAPI.reschedule(bookingId, {
-            booking_date: rescheduleDate,
-            time_slot: rescheduleTime,
-          });
+
+// Find the selected slot to get the time_slot value
+  const selectedSlot = availableSlots.find(slot => slot.id === selectedSlotId);
+  if (!selectedSlot) {
+    setActionError('Selected time slot is invalid');
+    setIsLoading(false);
+    return;
+  }
+
+  // Validate not in past
+  if (isPastDateTime(rescheduleDate, selectedSlot.time_slot)) {
+    toast.error('Cannot reschedule to a past date or time');
+    setIsLoading(false);
+    return;
+  }
+
+  try {
+            // Format date as ISO string
+            const isoDate = `${rescheduleDate}T00:00:00.000Z`;
+
+            await bookingsAPI.reschedule(bookingId, {
+              new_date: isoDate,
+              new_time_slot: selectedSlot.time_slot, // Use the 24-hour format from database
+            });
+          } catch (error: any) {
+            setActionError(error.response?.data?.detail || 'Failed to reschedule booking');
+            setIsLoading(false);
+            return;
+          }
           break;
         default:
           console.warn(`Unknown action: ${activeModal}`);
       }
 
       // Refresh booking data after successful action
-      await fetchBooking();
-      
+      toast.success('Booking rescheduled successfully');
       setActiveModal(null);
-      setNoteText('');
       setRescheduleDate('');
       setRescheduleTime('');
+      setSelectedSlotId('');
+      setAvailableSlots([]);
+      fetchBooking(); // Refresh booking data
     } catch (err: unknown) {
       console.error(`Action ${activeModal} failed:`, err);
       const errorMessage = err instanceof Error ? err.message : 'Action failed. Please try again.';
@@ -386,35 +474,100 @@ export default function BookingDetailPage() {
             <p className="text-admin-text-muted">
               Select a new date and time for this booking.
             </p>
-            <div className="grid grid-cols-2 gap-4">
-              <div>
-                <label className="block text-sm text-admin-text-muted mb-1">New Date</label>
-                <input
-                  type="date"
-                  value={rescheduleDate}
-                  onChange={(e) => setRescheduleDate(e.target.value)}
-                  className="admin-input"
-                />
+
+            {/* Current Booking Info */}
+            {booking && (
+              <div className="p-3 bg-admin-bg-secondary rounded-lg border border-admin-border">
+                <p className="text-sm font-medium text-admin-text mb-1">Current Booking:</p>
+                <p className="text-sm text-admin-text-muted">
+                  {new Date(booking.booking_date).toLocaleDateString()} at {booking.time_slot ? formatTime12Hour(booking.time_slot) : 'N/A'}
+                </p>
               </div>
-              <div>
-                <label className="block text-sm text-admin-text-muted mb-1">New Time</label>
-                <select
-                  value={rescheduleTime}
-                  onChange={(e) => setRescheduleTime(e.target.value)}
-                  className="admin-select"
-                >
-                  <option value="">Select time</option>
-                  <option value="9:00 AM">9:00 AM</option>
-                  <option value="10:00 AM">10:00 AM</option>
-                  <option value="11:00 AM">11:00 AM</option>
-                  <option value="12:00 PM">12:00 PM</option>
-                  <option value="1:00 PM">1:00 PM</option>
-                  <option value="2:00 PM">2:00 PM</option>
-                  <option value="3:00 PM">3:00 PM</option>
-                  <option value="4:00 PM">4:00 PM</option>
-                </select>
-              </div>
+            )}
+
+            {/* Date Picker */}
+            <div>
+              <label className="block text-sm font-medium text-admin-text mb-2">
+                Select New Date
+              </label>
+              <input
+                type="date"
+                value={rescheduleDate}
+                onChange={(e) => {
+                  setRescheduleDate(e.target.value);
+                  setSelectedSlotId(''); // Reset slot selection when date changes
+                }}
+                min={getMinDate()}
+                className="admin-input w-full"
+              />
             </div>
+
+            {/* Time Slot Selector */}
+            {rescheduleDate && (
+              <div>
+                <label className="block text-sm font-medium text-admin-text mb-2">
+                  Select New Time Slot
+                </label>
+
+                {loadingSlots ? (
+                  <div className="text-center py-8">
+                    <div className="inline-block animate-spin rounded-full h-8 w-8 border-b-2 border-admin-primary"></div>
+                    <p className="mt-2 text-sm text-admin-text-muted">Loading available slots...</p>
+                  </div>
+                ) : availableSlots.length === 0 ? (
+                  <div className="text-center py-8 bg-admin-bg-secondary rounded-lg border border-admin-border">
+                    <p className="text-admin-text-muted">No available slots for this date</p>
+                    <p className="text-sm text-admin-text-muted mt-1">Try selecting a different date</p>
+                  </div>
+                ) : (
+                  <div className="grid grid-cols-2 sm:grid-cols-3 gap-2 max-h-60 overflow-y-auto">
+                    {displaySlots.map((slot) => {
+                      const isAvailable = slot.is_available && slot.booked_count < slot.max_capacity;
+                      const isSelected = selectedSlotId === slot.id;
+
+                      return (
+                        <button
+                          key={slot.id}
+                          type="button"
+                          onClick={() => isAvailable && setSelectedSlotId(slot.id)}
+                          disabled={!isAvailable}
+                          className={` 
+                              px-3 py-3 rounded-lg border-2 text-sm font-medium transition-all text-left
+                              ${isSelected
+                              ? 'border-admin-primary bg-admin-primary/10 text-admin-primary'
+                              : isAvailable
+                                ? 'border-admin-border bg-admin-bg hover:border-admin-primary/50 hover:bg-admin-bg-hover text-admin-text'
+                                : 'border-admin-border bg-admin-bg-secondary text-admin-text-muted cursor-not-allowed opacity-60'
+                            }
+                            `}
+                        >
+                          <div className="font-semibold">
+                            {formatTime12Hour(slot.time_slot)}
+                          </div>
+                          <div className="text-xs mt-1">
+                            {isAvailable ? (
+                              <span className="text-green-600">
+                                {slot.max_capacity - slot.booked_count}/{slot.max_capacity} available
+                              </span>
+                            ) : (
+                              <span className="text-red-600">Fully booked</span>
+                            )}
+                          </div>
+                        </button>
+                      );
+                    })}
+                  </div>
+                )}
+              </div>
+            )}
+
+            {/* Helper text */}
+            {rescheduleDate && !loadingSlots && availableSlots.length > 0 && (
+              <p className="text-xs text-admin-text-muted">
+                Select a time slot to continue with rescheduling
+              </p>
+            )}
+
             {actionError && (
               <p className="text-red-500 text-sm">{actionError}</p>
             )}
@@ -427,7 +580,7 @@ export default function BookingDetailPage() {
               </button>
               <button
                 onClick={handleConfirmAction}
-                disabled={isLoading}
+                disabled={!rescheduleDate || !selectedSlotId || loadingSlots || isLoading}
                 className="px-4 py-2 rounded-lg bg-admin-primary text-white hover:bg-admin-primary-hover transition-colors disabled:opacity-50"
               >
                 {isLoading ? 'Processing...' : 'Reschedule'}

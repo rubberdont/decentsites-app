@@ -187,6 +187,19 @@ class AdminRepository:
         return bookings, total
     
     @staticmethod
+    def get_booking_by_id(booking_id: str) -> Optional[Dict[str, Any]]:
+        """
+        Get booking by ID (basic data without enrichment).
+        
+        Args:
+            booking_id: Booking ID
+            
+        Returns:
+            Booking document or None if not found
+        """
+        return mongo_db.find_one(AdminRepository.BOOKINGS, {"id": booking_id})
+    
+    @staticmethod
     def get_booking_with_details(booking_id: str) -> Optional[Dict[str, Any]]:
         """
         Get a single booking with full customer and service details.
