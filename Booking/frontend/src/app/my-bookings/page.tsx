@@ -5,7 +5,7 @@ import Link from 'next/link';
 import ProtectedRoute from '@/components/ProtectedRoute';
 import Footer from '@/components/Footer';
 import { bookingsAPI, profilesAPI } from '@/services/api';
-import { ConfirmationModal, useToast } from '@/components/ui';
+import { Button, ConfirmationModal, useToast } from '@/components/ui';
 import type { Booking, BusinessProfile, BookingStatus } from '@/types';
 
 interface BookingWithProfile extends Booking {
@@ -33,7 +33,7 @@ export default function MyBookingsPage() {
       setError(null);
       
       // Fetch user's bookings
-      const bookingsResponse = await bookingsAPI.getUserBookings();
+      const bookingsResponse = await bookingsAPI.listMine();
       const userBookings = bookingsResponse.data;
       
       // Fetch profile information for each booking
@@ -348,39 +348,43 @@ const handleConfirmCancel = async () => {
                             </button>
                           </Link>
                           {(booking.status === 'PENDING' || booking.status === 'CONFIRMED') && (
-                            {booking.status === 'PENDING' && (
-                              <div className="flex gap-2">
-                                <Button
-                                  variant="outline"
-                                  size="sm"
-                                  onClick={() => handleRescheduleClick(booking)}
-                                >
-                                  Reschedule
-                                </Button>
-                                <Button
-                                  variant="outline"
-                                  size="sm"
-                                  onClick={() => handleCancelBooking(booking.id)}
-                                >
-                                  Cancel
-                                </Button>
-                              </div>
-                            )}
-                            {booking.status === 'CONFIRMED' && (
-                              <div className="flex flex-col gap-2">
-                                <Button
-                                  variant="outline"
-                                  size="sm"
-                                  onClick={() => handleCancelBooking(booking.id)}
-                                >
-                                  Cancel Booking
-                                </Button>
-                                <p className="text-xs text-gray-500">
-                                  To reschedule, please contact the service provider
-                                </p>
-                              </div>
-                            )}
-                          </div>
+                            <>
+                              {booking.status === 'PENDING' && (
+                                <div className="flex gap-2">
+                                  <Button
+                                    variant="outline"
+                                    size="sm"
+                                    onClick={() => handleRescheduleClick(booking)}
+                                  >
+                                    Reschedule
+                                  </Button>
+                                  <Button
+                                    variant="outline"
+                                    size="sm"
+                                    onClick={() => handleCancelBooking(booking.id)}
+                                  >
+                                    Cancel
+                                  </Button>
+                                </div>
+                              )}
+                              {booking.status === 'CONFIRMED' && (
+                                <div className="flex flex-col gap-2">
+                                  <Button
+                                    variant="outline"
+                                    size="sm"
+                                    onClick={() => handleCancelBooking(booking.id)}
+                                  >
+                                    Cancel Booking
+                                  </Button>
+                                  <p className="text-xs text-gray-500">
+                                    To reschedule, please contact the service provider
+                                  </p>
+                                </div>
+                              )}
+                            </>
+                          )}
+                                                  </div>
+
                         </div>
                       </div>
                     );
