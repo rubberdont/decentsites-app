@@ -31,11 +31,11 @@ export default function MyBookingsPage() {
     try {
       setLoading(true);
       setError(null);
-      
+
       // Fetch user's bookings
       const bookingsResponse = await bookingsAPI.listMine();
       const userBookings = bookingsResponse.data;
-      
+
       // Fetch profile information for each booking
       const bookingsWithProfiles = await Promise.all(
         userBookings.map(async (booking) => {
@@ -54,7 +54,7 @@ export default function MyBookingsPage() {
           }
         })
       );
-      
+
       setBookings(bookingsWithProfiles);
     } catch (err) {
       console.error('Failed to load bookings:', err);
@@ -73,54 +73,54 @@ export default function MyBookingsPage() {
   };
 
   const handleCancelBooking = (bookingId: string) => {
-  openCancelModal(bookingId);
-};
+    openCancelModal(bookingId);
+  };
 
-const handleRescheduleClick = (booking: Booking) => {
-  setBookingToReschedule(booking);
-  setRescheduleModalOpen(true);
-};
+  const handleRescheduleClick = (booking: Booking) => {
+    setBookingToReschedule(booking);
+    setRescheduleModalOpen(true);
+  };
 
-const handleRescheduleConfirm = async (newDate: string, newTimeSlot: string) => {
-  if (!bookingToReschedule) return;
-  
-  try {
-    await bookingsAPI.reschedule(bookingToReschedule.id, {
-      new_date: newDate,
-      new_time_slot: newTimeSlot,
-    });
-    
-    showToast('Booking rescheduled successfully!', 'success');
-    setRescheduleModalOpen(false);
-    setBookingToReschedule(null);
-    
-    // Refresh bookings
-    loadBookings();
-  } catch (error: any) {
-    showToast(
-      error.response?.data?.detail || 'Failed to reschedule booking',
-      'error'
-    );
-  }
-};
+  const handleRescheduleConfirm = async (newDate: string, newTimeSlot: string) => {
+    if (!bookingToReschedule) return;
 
-const handleConfirmCancel = async () => {
-  if (!bookingToCancel) return;
+    try {
+      await bookingsAPI.reschedule(bookingToReschedule.id, {
+        new_date: newDate,
+        new_time_slot: newTimeSlot,
+      });
 
-  try {
-    setCancellingId(bookingToCancel);
-    await bookingsAPI.cancel(bookingToCancel);
-    closeCancelModal();
-    showToast('Booking cancelled successfully', 'success');
-    // Refresh bookings list
-    await loadBookings();
-  } catch (err) {
-    console.error('Failed to cancel booking:', err);
-    showToast('Failed to cancel booking. Please try again.', 'error');
-  } finally {
-    setCancellingId(null);
-  }
-};
+      showToast('Booking rescheduled successfully!', 'success');
+      setRescheduleModalOpen(false);
+      setBookingToReschedule(null);
+
+      // Refresh bookings
+      loadBookings();
+    } catch (error: any) {
+      showToast(
+        error.response?.data?.detail || 'Failed to reschedule booking',
+        'error'
+      );
+    }
+  };
+
+  const handleConfirmCancel = async () => {
+    if (!bookingToCancel) return;
+
+    try {
+      setCancellingId(bookingToCancel);
+      await bookingsAPI.cancel(bookingToCancel);
+      closeCancelModal();
+      showToast('Booking cancelled successfully', 'success');
+      // Refresh bookings list
+      await loadBookings();
+    } catch (err) {
+      console.error('Failed to cancel booking:', err);
+      showToast('Failed to cancel booking. Please try again.', 'error');
+    } finally {
+      setCancellingId(null);
+    }
+  };
 
   // Check if a booking date is upcoming
   const isUpcoming = (dateString: string): boolean => {
@@ -128,7 +128,7 @@ const handleConfirmCancel = async () => {
   };
 
   // Filter bookings based on active tab
-  const filteredBookings = bookings.filter(booking => 
+  const filteredBookings = bookings.filter(booking =>
     activeTab === 'upcoming' ? isUpcoming(booking.booking_date) : !isUpcoming(booking.booking_date)
   );
 
@@ -209,7 +209,7 @@ const handleConfirmCancel = async () => {
       <div className="relative flex min-h-screen w-full flex-col bg-[#1a1a1a] overflow-x-hidden">
         <main className="px-4 py-5 sm:px-10 lg:px-20 xl:px-40 flex flex-1 justify-center">
           <div className="flex flex-col w-full max-w-[960px] flex-1">
-            
+
             {/* Page Heading */}
             <div className="flex flex-wrap justify-between gap-3 p-4">
               <h1 className="text-[#eaeaea] text-4xl font-black leading-tight tracking-tight min-w-72">
@@ -222,21 +222,19 @@ const handleConfirmCancel = async () => {
               <div className="flex border-b border-[#444444] px-4 gap-8">
                 <button
                   onClick={() => setActiveTab('upcoming')}
-                  className={`flex flex-col items-center justify-center border-b-[3px] pb-[13px] pt-4 transition-colors ${
-                    activeTab === 'upcoming'
-                      ? 'border-b-[#d4af37] text-[#eaeaea]'
-                      : 'border-b-transparent text-[#a0a0a0] hover:text-[#c0c0c0]'
-                  }`}
+                  className={`flex flex-col items-center justify-center border-b-[3px] pb-[13px] pt-4 transition-colors ${activeTab === 'upcoming'
+                    ? 'border-b-[#d4af37] text-[#eaeaea]'
+                    : 'border-b-transparent text-[#a0a0a0] hover:text-[#c0c0c0]'
+                    }`}
                 >
                   <span className="text-sm font-bold leading-normal tracking-wide">Upcoming</span>
                 </button>
                 <button
                   onClick={() => setActiveTab('past')}
-                  className={`flex flex-col items-center justify-center border-b-[3px] pb-[13px] pt-4 transition-colors ${
-                    activeTab === 'past'
-                      ? 'border-b-[#d4af37] text-[#eaeaea]'
-                      : 'border-b-transparent text-[#a0a0a0] hover:text-[#c0c0c0]'
-                  }`}
+                  className={`flex flex-col items-center justify-center border-b-[3px] pb-[13px] pt-4 transition-colors ${activeTab === 'past'
+                    ? 'border-b-[#d4af37] text-[#eaeaea]'
+                    : 'border-b-transparent text-[#a0a0a0] hover:text-[#c0c0c0]'
+                    }`}
                 >
                   <span className="text-sm font-bold leading-normal tracking-wide">Past</span>
                 </button>
@@ -299,7 +297,7 @@ const handleConfirmCancel = async () => {
               <div className="flex flex-col gap-4 p-4">
                 {filteredBookings.map((booking) => {
                   const service = booking.profile?.services?.find(s => s.id === booking.service_id);
-                  
+
                   return (
                     <div
                       key={booking.id}
@@ -317,18 +315,16 @@ const handleConfirmCancel = async () => {
                           <p className="text-[#eaeaea] text-lg font-bold leading-tight">
                             {service?.title || 'Service'}
                           </p>
-                          <p className="text-[#a0a0a0] text-sm font-normal leading-normal">
-                            at {booking.profile?.name || 'Business'}
-                          </p>
-                          <p className="text-[#666666] text-xs mt-1">
+
+                          <p className="text-[#a0a0a0] text-sm mt-1">
                             Ref: {booking.booking_ref}
                           </p>
                         </div>
                       </div>
 
                       {/* Center: Date & Time */}
-                      <div className="flex-grow flex items-center justify-start md:justify-center">
-                        <div className="flex flex-col gap-1 text-left">
+                      <div className="flex items-center justify-center w-64 flex-shrink-0">
+                        <div className="flex flex-col gap-1 text-center">
                           <p className="text-[#eaeaea] text-base font-bold leading-tight">
                             {formatDateOnly(booking.booking_date)}
                           </p>
@@ -339,14 +335,16 @@ const handleConfirmCancel = async () => {
                       </div>
 
                       {/* Right: Status & Actions */}
-                      <div className="flex flex-col items-start md:items-end justify-between gap-4">
+                      <div className="flex flex-col items-start md:items-end justify-between gap-4 w-72 flex-shrink-0">
                         {getStatusBadge(booking.status)}
                         <div className="flex items-center gap-2">
-                          <Link href="/book">
-                            <button className="flex min-w-[84px] cursor-pointer items-center justify-center overflow-hidden rounded-lg h-9 px-4 bg-[#333333] hover:bg-[#444444] text-[#eaeaea] text-sm font-medium leading-normal transition-colors border border-[#444444]">
-                              <span className="truncate">Book Again</span>
-                            </button>
-                          </Link>
+                          {booking.status !== 'PENDING' && booking.status !== 'REJECTED' && (
+                            <Link href="/book">
+                              <button className="flex min-w-[84px] cursor-pointer items-center justify-center overflow-hidden rounded-lg h-9 px-4 bg-[#333333] hover:bg-[#444444] text-[#eaeaea] text-sm font-medium leading-normal transition-colors border border-[#444444]">
+                                <span className="truncate">Book Again</span>
+                              </button>
+                            </Link>
+                          )}
                           {(booking.status === 'PENDING' || booking.status === 'CONFIRMED') && (
                             <>
                               {booking.status === 'PENDING' && (
@@ -355,13 +353,14 @@ const handleConfirmCancel = async () => {
                                     variant="outline"
                                     size="sm"
                                     onClick={() => handleRescheduleClick(booking)}
-                                  >
+                                    className="border-[#d4af37] text-[#d4af37] bg-[#d4af37]/10 hover:bg-[#d4af37]/20 hover:text-[#c9a030]">
                                     Reschedule
                                   </Button>
                                   <Button
                                     variant="outline"
                                     size="sm"
                                     onClick={() => handleCancelBooking(booking.id)}
+                                    className="border-red-500 text-red-400 bg-red-500/10 hover:bg-red-600/20 hover:text-red-300"
                                   >
                                     Cancel
                                   </Button>
@@ -373,23 +372,21 @@ const handleConfirmCancel = async () => {
                                     variant="outline"
                                     size="sm"
                                     onClick={() => handleCancelBooking(booking.id)}
+                                    className="border-red-500 text-red-400 bg-red-500/10 hover:bg-red-600/20 hover:text-red-300"
                                   >
-                                    Cancel Booking
+                                    Cancel
                                   </Button>
-                                  <p className="text-xs text-gray-500">
-                                    To reschedule, please contact the service provider
-                                  </p>
                                 </div>
                               )}
                             </>
                           )}
-                                                  </div>
-
                         </div>
+
                       </div>
-                    );
-                  })}
-                </div>
+                    </div>
+                  );
+                })}
+              </div>
             )}
 
             {/* Empty State */}
